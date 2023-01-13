@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="%highlight{[%t] [%-5level] [%c{-5}] - %msg%n}{FATAL=red blink, ERROR=red, WARN=yellow blink, INFO=black, DEBUG=blue, TRACE=black}" />
+        </Console>
+        <File name="MyFile" fileName="all.log" immediateFlush="false" append="false">
+            <PatternLayout pattern="%d{ISO8601} [%t] [%-5level] [%c{-5}] - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="warn">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="MyFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

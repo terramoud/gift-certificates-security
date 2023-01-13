@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(":model")
+    implementation project(":service-api")
+    implementation project(":service-impl")
+    implementation project(":repository-api")
+    implementation project(":repository-impl")
+    implementation project(":exception")
+}

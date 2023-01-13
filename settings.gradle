@@ -1,0 +1,15 @@
+pluginManagement {
+	repositories {
+		maven { url 'https://repo.spring.io/milestone' }
+		maven { url 'https://repo.spring.io/snapshot' }
+		gradlePluginPortal()
+	}
+}
+rootProject.name = 'gift-certificates-advanced'
+include 'application'
+include 'model'
+include 'service-api'
+include 'service-impl'
+include 'repository-api'
+include 'repository-impl'
+include 'exception'

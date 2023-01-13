@@ -1,0 +1,21 @@
+dependencies {
+    implementation project(":model")
+    implementation project(":repository-impl")
+    implementation project(":repository-api")
+    implementation project(":service-api")
+    implementation project(":exception")
+    // implementation project(":application") // => if it will be added then:
+    /** Exception is:
+     org.gradle.api.CircularReferenceException: Circular dependency between the following tasks:
+     :application:classes
+     \--- :application:compileJava
+     \--- :service-impl:jar
+     +--- :service-impl:classes
+     |    \--- :service-impl:compileJava
+     |         \--- :application:jar
+     |              +--- :application:classes (*)
+     |              \--- :application:compileJava (*)
+     \--- :service-impl:compileJava (*)
+     */
+}
+
