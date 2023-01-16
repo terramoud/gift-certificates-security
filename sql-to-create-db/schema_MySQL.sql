@@ -9,7 +9,7 @@ USE gift_certificates;
 -- -----------------------------------------------------
 -- Table certificate
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS certificate
+CREATE TABLE IF NOT EXISTS certificates
 (
     PRIMARY KEY (id),
     id               INT           NOT NULL AUTO_INCREMENT,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS certificate
 
 CREATE TRIGGER do_immutable_create_date
     BEFORE UPDATE
-    ON certificate
+    ON certificates
     FOR EACH ROW
 BEGIN
     SET NEW.create_date = OLD.create_date;
@@ -33,7 +33,7 @@ END;
 -- -----------------------------------------------------
 -- Table tag
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS tag
+CREATE TABLE IF NOT EXISTS tags
 (
     PRIMARY KEY (id),
     id   INT         NOT NULL AUTO_INCREMENT,
@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS certificates_tags
     certificate_id INT NOT NULL,
     tag_id         INT NOT NULL,
     FOREIGN KEY (certificate_id)
-        REFERENCES certificate (id)
+        REFERENCES certificates (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (tag_id)
-        REFERENCES tag (id)
+        REFERENCES tags (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -63,67 +63,67 @@ CREATE TABLE IF NOT EXISTS certificates_tags
 -- -----------------------------------------------------
 -- fill certificate
 -- -----------------------------------------------------
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'standard', 'standard level gift certificate', 999.99, 180, '2023-01-02T07:37:14.974',
         '2023-01-02T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'standard plus', 'standard plus level gift certificate', 699.99, 120, '2023-01-03T07:37:14.974',
         '2023-01-03T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'standard extra', 'standard extra level gift certificate', 1099.99, 120, '2023-01-04T07:37:14.974',
         '2023-01-04T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'VIP', 'VIP level gift certificate', 1099.99, 120, '2023-01-05T07:37:14.974',
         '2023-01-05T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'base', 'base level gift certificate', 1099.99, 120, '2023-01-06T07:37:14.974',
         '2023-01-06T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'premium', 'premium level gift certificate', 1099.99, 120, '2023-01-07T07:37:14.974',
         '2023-01-07T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'gold', 'gold level gift certificate', 1099.99, 120, '2023-01-08T07:37:14.974',
         '2023-01-08T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'platinum', 'platinum level gift certificate', 1099.99, 120, '2023-01-09T07:37:14.974',
         '2023-01-09T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'New Year edition', 'New Year edition gift certificate', 1099.99, 120, '2023-01-01T07:37:14.974',
         '2023-01-01T07:37:14.974');
-INSERT INTO certificate
+INSERT INTO certificates
 VALUES (DEFAULT, 'some certificate', 'some certificate for some days', 1099.99, 120, '2023-01-10T07:37:14.974',
         '2023-01-10T07:37:14.974');
 
 -- -----------------------------------------------------
 -- fill tag
 -- -----------------------------------------------------
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'language courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'dancing courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'diving courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'martial arts courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'driving courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'drawing courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'fighting courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'yoga courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'airplane flying courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'other courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'swimming courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'survive courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'math courses');
-INSERT INTO tag
+INSERT INTO tags
 VALUES (DEFAULT, 'hunting courses');
 
 -- -----------------------------------------------------
