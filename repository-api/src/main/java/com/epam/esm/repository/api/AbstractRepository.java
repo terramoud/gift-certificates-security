@@ -6,11 +6,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
+
 public abstract class AbstractRepository<T extends AbstractEntity, N> implements BaseRepository<T, N> {
 
     @PersistenceContext
     protected EntityManager entityManager;
-    protected Class<T> entity;
+    protected final Class<T> entity;
+
+    protected AbstractRepository(Class<T> entity) {
+        this.entity = entity;
+    }
 
     @Override
     public Optional<T> findById(N id) {
