@@ -1,15 +1,14 @@
 package com.epam.esm.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represents relevant entity from database's table
@@ -17,8 +16,12 @@ import java.util.Objects;
  * @author Oleksadr Koreshev
  * @since 1.0
  */
+
 @Entity
 @Table(name = "certificates")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class Certificate extends AbstractEntity {
     private static final String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
@@ -54,9 +57,6 @@ public class Certificate extends AbstractEntity {
     )
     private List<Tag> tags;
 
-    public Certificate() {
-    }
-
     public Certificate(Long id,
                        String name,
                        String description,
@@ -75,104 +75,11 @@ public class Certificate extends AbstractEntity {
         this.tags = tags;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-
-    @JsonFormat(pattern = PATTERN)
-    public LocalDateTime getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(String createDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN)
-                .withZone(ZoneId.of("UTC"));
-        this.createDate = LocalDateTime.parse(createDate, formatter);
-    }
-
-    public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
-    }
-
-    @JsonFormat(pattern = PATTERN)
-    public LocalDateTime getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(String lastUpdateDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN)
-                .withZone(ZoneId.of("UTC"));
-        this.lastUpdateDate = LocalDateTime.parse(lastUpdateDate, formatter);
-    }
-
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
     public void addTagsToCertificate(Tag tag) {
         if (tags == null) tags = new ArrayList<>();
         tags.add(tag);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, price, duration, createDate, lastUpdateDate);
-    }
-
-    @Override
-    public String toString() {
-        return "Certificate{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", duration=" + duration +
-                ", createDate=" + createDate +
-                ", lastUpdateDate=" + lastUpdateDate +
-                "} " + super.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Certificate that = (Certificate) o;
-        return id.equals(that.id) &&
-                duration.equals(that.duration) &&
-                name.equals(that.name) &&
-                description.equals(that.description) &&
-                price.equals(that.price) &&
-                createDate.equals(that.createDate) &&
-                lastUpdateDate.equals(that.lastUpdateDate);
-    }
-
-
 }
+
+
+
