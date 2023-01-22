@@ -9,11 +9,19 @@ import org.springframework.stereotype.Component;
 public class TagDtoConverter {
 
     public Tag toTag(TagDto dto) {
-        return new Tag(dto.getId(), dto.getName());
+        Tag tag = new Tag();
+        tag.setId(dto.getId());
+        tag.setName(dto.getName());
+        tag.setCertificates(dto.getCertificates());
+        return tag;
     }
 
     public TagDto toDto(Tag tag) {
-        return new TagDto(tag.getId(), tag.getName());
+        TagDto tagDto = new TagDto();
+        tagDto.setId(tag.getId());
+        tagDto.setName(tag.getName());
+        tagDto.setCertificates(tag.getCertificates());
+        return tagDto;
     }
 }
 
