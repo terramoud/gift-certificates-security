@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS tags
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS certificates_tags
 (
-    PRIMARY KEY (certificate_id, tag_id),
     certificate_id INT NOT NULL,
     tag_id         INT NOT NULL,
     FOREIGN KEY (certificate_id)
