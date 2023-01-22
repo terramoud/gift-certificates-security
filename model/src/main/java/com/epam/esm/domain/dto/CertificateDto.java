@@ -2,11 +2,12 @@ package com.epam.esm.domain.dto;
 
 import com.epam.esm.domain.entity.Tag;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -24,9 +25,10 @@ public class CertificateDto {
     @JsonFormat(pattern = PATTERN)
     private LocalDateTime lastUpdateDate;
 
-    private List<Tag> tags;
+    @JsonIgnore
+    private Set<Tag> tags;
 
-    public CertificateDto(Long id, String name, String description, BigDecimal price, Integer duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
+    public CertificateDto(Long id, String name, String description, BigDecimal price, Integer duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
