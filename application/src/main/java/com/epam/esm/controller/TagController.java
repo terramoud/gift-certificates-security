@@ -82,14 +82,14 @@ public class TagController {
 
     @PostMapping
     public ResponseEntity<TagDto> addTag(@RequestBody TagDto tagDto) {
-        Tag addedTag = tagService.addTag(converter.toTag(tagDto));
+        Tag tag = converter.toTag(tagDto);
+        Tag addedTag = tagService.addTag(tag);
         return new ResponseEntity<>(converter.toDto(addedTag), HttpStatus.CREATED);
     }
 
     @PutMapping("/{tag-id}")
-    public ResponseEntity<TagDto> updateTagById(
-            @PathVariable("tag-id") Long tagId,
-            @RequestBody TagDto tagDto) {
+    public ResponseEntity<TagDto> updateTagById(@PathVariable("tag-id") Long tagId,
+                                                @RequestBody TagDto tagDto) {
         Tag updatedTag = tagService.updateTagById(tagId, converter.toTag(tagDto));
         return new ResponseEntity<>(converter.toDto(updatedTag), HttpStatus.OK);
     }

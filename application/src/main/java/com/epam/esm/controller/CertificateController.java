@@ -55,7 +55,7 @@ public class CertificateController {
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<Tag> tags = tagService.getAllTagsByCertificateId(allRequestParameters, page, size, certificateId);
+        List<Tag> tags = tagService.getAllTagsByCertificateId(allRequestParameters, size, page, certificateId);
         List<TagDto> tagDtoList = tags.stream()
                 .map(tagConverter::toDto)
                 .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public class CertificateController {
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<Tag> tags = tagService.getAllTagsByCertificateName(allRequestParameters, page, size, certificateName);
+        List<Tag> tags = tagService.getAllTagsByCertificateName(allRequestParameters, size, page, certificateName);
         List<TagDto> tagDtoList = tags.stream()
                 .map(tagConverter::toDto)
                 .collect(Collectors.toList());
