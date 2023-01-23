@@ -1,8 +1,8 @@
 package com.epam.esm.repository.api;
 
-import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.entity.User;
 
 
-public interface UserRepository extends BaseRepository<Tag, Long> {
+public interface UserRepository extends BaseRepository<User, Long> {
 
 }
