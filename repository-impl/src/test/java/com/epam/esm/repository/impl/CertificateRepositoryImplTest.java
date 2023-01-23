@@ -2,6 +2,7 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.RepositoryTestConfig;
 import com.epam.esm.config.TestCertificates;
+import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.CertificateRepository;
@@ -43,6 +44,7 @@ class CertificateRepositoryImplTest {
     @AfterEach
     void tearDown() {
     }
+
 
     /**
      * @see CertificateRepositoryImpl#findAll(LinkedMultiValueMap, Pageable)
@@ -137,12 +139,16 @@ class CertificateRepositoryImplTest {
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
-        TestCertificates tc = new TestCertificates();
-        tc.certificate1.setName("updated certificate");
-        tc.certificate1.setLastUpdateDate(LocalDateTime.now());
-        Certificate updatedCertificate = certificateRepository.update(tc.certificate1, 1L);
+        TestTags tt = new TestTags();
+        Certificate certificate = certificateRepository.findById(1L).get();
+        certificate.setName("updated certificate");
+        certificate.setLastUpdateDate(LocalDateTime.now());
+        certificate.addTags(Set.of(tt.tag10, tt.tag12));
+        Certificate updatedCertificate = certificateRepository.update(certificate, 1L);
         Certificate expected = certificateRepository.findById(1L).get();
+        System.out.println("expected = " + expected.getTags());
         assertEquals(expected, updatedCertificate);
+        assertEquals(expected.getTags(), updatedCertificate.getTags());
     }
 
     /**
