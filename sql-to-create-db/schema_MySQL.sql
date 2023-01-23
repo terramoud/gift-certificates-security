@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS orders
     PRIMARY KEY (id),
     id                  INT UNSIGNED AUTO_INCREMENT,
     cost                DECIMAL(9, 2) NOT NULL,
-    purchase_time       DATETIME      NOT NULL,
+    create_date         DATETIME      NOT NULL,
     user_id             INT UNSIGNED,
     gift_certificate_id INT UNSIGNED,
     FOREIGN KEY (gift_certificate_id)
@@ -243,17 +243,8 @@ INSERT INTO users VALUES (DEFAULT, 'Trinity');
 -- -----------------------------------------------------
 -- fill Orders
 -- -----------------------------------------------------
-INSERT INTO orders
-VALUES (DEFAULT, 10.1, '2023-01-03T07:37:14.974', 1, 1);
-
-INSERT INTO orders
-VALUES (DEFAULT, 30.3, '2023-01-04T07:37:14.974', 1, 2);
-
-INSERT INTO orders
-VALUES (DEFAULT, 20.2, '2023-01-05T07:37:14.974', 2, 1);
-
-INSERT INTO orders
-VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
-
-INSERT INTO orders
-VALUES (DEFAULT, 300.99, '2023-01-05T09:37:14.974', 2, 3);
+INSERT INTO orders VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
+INSERT INTO orders VALUES (DEFAULT, 30.30, '2023-01-04T07:37:14.974', 1, 2);
+INSERT INTO orders VALUES (DEFAULT, 20.20, '2023-01-05T07:37:14.974', 2, 1);
+INSERT INTO orders VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
+INSERT INTO orders VALUES (DEFAULT, 300.99, '2023-01-05T09:37:14.974', 2, 3);
