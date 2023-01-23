@@ -89,7 +89,7 @@ class TagRepositoryImplTest {
                         "%' " + andNameEqualsTagName + " ORDER BY t.id ASC", Tag.class).getResultList();
         List<Tag> expected = List.of(tagListByBySearchPartOfName.stream()
                 .sorted(tagComparator)
-                .skip(0)
+                .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .toArray(Tag[]::new));
         List<Tag> tags = tagRepository.findAll(fields, pageable);
