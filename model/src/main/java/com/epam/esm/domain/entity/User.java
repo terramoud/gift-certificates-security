@@ -25,4 +25,9 @@ public class User extends AbstractEntity implements Serializable {
 
     @Column(name = "login", nullable = false, unique = true)
     private String login;
+
+    public User(Long id, String login) {
+        this.id = id;
+        this.login = login;
+    }
 }
