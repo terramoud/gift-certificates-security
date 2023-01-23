@@ -1,8 +1,6 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.domain.entity.Certificate;
-import com.epam.esm.domain.entity.Tag;
-import com.epam.esm.repository.api.TagRepository;
+import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,15 +21,17 @@ import java.util.stream.Collectors;
 public class UserRepositoryImpl implements UserRepository {
 
     private static final Logger LOG = LogManager.getLogger(UserRepositoryImpl.class);
-    public static final String TAG_ID = "id";
-    public static final String TAG_NAME = "name";
-    public static final String SORT_REQUEST_PARAMETER = "sort";
+    public static final String USER_ID = "id";
+    public static final String USER_LOGIN = "login";
+    public static final String SORT_REQUEST_PARAM = "sort";
+    public static final String SEARCH_REQUEST_PARAM = "search";
+    public static final String FILTER_KEY_LOGIN = "login";
 
-    private final Map<String, BiFunction<CriteriaBuilder, Root<Tag>, Order>> sortBy = Map.of(
-            "+name", (cb, root) -> cb.asc(root.get(TAG_NAME)),
-            "-name", (cb, root) -> cb.desc(root.get(TAG_NAME)),
-            "+id", (cb, root) -> cb.asc(root.get(TAG_ID)),
-            "-id", (cb, root) -> cb.desc(root.get(TAG_ID))
+    private final Map<String, BiFunction<CriteriaBuilder, Root<User>, Order>> sortBy = Map.of(
+            "+login", (cb, root) -> cb.asc(root.get(USER_LOGIN)),
+            "-login", (cb, root) -> cb.desc(root.get(USER_LOGIN)),
+            "+id", (cb, root) -> cb.asc(root.get(USER_ID)),
+            "-id", (cb, root) -> cb.desc(root.get(USER_ID))
     );
 
     @PersistenceContext
@@ -41,62 +41,31 @@ public class UserRepositoryImpl implements UserRepository {
 
     }
 
-    public Optional<Tag> findById(Long id) {
-        return Optional.ofNullable(em.find(Tag.class, id));
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(em.find(User.class, id));
     }
 
-    public Tag save(Tag entity) {
+    @Override
+    public User save(User entity) {
         em.persist(entity);
         return entity;
     }
 
     @Override
-    public Tag update(Tag entity, Long id) {
+    public User update(User entity, Long id) {
         return em.merge(entity);
     }
 
     @Override
-    public void delete(Tag entity) {
+    public void delete(User entity) {
         em.remove(entity);
     }
 
-    public List<Tag> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable) {
+    public List<User> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-    public List<Tag> findAllTagsByCertificateId(LinkedMultiValueMap<String, String> fields,
-                                                Pageable pageable,
-                                                Long certificateId) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Tag, Certificate> certificatesTags = root.join("certificates");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("id"), certificateId));
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-
-
-    public List<Tag> findAllTagsByCertificateName(LinkedMultiValueMap<String, String> fields,
-                                                  Pageable pageable,
-                                                  String certificateName) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Tag, Certificate> certificates = root.join("certificates");
-        predicates.add(criteriaBuilder.equal(certificates.get("name"), certificateName));
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
         sort(fields, criteriaBuilder, criteriaQuery, root);
@@ -105,26 +74,26 @@ public class UserRepositoryImpl implements UserRepository {
 
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
                                     CriteriaBuilder criteriaBuilder,
-                                    Root<Tag> root) {
-        String searchQuery = fields.getOrDefault("search", List.of("")).get(0);
-        String filterByName = fields.getOrDefault(TAG_NAME, List.of("")).get(0);
+                                    Root<User> root) {
+        String searchQuery = fields.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0);
+        String filterByLogin = fields.getOrDefault(FILTER_KEY_LOGIN, List.of("")).get(0);
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.like(root.get(TAG_NAME), "%" + searchQuery.trim() + "%"));
-        if (!filterByName.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(TAG_NAME), filterByName));
+        predicates.add(criteriaBuilder.like(root.get(USER_LOGIN), "%" + searchQuery.trim() + "%"));
+        if (!filterByLogin.isEmpty())
+            predicates.add(criteriaBuilder.equal(root.get(USER_LOGIN), filterByLogin));
         return predicates;
     }
 
     private void sort(LinkedMultiValueMap<String, String> fields,
                       CriteriaBuilder criteriaBuilder,
-                      CriteriaQuery<Tag> criteriaQuery,
-                      Root<Tag> root) {
-        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAMETER, List.of(TAG_ID)).get(0).trim();
-        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(TAG_ID);
+                      CriteriaQuery<User> criteriaQuery,
+                      Root<User> root) {
+        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(USER_ID)).get(0).trim();
+        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(USER_ID);
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
-                .map(el -> el.startsWith(TAG_NAME) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(TAG_ID) ? "+".concat(el) : el)
+                .map(el -> el.startsWith(USER_LOGIN) ? "+".concat(el) : el)
+                .map(el -> el.startsWith(USER_ID) ? "+".concat(el) : el)
                 .distinct()
                 .collect(Collectors.toList());
         List<Order> orders = sortParams.stream()
@@ -134,7 +103,7 @@ public class UserRepositoryImpl implements UserRepository {
         criteriaQuery.orderBy(orders);
     }
 
-    private List<Tag> executeQuery(CriteriaQuery<Tag> criteriaQuery, Pageable pageable) {
+    private List<User> executeQuery(CriteriaQuery<User> criteriaQuery, Pageable pageable) {
         return em.createQuery(criteriaQuery)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
