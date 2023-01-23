@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -60,7 +61,7 @@ public class Certificate extends AbstractEntity implements Serializable {
             joinColumns = @JoinColumn(name = "certificate_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<>();
 
     public Certificate(Long id,
                        String name,
@@ -94,6 +95,10 @@ public class Certificate extends AbstractEntity implements Serializable {
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public void addTags(Set<Tag> tags) {
+        this.tags.addAll(tags);
     }
 }
 
