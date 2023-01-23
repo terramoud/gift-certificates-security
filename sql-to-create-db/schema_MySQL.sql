@@ -5,14 +5,13 @@ DROP DATABASE IF EXISTS gift_certificates;
 CREATE DATABASE IF NOT EXISTS gift_certificates DEFAULT CHARACTER SET utf8;
 USE gift_certificates;
 
-
 -- -----------------------------------------------------
 -- Table certificate
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS certificates
 (
     PRIMARY KEY (id),
-    id               INT           NOT NULL AUTO_INCREMENT,
+    id               INT UNSIGNED  NOT NULL AUTO_INCREMENT,
     name             VARCHAR(32)   NOT NULL UNIQUE,
     description      VARCHAR(256)  NOT NULL,
     price            DECIMAL(9, 2) NOT NULL,
@@ -36,8 +35,8 @@ END;
 CREATE TABLE IF NOT EXISTS tags
 (
     PRIMARY KEY (id),
-    id   INT         NOT NULL AUTO_INCREMENT,
-    name VARCHAR(32) NOT NULL UNIQUE
+    id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(32)  NOT NULL UNIQUE
 );
 
 
@@ -46,14 +45,45 @@ CREATE TABLE IF NOT EXISTS tags
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS certificates_tags
 (
-    certificate_id INT NOT NULL,
-    tag_id         INT NOT NULL,
+    PRIMARY KEY (certificate_id, tag_id),
+    certificate_id INT UNSIGNED NOT NULL,
+    tag_id         INT UNSIGNED NOT NULL,
     FOREIGN KEY (certificate_id)
         REFERENCES certificates (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (tag_id)
         REFERENCES tags (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+
+-- -----------------------------------------------------
+-- Table users
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS users
+(
+    PRIMARY KEY (id),
+    id    INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
+    login VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE
+);
+
+
+CREATE TABLE IF NOT EXISTS orders
+(
+    PRIMARY KEY (id),
+    id                  INT UNSIGNED AUTO_INCREMENT,
+    cost                DECIMAL(9, 2) NOT NULL,
+    purchase_time       DATETIME      NOT NULL,
+    user_id             INT UNSIGNED,
+    gift_certificate_id INT UNSIGNED,
+    FOREIGN KEY (gift_certificate_id)
+        REFERENCES certificates (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (user_id)
+        REFERENCES users (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -128,35 +158,102 @@ VALUES (DEFAULT, 'hunting courses');
 -- -----------------------------------------------------
 -- fill certificates_tags
 -- -----------------------------------------------------
-INSERT INTO certificates_tags VALUES (1, 1);
-INSERT INTO certificates_tags VALUES (1, 2);
-INSERT INTO certificates_tags VALUES (1, 7);
-INSERT INTO certificates_tags VALUES (1, 3);
-INSERT INTO certificates_tags VALUES (1, 4);
-INSERT INTO certificates_tags VALUES (1, 5);
-INSERT INTO certificates_tags VALUES (1, 6);
-INSERT INTO certificates_tags VALUES (2, 1);
-INSERT INTO certificates_tags VALUES (2, 2);
-INSERT INTO certificates_tags VALUES (2, 3);
-INSERT INTO certificates_tags VALUES (2, 7);
-INSERT INTO certificates_tags VALUES (2, 8);
-INSERT INTO certificates_tags VALUES (2, 9);
-INSERT INTO certificates_tags VALUES (3, 13);
-INSERT INTO certificates_tags VALUES (3, 12);
-INSERT INTO certificates_tags VALUES (3, 11);
-INSERT INTO certificates_tags VALUES (3, 10);
-INSERT INTO certificates_tags VALUES (3, 9);
-INSERT INTO certificates_tags VALUES (3, 8);
-INSERT INTO certificates_tags VALUES (4, 2);
-INSERT INTO certificates_tags VALUES (4, 3);
-INSERT INTO certificates_tags VALUES (4, 4);
-INSERT INTO certificates_tags VALUES (4, 5);
-INSERT INTO certificates_tags VALUES (4, 6);
-INSERT INTO certificates_tags VALUES (5, 1);
-INSERT INTO certificates_tags VALUES (5, 2);
-INSERT INTO certificates_tags VALUES (5, 4);
-INSERT INTO certificates_tags VALUES (5, 6);
-INSERT INTO certificates_tags VALUES (5, 8);
-INSERT INTO certificates_tags VALUES (5, 10);
-INSERT INTO certificates_tags VALUES (5, 12);
-INSERT INTO certificates_tags VALUES (3, 2);
+INSERT INTO certificates_tags
+VALUES (1, 1);
+INSERT INTO certificates_tags
+VALUES (1, 2);
+INSERT INTO certificates_tags
+VALUES (1, 7);
+INSERT INTO certificates_tags
+VALUES (1, 3);
+INSERT INTO certificates_tags
+VALUES (1, 4);
+INSERT INTO certificates_tags
+VALUES (1, 5);
+INSERT INTO certificates_tags
+VALUES (1, 6);
+INSERT INTO certificates_tags
+VALUES (2, 1);
+INSERT INTO certificates_tags
+VALUES (2, 2);
+INSERT INTO certificates_tags
+VALUES (2, 3);
+INSERT INTO certificates_tags
+VALUES (2, 7);
+INSERT INTO certificates_tags
+VALUES (2, 8);
+INSERT INTO certificates_tags
+VALUES (2, 9);
+INSERT INTO certificates_tags
+VALUES (3, 13);
+INSERT INTO certificates_tags
+VALUES (3, 12);
+INSERT INTO certificates_tags
+VALUES (3, 11);
+INSERT INTO certificates_tags
+VALUES (3, 10);
+INSERT INTO certificates_tags
+VALUES (3, 9);
+INSERT INTO certificates_tags
+VALUES (3, 8);
+INSERT INTO certificates_tags
+VALUES (4, 2);
+INSERT INTO certificates_tags
+VALUES (4, 3);
+INSERT INTO certificates_tags
+VALUES (4, 4);
+INSERT INTO certificates_tags
+VALUES (4, 5);
+INSERT INTO certificates_tags
+VALUES (4, 6);
+INSERT INTO certificates_tags
+VALUES (5, 1);
+INSERT INTO certificates_tags
+VALUES (5, 2);
+INSERT INTO certificates_tags
+VALUES (5, 4);
+INSERT INTO certificates_tags
+VALUES (5, 6);
+INSERT INTO certificates_tags
+VALUES (5, 8);
+INSERT INTO certificates_tags
+VALUES (5, 10);
+INSERT INTO certificates_tags
+VALUES (5, 12);
+INSERT INTO certificates_tags
+VALUES (3, 2);
+
+-- -----------------------------------------------------
+-- fill Users
+-- -----------------------------------------------------
+INSERT INTO users VALUES (DEFAULT, 'admin');
+INSERT INTO users VALUES (DEFAULT, 'Peter');
+INSERT INTO users VALUES (DEFAULT, 'testUser');
+INSERT INTO users VALUES (DEFAULT, 'Jon');
+INSERT INTO users VALUES (DEFAULT, 'Wick');
+INSERT INTO users VALUES (DEFAULT, 'Neo');
+INSERT INTO users VALUES (DEFAULT, 'Morpheus');
+INSERT INTO users VALUES (DEFAULT, 'Igor');
+INSERT INTO users VALUES (DEFAULT, 'Stepan');
+INSERT INTO users VALUES (DEFAULT, 'Jason');
+INSERT INTO users VALUES (DEFAULT, 'Statham');
+INSERT INTO users VALUES (DEFAULT, 'Trinity');
+
+
+-- -----------------------------------------------------
+-- fill Orders
+-- -----------------------------------------------------
+INSERT INTO orders
+VALUES (DEFAULT, 10.1, '2023-01-03T07:37:14.974', 1, 1);
+
+INSERT INTO orders
+VALUES (DEFAULT, 30.3, '2023-01-04T07:37:14.974', 1, 2);
+
+INSERT INTO orders
+VALUES (DEFAULT, 20.2, '2023-01-05T07:37:14.974', 2, 1);
+
+INSERT INTO orders
+VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
+
+INSERT INTO orders
+VALUES (DEFAULT, 300.99, '2023-01-05T09:37:14.974', 2, 3);
