@@ -8,8 +8,6 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,9 +26,4 @@ public class User extends AbstractEntity implements Serializable {
 
     @Column(name = "login", nullable = false, unique = true)
     private String login;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @OneToMany(mappedBy = "user")
-    private Set<Order> orders;
 }
