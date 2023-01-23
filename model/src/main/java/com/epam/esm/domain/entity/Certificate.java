@@ -25,42 +25,46 @@ import java.util.Set;
 @Entity
 @Table(name = "certificates")
 public class Certificate extends AbstractEntity implements Serializable {
+    private static final long serialVersionUID = 3036827514247751207L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description", unique = true)
+    @Column(name = "description", nullable = false, unique = true)
     private String description;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = false)
     private Integer duration;
 
-    @Column(name = "create_date", columnDefinition="TIMESTAMP(9)")
+    @Column(name = "create_date", updatable = false, columnDefinition="TIMESTAMP(9)", nullable = false)
 //    @CreationTimestamp
     private LocalDateTime createDate;
 
-    @Column(name = "last_update_date", columnDefinition="TIMESTAMP(9)")
+    @Column(name = "last_update_date", columnDefinition="TIMESTAMP(9)", nullable = false)
 //    @CreationTimestamp
     private LocalDateTime lastUpdateDate;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinTable(name = "certificates_tags",
             joinColumns = @JoinColumn(name = "certificate_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "certificate")
+    private Set<Order> orders;
 
     public Certificate(Long id,
                        String name,
