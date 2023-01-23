@@ -69,7 +69,10 @@ public class UserRepositoryImpl implements UserRepository {
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
         sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
+        return em.createQuery(criteriaQuery)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
@@ -101,12 +104,5 @@ public class UserRepositoryImpl implements UserRepository {
                 .map(tagProperty -> sortBy.get(tagProperty).apply(criteriaBuilder, root))
                 .collect(Collectors.toList());
         criteriaQuery.orderBy(orders);
-    }
-
-    private List<User> executeQuery(CriteriaQuery<User> criteriaQuery, Pageable pageable) {
-        return em.createQuery(criteriaQuery)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
     }
 }
