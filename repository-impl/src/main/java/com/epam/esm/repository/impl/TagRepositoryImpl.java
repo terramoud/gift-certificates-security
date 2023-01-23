@@ -24,7 +24,9 @@ public class TagRepositoryImpl implements TagRepository {
     private static final Logger LOG = LogManager.getLogger(TagRepositoryImpl.class);
     public static final String TAG_ID = "id";
     public static final String TAG_NAME = "name";
-    public static final String SORT_REQUEST_PARAMETER = "sort";
+    public static final String FILTER_KEY_NAME = "name";
+    public static final String SORT_REQUEST_PARAM = "sort";
+    public static final String SEARCH_REQUEST_PARAM = "search";
 
     private final Map<String, BiFunction<CriteriaBuilder, Root<Tag>, Order>> sortBy = Map.of(
             "+name", (cb, root) -> cb.asc(root.get(TAG_NAME)),
@@ -85,8 +87,6 @@ public class TagRepositoryImpl implements TagRepository {
         return executeQuery(criteriaQuery, pageable);
     }
 
-
-
     public List<Tag> findAllTagsByCertificateName(LinkedMultiValueMap<String, String> fields,
                                                   Pageable pageable,
                                                   String certificateName) {
@@ -105,8 +105,8 @@ public class TagRepositoryImpl implements TagRepository {
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
                                     CriteriaBuilder criteriaBuilder,
                                     Root<Tag> root) {
-        String searchQuery = fields.getOrDefault("search", List.of("")).get(0);
-        String filterByName = fields.getOrDefault(TAG_NAME, List.of("")).get(0);
+        String searchQuery = fields.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0);
+        String filterByName = fields.getOrDefault(FILTER_KEY_NAME, List.of("")).get(0);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(criteriaBuilder.like(root.get(TAG_NAME), "%" + searchQuery.trim() + "%"));
         if (!filterByName.isEmpty())
@@ -118,7 +118,7 @@ public class TagRepositoryImpl implements TagRepository {
                       CriteriaBuilder criteriaBuilder,
                       CriteriaQuery<Tag> criteriaQuery,
                       Root<Tag> root) {
-        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAMETER, List.of(TAG_ID)).get(0).trim();
+        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(TAG_ID)).get(0).trim();
         if (stringSortParams.isEmpty()) stringSortParams = "+".concat(TAG_ID);
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)

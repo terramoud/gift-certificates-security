@@ -30,8 +30,8 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     public static final String CERTIFICATE_CREATE_DATE = "createDate";
     public static final String CERTIFICATE_LAST_UPDATE_DATE = "lastUpdateDate";
 
-    public static final String SORT_REQUEST_PARAMETER = "sort";
-    public static final String FILTER_BY_SEARCH_QUERY = "search";
+    public static final String SORT_REQUEST_PARAM = "sort";
+    public static final String SEARCH_REQUEST_PARAM = "search";
     public static final String FILTER_BY_ID = "id";
     public static final String FILTER_BY_NAME = "name";
     public static final String FILTER_BY_DESCRIPTION = "description";
@@ -130,7 +130,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
                                     CriteriaBuilder criteriaBuilder,
                                     Root<Certificate> root) {
-        String searchQuery = fields.getOrDefault(FILTER_BY_SEARCH_QUERY, List.of("")).get(0).trim();
+        String searchQuery = fields.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
         String filterByName = fields.getOrDefault(FILTER_BY_NAME, List.of("")).get(0).trim();
         String filterByDescription = fields.getOrDefault(FILTER_BY_DESCRIPTION, List.of("")).get(0).trim();
         String filterByPrice = fields.getOrDefault(FILTER_BY_PRICE, List.of("")).get(0).trim();
@@ -161,7 +161,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
                       CriteriaBuilder criteriaBuilder,
                       CriteriaQuery<Certificate> criteriaQuery,
                       Root<Certificate> root) {
-        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAMETER, List.of(FILTER_BY_ID)).get(0);
+        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(FILTER_BY_ID)).get(0);
         if (stringSortParams.isEmpty()) stringSortParams = "+".concat(FILTER_BY_ID);
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
