@@ -72,36 +72,6 @@ public class TagRepositoryImpl implements TagRepository {
         return executeQuery(criteriaQuery, pageable);
     }
 
-    public List<Tag> findAllTagsByCertificateId(LinkedMultiValueMap<String, String> fields,
-                                                Pageable pageable,
-                                                Long certificateId) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Tag, Certificate> certificatesTags = root.join("certificates");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("id"), certificateId));
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-    public List<Tag> findAllTagsByCertificateName(LinkedMultiValueMap<String, String> fields,
-                                                  Pageable pageable,
-                                                  String certificateName) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Tag, Certificate> certificates = root.join("certificates");
-        predicates.add(criteriaBuilder.equal(certificates.get("name"), certificateName));
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
                                     CriteriaBuilder criteriaBuilder,
                                     Root<Tag> root) {
