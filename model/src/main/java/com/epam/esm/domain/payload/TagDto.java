@@ -1,4 +1,4 @@
-package com.epam.esm.domain.dto;
+package com.epam.esm.domain.payload;
 
 import com.epam.esm.domain.entity.Certificate;
 import com.fasterxml.jackson.annotation.JsonIgnore;

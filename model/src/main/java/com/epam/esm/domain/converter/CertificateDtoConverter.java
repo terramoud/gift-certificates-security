@@ -1,7 +1,7 @@
 package com.epam.esm.domain.converter;
 
 
-import com.epam.esm.domain.dto.CertificateDto;
+import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.entity.Certificate;
 import org.springframework.stereotype.Component;
 

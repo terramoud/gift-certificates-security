@@ -1,7 +1,7 @@
 package com.epam.esm.domain.converter;
 
 
-import com.epam.esm.domain.dto.TagDto;
+import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.entity.Tag;
 import org.springframework.stereotype.Component;
 

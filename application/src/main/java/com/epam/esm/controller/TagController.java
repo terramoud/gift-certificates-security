@@ -2,8 +2,8 @@ package com.epam.esm.controller;
 
 import com.epam.esm.domain.converter.CertificateDtoConverter;
 import com.epam.esm.domain.converter.TagDtoConverter;
-import com.epam.esm.domain.dto.CertificateDto;
-import com.epam.esm.domain.dto.TagDto;
+import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.service.api.CertificateService;
