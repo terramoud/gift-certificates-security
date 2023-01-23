@@ -27,8 +27,8 @@ public class Order extends AbstractEntity implements Serializable {
     @Column(name = "cost", nullable = false)
     private BigDecimal cost;
 
-    @Column(name = "purchase_time", columnDefinition = "TIMESTAMP", nullable = false)
-    private LocalDateTime purchaseTime;
+    @Column(name = "create_date", columnDefinition = "TIMESTAMP", nullable = false)
+    private LocalDateTime createDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -37,4 +37,12 @@ public class Order extends AbstractEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "gift_certificate_id")
     private Certificate certificate;
+
+    public Order(Long id, BigDecimal cost, LocalDateTime createDate, User user, Certificate certificate) {
+        this.id = id;
+        this.cost = cost;
+        this.createDate = createDate;
+        this.user = user;
+        this.certificate = certificate;
+    }
 }
