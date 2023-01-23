@@ -22,27 +22,18 @@ import java.util.Set;
 @Entity
 @Table(name = "tags")
 public class Tag extends AbstractEntity implements Serializable {
+    private static final long serialVersionUID = 4970441839353680890L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToMany(mappedBy = "tags", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Certificate> certificates;
 
     public Tag(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Tag(Long id, String name, Set<Certificate> certificates) {
-        this.id = id;
-        this.name = name;
-        this.certificates = certificates;
     }
 }
