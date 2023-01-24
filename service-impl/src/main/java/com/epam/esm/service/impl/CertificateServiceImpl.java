@@ -1,6 +1,8 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.validation.CertificateValidator;
+import com.epam.esm.domain.validation.TagValidator;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.CertificateRepository;
 import com.epam.esm.service.api.CertificateService;
@@ -22,17 +24,23 @@ public class CertificateServiceImpl implements CertificateService {
     private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
     private static final String CERTIFICATE_ERROR_INVALID_ID = "certificate.error.invalid.id";
     private final CertificateRepository certificateRepository;
+    private final CertificateValidator validator;
+    private final TagValidator tagValidator;
 
     @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository,
+                                  CertificateValidator certificateValidator,
+                                  TagValidator tagValidator) {
         this.certificateRepository = certificateRepository;
+        this.validator = certificateValidator;
+        this.tagValidator = tagValidator;
     }
 
     @Override
     public List<Certificate> getAllCertificates(LinkedMultiValueMap<String, String> fields,
                                                 int size,
                                                 int page) {
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
@@ -45,9 +53,9 @@ public class CertificateServiceImpl implements CertificateService {
                                                        int size,
                                                        int page,
                                                        Long tagId) {
-        if (tagId == null || tagId < 1) throw new InvalidResourcePropertyException(
+        if (!tagValidator.validateId(tagId)) throw new InvalidResourcePropertyException(
                 "tag.error.invalid.id", tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
@@ -60,10 +68,9 @@ public class CertificateServiceImpl implements CertificateService {
                                                          int size,
                                                          int page,
                                                          String tagName) {
-        if (tagName == null || tagName.isEmpty() || tagName.equals("null"))
-            throw new InvalidResourceNameException(
+        if (!tagValidator.validateName(tagName)) throw new InvalidResourceNameException(
                     "tag.error.invalid.name", tagName, ErrorCodes.INVALID_TAG_NAME_PROPERTY);
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
@@ -72,12 +79,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Certificate getCertificateById(Long certificateId) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        return certificateRepository.findById(certificateId)
+    public Certificate getCertificateById(Long id) {
+        if (!validator.validateId(id)) throw new InvalidResourcePropertyException(
+                CERTIFICATE_ERROR_INVALID_ID, id, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
+        return certificateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
     }
 
     @Override
@@ -86,17 +93,13 @@ public class CertificateServiceImpl implements CertificateService {
         String description = certificate.getDescription();
         BigDecimal price = certificate.getPrice();
         Integer duration = certificate.getDuration();
-        if (name == null || name.isEmpty() || name.equals("null"))
-            throw new InvalidResourceNameException(
+        if (!validator.validateName(name)) throw new InvalidResourceNameException(
                     "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (description == null || description.isEmpty() || description.equals("null"))
-            throw new InvalidResourcePropertyException(
+        if (!validator.validateName(description)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0)
-            throw new InvalidResourcePropertyException(
+        if (!validator.validatePrice(price)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (duration == null || duration < 1)
-            throw new InvalidResourcePropertyException(
+        if (!validator.validateDuration(duration)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
         certificate.setCreateDate(LocalDateTime.now());
         certificate.setLastUpdateDate(certificate.getCreateDate());
@@ -104,49 +107,40 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Certificate updateCertificateById(Long certificateId, Certificate certificate) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                    CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        if (certificate == null ||
-                certificate.getId() == null ||
-                certificate.getId() < 1 ||
-                !certificate.getId().equals(certificateId)) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        Certificate certificateToUpdate = certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+    public Certificate updateCertificateById(Long id, Certificate certificate) {
+        if (!validator.validateId(id)) throw new InvalidResourcePropertyException(
+                CERTIFICATE_ERROR_INVALID_ID, id, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
+        if (!validator.validateId(id) || !certificate.getId().equals(id)) throw new InvalidResourcePropertyException(
+                CERTIFICATE_ERROR_INVALID_ID, id, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
+        Certificate certificateToUpdate = getCertificateById(id);
         if (certificate.getName() != null) certificateToUpdate.setName(certificate.getName());
         if (certificate.getDescription() != null) certificateToUpdate.setDescription(certificate.getDescription());
         if (certificate.getPrice() != null) certificateToUpdate.setPrice(certificate.getPrice());
         if (certificate.getDuration() != null) certificateToUpdate.setDuration(certificate.getDuration());
+        if (certificate.getTags() != null) certificateToUpdate.addTags(certificate.getTags());
         certificateToUpdate.setLastUpdateDate(LocalDateTime.now());
         String name = certificateToUpdate.getName();
         String description = certificateToUpdate.getDescription();
         BigDecimal price = certificateToUpdate.getPrice();
         Integer duration = certificateToUpdate.getDuration();
-        if (name.isEmpty() || name.equals("null")) throw new InvalidResourceNameException(
-                    "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (description.isEmpty() || description.equals("null")) throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (price.compareTo(BigDecimal.ZERO) < 0) throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (duration < 1) throw new InvalidResourcePropertyException(
-            "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (certificate.getTags() != null) {
-            System.out.println("certificateToUpdate.getTags() = " + certificateToUpdate.getTags());
-            certificateToUpdate.getTags().addAll(certificate.getTags());
-            System.out.println("certificateToUpdate.getTags() = " + certificateToUpdate.getTags());
-        }
-        return certificateRepository.update(certificate, certificateId);
+        if (!validator.validateName(name)) throw new InvalidResourceNameException(
+                "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+        if (!validator.validateName(description)) throw new InvalidResourcePropertyException(
+                "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+        if (!validator.validatePrice(price)) throw new InvalidResourcePropertyException(
+                "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+        if (!validator.validateDuration(duration)) throw new InvalidResourcePropertyException(
+                "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+        certificateToUpdate.getTags().forEach(tag -> {
+            if (!tagValidator.validate(tag)) throw new InvalidResourcePropertyException(
+                "certificate.error.invalid.joined.tag", tag.getName(), ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+        });
+        return certificateRepository.update(certificateToUpdate, id);
     }
 
     @Override
-    public Certificate deleteCertificateById(Long certificateId) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        Certificate certificate = certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+    public Certificate deleteCertificateById(Long id) {
+        Certificate certificate = getCertificateById(id);
         certificateRepository.delete(certificate);
         return certificate;
     }
