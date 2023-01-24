@@ -15,7 +15,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/tags")
@@ -40,10 +39,7 @@ public class TagController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Tag> tags = tagService.getAllTags(allRequestParameters, size, page);
-        List<TagDto> tagDtoList = tags.stream()
-                .map(converter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(tagDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(converter.listToDtos(tags), HttpStatus.OK);
     }
 
     @GetMapping("/{tag-id}/gift-certificates")
@@ -54,10 +50,7 @@ public class TagController {
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Certificate> giftCertificates =
                 certificateService.getAllCertificatesByTagId(allRequestParameters, size, page, tagId);
-        List<CertificateDto> certificateDtoList = giftCertificates.stream()
-                .map(certificateConverter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(certificateDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(certificateConverter.listToDtos(giftCertificates), HttpStatus.OK);
     }
 
     @GetMapping("/name/{tag-name}/gift-certificates")
@@ -68,10 +61,7 @@ public class TagController {
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Certificate> giftCertificates =
                 certificateService.getAllCertificatesByTagName(allRequestParameters, size, page, tagName);
-        List<CertificateDto> certificateDtoList = giftCertificates.stream()
-                .map(certificateConverter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(certificateDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(certificateConverter.listToDtos(giftCertificates), HttpStatus.OK);
     }
 
     @GetMapping("/{tag-id}")
@@ -82,15 +72,14 @@ public class TagController {
 
     @PostMapping
     public ResponseEntity<TagDto> addTag(@RequestBody TagDto tagDto) {
-        Tag tag = converter.toTag(tagDto);
-        Tag addedTag = tagService.addTag(tag);
+        Tag addedTag = tagService.addTag(converter.toEntity(tagDto));
         return new ResponseEntity<>(converter.toDto(addedTag), HttpStatus.CREATED);
     }
 
     @PutMapping("/{tag-id}")
     public ResponseEntity<TagDto> updateTagById(@PathVariable("tag-id") Long tagId,
                                                 @RequestBody TagDto tagDto) {
-        Tag updatedTag = tagService.updateTagById(tagId, converter.toTag(tagDto));
+        Tag updatedTag = tagService.updateTagById(tagId, converter.toEntity(tagDto));
         return new ResponseEntity<>(converter.toDto(updatedTag), HttpStatus.OK);
     }
 
