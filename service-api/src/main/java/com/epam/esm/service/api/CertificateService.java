@@ -13,11 +13,11 @@ public interface CertificateService {
 
     List<Certificate> getAllCertificatesByTagName(LinkedMultiValueMap<String, String> fields, int size, int page, String tagName);
 
-    Certificate getCertificateById(Long certificateId);
+    Certificate getCertificateById(Long id);
 
     Certificate addCertificate(Certificate certificate);
 
-    Certificate updateCertificateById(Long certificateId, Certificate certificate);
+    Certificate updateCertificateById(Long id, Certificate certificate);
 
     Certificate deleteCertificateById(Long certificateId);
 }
