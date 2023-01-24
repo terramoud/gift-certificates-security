@@ -60,11 +60,14 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public CertificateRepositoryImpl() { }
-
     @Override
     public Optional<Certificate> findById(Long id) {
-        return Optional.ofNullable(em.find(Certificate.class, id));
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        root.fetch("tags", JoinType.LEFT);
+        criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+        return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
     }
 
     @Override
