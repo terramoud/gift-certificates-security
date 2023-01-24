@@ -88,6 +88,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        root.fetch("tags", JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
@@ -102,6 +103,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        root.fetch("tags", JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         Join<Certificate, Tag> certificatesTags = root.join("tags");
         predicates.add(criteriaBuilder.equal(certificatesTags.get("id"), tagId));
@@ -118,6 +120,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
+        root.fetch("tags", JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         Join<Certificate, Tag> certificatesTags = root.join("tags");
         predicates.add(criteriaBuilder.equal(certificatesTags.get("name"), tagName));

@@ -72,6 +72,8 @@ public class OrderRepositoryImpl implements OrderRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
+        root.fetch("certificate", JoinType.LEFT)
+                .fetch("tags", JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
@@ -86,6 +88,8 @@ public class OrderRepositoryImpl implements OrderRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
+        root.fetch("certificate", JoinType.LEFT)
+                .fetch("tags", JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         Join<Order, User> userJoin = root.join("user");
         predicates.add(criteriaBuilder.equal(userJoin.get("id"), userId));
