@@ -5,6 +5,7 @@ import com.epam.esm.domain.validation.CertificateValidator;
 import com.epam.esm.domain.validation.TagValidator;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.CertificateRepository;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,14 +26,17 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateRepository certificateRepository;
     private final CertificateValidator validator;
     private final TagValidator tagValidator;
+    private final TagRepository tagRepository;
 
     @Autowired
     public CertificateServiceImpl(CertificateRepository certificateRepository,
                                   CertificateValidator certificateValidator,
-                                  TagValidator tagValidator) {
+                                  TagValidator tagValidator,
+                                  TagRepository tagRepository) {
         this.certificateRepository = certificateRepository;
         this.validator = certificateValidator;
         this.tagValidator = tagValidator;
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -95,14 +98,12 @@ public class CertificateServiceImpl implements CertificateService {
         Integer duration = certificate.getDuration();
         if (!validator.validateName(name)) throw new InvalidResourceNameException(
                     "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (!validator.validateName(description)) throw new InvalidResourcePropertyException(
+        if (!validator.validateBigTextField(description)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
         if (!validator.validatePrice(price)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
         if (!validator.validateDuration(duration)) throw new InvalidResourcePropertyException(
                     "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        certificate.setCreateDate(LocalDateTime.now());
-        certificate.setLastUpdateDate(certificate.getCreateDate());
         return certificateRepository.save(certificate);
     }
 
@@ -118,7 +119,6 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificate.getPrice() != null) certificateToUpdate.setPrice(certificate.getPrice());
         if (certificate.getDuration() != null) certificateToUpdate.setDuration(certificate.getDuration());
         if (certificate.getTags() != null) certificateToUpdate.addTags(certificate.getTags());
-        certificateToUpdate.setLastUpdateDate(LocalDateTime.now());
         String name = certificateToUpdate.getName();
         String description = certificateToUpdate.getDescription();
         BigDecimal price = certificateToUpdate.getPrice();
@@ -133,7 +133,10 @@ public class CertificateServiceImpl implements CertificateService {
                 "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
         certificateToUpdate.getTags().forEach(tag -> {
             if (!tagValidator.validate(tag)) throw new InvalidResourcePropertyException(
-                "certificate.error.invalid.joined.tag", tag.getName(), ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+                "certificate.error.invalid.joined.tag", tag.getId(), ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
+            tagRepository.findById(tag.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "tag.error.update.not.found", tag.getId(), ErrorCodes.NOT_FOUND_TAG_RESOURCE));
         });
         return certificateRepository.update(certificateToUpdate, id);
     }
