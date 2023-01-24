@@ -33,7 +33,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAllTags(LinkedMultiValueMap<String, String> fields, int size, int page) {
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "limit", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "offset", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);

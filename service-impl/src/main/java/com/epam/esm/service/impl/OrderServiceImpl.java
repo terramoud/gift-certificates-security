@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> findAllOrders(LinkedMultiValueMap<String, String> fields,
                                      int size,
                                      int page) {
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
                                              int size,
                                              int page,
                                              Long userId) {
-        if (size < 0) throw new InvalidPaginationParameterException(
+        if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
                 "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
