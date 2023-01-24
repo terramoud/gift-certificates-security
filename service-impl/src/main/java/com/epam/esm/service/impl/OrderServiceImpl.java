@@ -37,9 +37,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findAllOrders(LinkedMultiValueMap<String, String> fields,
-                                     int size,
-                                     int page) {
+    public List<Order> getAllOrders(LinkedMultiValueMap<String, String> fields,
+                                    int size,
+                                    int page) {
         if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(
@@ -49,10 +49,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
-                                             int size,
-                                             int page,
-                                             Long userId) {
+    public List<Order> getAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
+                                            int size,
+                                            int page,
+                                            Long userId) {
         if (size < 1) throw new InvalidPaginationParameterException(
                 "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(

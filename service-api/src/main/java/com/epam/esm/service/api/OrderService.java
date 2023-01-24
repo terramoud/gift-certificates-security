@@ -6,12 +6,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.List;
 
 public interface OrderService {
-    List<Order> findAllOrders(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<Order> getAllOrders(LinkedMultiValueMap<String, String> fields, int size, int page);
 
-    List<Order> findAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
-                                      int size,
-                                      int page,
-                                      Long userId);
+    List<Order> getAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
+                                     int size,
+                                     int page,
+                                     Long userId);
+
     Order getOrderById(Long id);
 
     Order addOrder(Order order);
