@@ -45,4 +45,9 @@ public class Order extends AbstractEntity implements Serializable {
         this.user = user;
         this.certificate = certificate;
     }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createDate = LocalDateTime.now();
+    }
 }
