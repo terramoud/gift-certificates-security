@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
+@ToString
 @Entity
 @Table(name = "orders")
 public class Order extends AbstractEntity implements Serializable {
