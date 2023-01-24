@@ -6,20 +6,22 @@ import com.epam.esm.domain.entity.Tag;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TagDtoConverter {
+public class TagDtoConverter implements DtoConverter<Tag, TagDto> {
 
-    public Tag toTag(TagDto dto) {
-        Tag tag = new Tag();
-        tag.setId(dto.getId());
-        tag.setName(dto.getName());
-        return tag;
+    @Override
+    public Tag toEntity(TagDto dto) {
+        return new Tag(
+                dto.getId(),
+                dto.getName()
+        );
     }
 
+    @Override
     public TagDto toDto(Tag tag) {
-        TagDto tagDto = new TagDto();
-        tagDto.setId(tag.getId());
-        tagDto.setName(tag.getName());
-        return tagDto;
+        return new TagDto(
+                tag.getId(),
+                tag.getName()
+        );
     }
 }
 
