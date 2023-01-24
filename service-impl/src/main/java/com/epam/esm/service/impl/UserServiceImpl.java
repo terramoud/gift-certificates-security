@@ -26,9 +26,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllUsers(LinkedMultiValueMap<String, String> fields,
-                                   int size,
-                                   int page) {
+    public List<User> getAllUsers(LinkedMultiValueMap<String, String> fields,
+                                  int size,
+                                  int page) {
         if (size < 1) throw new InvalidPaginationParameterException(
                 "limit", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
         if (page < 0) throw new InvalidPaginationParameterException(

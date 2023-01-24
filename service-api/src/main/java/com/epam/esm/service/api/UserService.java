@@ -7,5 +7,5 @@ import java.util.List;
 
 
 public interface UserService {
-    List<User> findAllUsers(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<User> getAllUsers(LinkedMultiValueMap<String, String> fields, int size, int page);
 }
