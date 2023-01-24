@@ -37,10 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public UserRepositoryImpl() {
-
-    }
-
+    @Override
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(em.find(User.class, id));
     }
@@ -61,6 +58,7 @@ public class UserRepositoryImpl implements UserRepository {
         em.remove(entity);
     }
 
+    @Override
     public List<User> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
