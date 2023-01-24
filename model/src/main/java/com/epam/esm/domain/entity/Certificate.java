@@ -1,9 +1,6 @@
 package com.epam.esm.domain.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -23,6 +20,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "certificates")
 public class Certificate extends AbstractEntity implements Serializable {
@@ -69,24 +67,6 @@ public class Certificate extends AbstractEntity implements Serializable {
                        BigDecimal price,
                        Integer duration,
                        LocalDateTime createDate,
-                       LocalDateTime lastUpdateDate,
-                       Set<Tag> tags) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
-    }
-
-    public Certificate(Long id,
-                       String name,
-                       String description,
-                       BigDecimal price,
-                       Integer duration,
-                       LocalDateTime createDate,
                        LocalDateTime lastUpdateDate) {
         this.id = id;
         this.name = name;
@@ -99,6 +79,17 @@ public class Certificate extends AbstractEntity implements Serializable {
 
     public void addTags(Set<Tag> tags) {
         this.tags.addAll(tags);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createDate = LocalDateTime.now();
+        this.lastUpdateDate = createDate;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.lastUpdateDate = LocalDateTime.now();
     }
 }
 
