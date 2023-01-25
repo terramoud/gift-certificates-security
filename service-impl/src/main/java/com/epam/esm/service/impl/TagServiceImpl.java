@@ -43,7 +43,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag getTagById(Long tagId) {
-        if (validator.validateId(tagId)) throw new InvalidResourcePropertyException(
+        if (!validator.validateId(tagId)) throw new InvalidResourcePropertyException(
                 TAG_ERROR_INVALID_ID, tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
         return tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -52,23 +52,23 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag addTag(Tag tag) {
-        if (validator.validateId(tag.getId())) throw new InvalidResourcePropertyException(
+        if (!validator.validateId(tag.getId())) throw new InvalidResourcePropertyException(
                 TAG_ERROR_INVALID_ID, tag.getId(), ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (validator.validateName(tag.getName())) throw new InvalidResourceNameException(
+        if (!validator.validateName(tag.getName())) throw new InvalidResourceNameException(
                 "tag.error.invalid.name", tag.getName(), ErrorCodes.INVALID_TAG_NAME_PROPERTY);
         return tagRepository.save(tag);
     }
 
     @Override
     public Tag updateTagById(Long tagId, Tag tag) {
-        if (validator.validateId(tagId)) throw new InvalidResourcePropertyException(
+        if (!validator.validateId(tagId)) throw new InvalidResourcePropertyException(
                 TAG_ERROR_INVALID_ID, tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (validator.validateId(tag.getId()) || !tag.getId().equals(tagId))
+        if (!validator.validateId(tag.getId()) || !tag.getId().equals(tagId))
             throw new InvalidResourcePropertyException(
                         "tag.error.paramId.no.equals.bodyId", tag.getId(), ErrorCodes.INVALID_TAG_ID_PROPERTY);
         Tag tagToUpdate = getTagById(tagId);
         if (tag.getName() != null) tagToUpdate.setName(tag.getName());
-        if (validator.validateName(tagToUpdate.getName())) throw new InvalidResourceNameException(
+        if (!validator.validateName(tagToUpdate.getName())) throw new InvalidResourceNameException(
                 "tag.error.invalid.name", tag.getName(), ErrorCodes.INVALID_TAG_NAME_PROPERTY);
         return tagRepository.update(tagToUpdate, tagId);
     }
