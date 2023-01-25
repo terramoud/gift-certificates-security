@@ -1,12 +1,12 @@
 package com.epam.esm.repository.impl;
 
 
-import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.OrderRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +50,17 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     public Optional<Order> findById(Long id) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
-        Root<Order> root = criteriaQuery.from(Order.class);
-        root.fetch("certificate", JoinType.LEFT)
-                .fetch("tags", JoinType.LEFT);
-        criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
-        return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
+        try {
+            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+            CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
+            Root<Order> root = criteriaQuery.from(Order.class);
+            root.fetch("certificate", JoinType.LEFT)
+                    .fetch("tags", JoinType.LEFT);
+            criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+            return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.CertificateRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,12 +63,16 @@ public class CertificateRepositoryImpl implements CertificateRepository {
 
     @Override
     public Optional<Certificate> findById(Long id) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        root.fetch("tags", JoinType.LEFT);
-        criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
-        return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
+        try {
+            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+            CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
+            Root<Certificate> root = criteriaQuery.from(Certificate.class);
+            root.fetch("tags", JoinType.LEFT);
+            criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+            return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
