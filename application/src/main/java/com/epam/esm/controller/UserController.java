@@ -5,6 +5,7 @@ import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.UserDto;
+import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +24,22 @@ public class UserController {
     private final OrderService orderService;
     private final DtoConverter<User, UserDto> converter;
     private final DtoConverter<Order, OrderDto> orderConverter;
+    private final HateoasAdder<UserDto> hateoasAdder;
+    private final HateoasAdder<OrderDto> orderHateoasAdder;
 
     @Autowired
     public UserController(UserService userService,
                           DtoConverter<User, UserDto> converter,
                           OrderService orderService,
-                          DtoConverter<Order, OrderDto> orderConverter) {
+                          DtoConverter<Order, OrderDto> orderConverter,
+                          HateoasAdder<UserDto> hateoasAdder,
+                          HateoasAdder<OrderDto> orderHateoasAdder) {
         this.userService = userService;
         this.converter = converter;
         this.orderService = orderService;
         this.orderConverter = orderConverter;
+        this.hateoasAdder = hateoasAdder;
+        this.orderHateoasAdder = orderHateoasAdder;
     }
 
     @GetMapping
@@ -41,7 +48,17 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<User> users = userService.getAllUsers(allRequestParameters, size, page);
-        return new ResponseEntity<>(converter.listToDtos(users), HttpStatus.OK);
+        List<UserDto> userDtos = converter.listToDtos(users);
+        userDtos.forEach(hateoasAdder::addLinks);
+        return new ResponseEntity<>(userDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/{user-id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable("user-id") Long userId) {
+        User user = userService.getUserById(userId);
+        UserDto userDto = converter.toDto(user);
+        hateoasAdder.addLinks(userDto);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @GetMapping("/{user-id}/orders")
@@ -51,6 +68,8 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Order> orders = orderService.getAllOrdersByUserId(allRequestParameters, size, page, userId);
-        return new ResponseEntity<>(orderConverter.listToDtos(orders), HttpStatus.OK);
+        List<OrderDto> orderDtos = orderConverter.listToDtos(orders);
+        orderHateoasAdder.addLinks(orderDtos);
+        return new ResponseEntity<>(orderDtos, HttpStatus.OK);
     }
 }

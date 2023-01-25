@@ -6,6 +6,7 @@ import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
 import com.epam.esm.service.api.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,22 @@ public class TagController {
     private final TagService tagService;
     private final TagDtoConverter converter;
     private final CertificateDtoConverter certificateConverter;
+    private final HateoasAdder<TagDto> hateoasAdder;
+    private final HateoasAdder<CertificateDto> certificateHateoasAdder;
 
     @Autowired
-    public TagController(CertificateService certificateService, TagService tagService, TagDtoConverter converter, CertificateDtoConverter certificateConverter) {
+    public TagController(CertificateService certificateService,
+                         TagService tagService,
+                         TagDtoConverter converter,
+                         CertificateDtoConverter certificateConverter,
+                         HateoasAdder<TagDto> hateoasAdder,
+                         HateoasAdder<CertificateDto> certificateHateoasAdder) {
         this.certificateService = certificateService;
         this.tagService = tagService;
         this.converter = converter;
         this.certificateConverter = certificateConverter;
+        this.hateoasAdder = hateoasAdder;
+        this.certificateHateoasAdder = certificateHateoasAdder;
     }
 
     @GetMapping
@@ -39,7 +49,9 @@ public class TagController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Tag> tags = tagService.getAllTags(allRequestParameters, size, page);
-        return new ResponseEntity<>(converter.listToDtos(tags), HttpStatus.OK);
+        List<TagDto> tagDtos = converter.listToDtos(tags);
+        hateoasAdder.addLinks(tagDtos);
+        return new ResponseEntity<>(tagDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{tag-id}/gift-certificates")
@@ -50,7 +62,9 @@ public class TagController {
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Certificate> giftCertificates =
                 certificateService.getAllCertificatesByTagId(allRequestParameters, size, page, tagId);
-        return new ResponseEntity<>(certificateConverter.listToDtos(giftCertificates), HttpStatus.OK);
+        List<CertificateDto> certificateDtos = certificateConverter.listToDtos(giftCertificates);
+        certificateHateoasAdder.addLinks(certificateDtos);
+        return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }
 
     @GetMapping("/name/{tag-name}/gift-certificates")
@@ -61,31 +75,41 @@ public class TagController {
             @RequestParam(value = "size", defaultValue = "5") int size) {
         List<Certificate> giftCertificates =
                 certificateService.getAllCertificatesByTagName(allRequestParameters, size, page, tagName);
-        return new ResponseEntity<>(certificateConverter.listToDtos(giftCertificates), HttpStatus.OK);
+        List<CertificateDto> certificateDtos = certificateConverter.listToDtos(giftCertificates);
+        certificateHateoasAdder.addLinks(certificateDtos);
+        return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{tag-id}")
     public ResponseEntity<TagDto> getTagById(@PathVariable("tag-id") Long tagId) {
         Tag tag = tagService.getTagById(tagId);
-        return new ResponseEntity<>(converter.toDto(tag), HttpStatus.OK);
+        TagDto tagDto = converter.toDto(tag);
+        hateoasAdder.addLinks(tagDto);
+        return new ResponseEntity<>(tagDto, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<TagDto> addTag(@RequestBody TagDto tagDto) {
         Tag addedTag = tagService.addTag(converter.toEntity(tagDto));
-        return new ResponseEntity<>(converter.toDto(addedTag), HttpStatus.CREATED);
+        TagDto addedTagDto = converter.toDto(addedTag);
+        hateoasAdder.addLinks(addedTagDto);
+        return new ResponseEntity<>(addedTagDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{tag-id}")
     public ResponseEntity<TagDto> updateTagById(@PathVariable("tag-id") Long tagId,
                                                 @RequestBody TagDto tagDto) {
         Tag updatedTag = tagService.updateTagById(tagId, converter.toEntity(tagDto));
-        return new ResponseEntity<>(converter.toDto(updatedTag), HttpStatus.OK);
+        TagDto updatedTagDto = converter.toDto(updatedTag);
+        hateoasAdder.addLinks(updatedTagDto);
+        return new ResponseEntity<>(updatedTagDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{tag-id}")
     public ResponseEntity<TagDto> deleteTagById(@PathVariable("tag-id") Long tagId) {
         Tag tag = tagService.deleteTagById(tagId);
-        return new ResponseEntity<>(converter.toDto(tag), HttpStatus.OK);
+        TagDto tagDto = converter.toDto(tag);
+        hateoasAdder.addLinks(tagDto);
+        return new ResponseEntity<>(tagDto, HttpStatus.OK);
     }
 }
