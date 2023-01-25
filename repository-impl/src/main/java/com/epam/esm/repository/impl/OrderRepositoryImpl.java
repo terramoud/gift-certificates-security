@@ -1,6 +1,7 @@
 package com.epam.esm.repository.impl;
 
 
+import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.OrderRepository;
@@ -49,7 +50,13 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     public Optional<Order> findById(Long id) {
-        return Optional.ofNullable(em.find(Order.class, id));
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
+        Root<Order> root = criteriaQuery.from(Order.class);
+        root.fetch("certificate", JoinType.LEFT)
+                .fetch("tags", JoinType.LEFT);
+        criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+        return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
     }
 
     @Override
