@@ -1,18 +1,15 @@
 package com.epam.esm.domain.entity;
 
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ToString
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity implements Serializable {
@@ -26,8 +23,13 @@ public class User extends AbstractEntity implements Serializable {
     @Column(name = "login", nullable = false, unique = true)
     private String login;
 
-    public User(Long id, String login) {
-        this.id = id;
-        this.login = login;
-    }
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "password", nullable = false, unique = true)
+    private String password;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
 }
