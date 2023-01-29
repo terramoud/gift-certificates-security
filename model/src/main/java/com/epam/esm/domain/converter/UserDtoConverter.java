@@ -12,7 +12,10 @@ public class UserDtoConverter implements DtoConverter<User, UserDto> {
     public User toEntity(UserDto dto) {
         return new User(
                 dto.getId(),
-                dto.getLogin()
+                dto.getLogin(),
+                dto.getEmail(),
+                dto.getPassword(),
+                dto.getRole()
         );
     }
 
@@ -20,7 +23,10 @@ public class UserDtoConverter implements DtoConverter<User, UserDto> {
     public UserDto toDto(User user) {
         return new UserDto(
                 user.getId(),
-                user.getLogin()
+                user.getLogin(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole()
         );
     }
 }
