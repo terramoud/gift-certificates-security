@@ -65,8 +65,11 @@ CREATE TABLE IF NOT EXISTS certificates_tags
 CREATE TABLE IF NOT EXISTS users
 (
     PRIMARY KEY (id),
-    id    INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
-    login VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE
+    id       INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
+    login    VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE,
+    email    VARCHAR(255)                 NOT NULL UNIQUE,
+    password VARCHAR(32)                  NOT NULL,
+    role     VARCHAR(15)  NOT NULL
 );
 
 
@@ -226,25 +229,42 @@ VALUES (3, 2);
 -- -----------------------------------------------------
 -- fill Users
 -- -----------------------------------------------------
-INSERT INTO users VALUES (DEFAULT, 'admin');
-INSERT INTO users VALUES (DEFAULT, 'Peter');
-INSERT INTO users VALUES (DEFAULT, 'testUser');
-INSERT INTO users VALUES (DEFAULT, 'Jon');
-INSERT INTO users VALUES (DEFAULT, 'Wick');
-INSERT INTO users VALUES (DEFAULT, 'Neo');
-INSERT INTO users VALUES (DEFAULT, 'Morpheus');
-INSERT INTO users VALUES (DEFAULT, 'Igor');
-INSERT INTO users VALUES (DEFAULT, 'Stepan');
-INSERT INTO users VALUES (DEFAULT, 'Jason');
-INSERT INTO users VALUES (DEFAULT, 'Statham');
-INSERT INTO users VALUES (DEFAULT, 'Trinity');
+INSERT INTO users
+VALUES (DEFAULT, 'admin', 'admin@gmail.com', 'adminPass', 'ADMIN');
+INSERT INTO users
+VALUES (DEFAULT, 'Peter', 'Peter@gmail.com', 'PeterPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'testUser', 'testUser@gmail.com', 'testUserPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Jon', 'Jon@gmail.com', 'JonPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Wick', 'Wick@gmail.com', 'WickPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Neo', 'Neo@gmail.com', 'NeoPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Morpheus', 'Morpheus@gmail.com', 'MorpheusPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Igor', 'Igor@gmail.com', 'IgorPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Stepan', 'Stepan@gmail.com', 'StepanPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Jason', 'Jason@gmail.com', 'JasonPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Statham', 'Statham@gmail.com', 'StathamPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Trinity', 'Trinity@gmail.com', 'TrinityPass', 'USER');
 
 
 -- -----------------------------------------------------
 -- fill Orders
 -- -----------------------------------------------------
-INSERT INTO orders VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
-INSERT INTO orders VALUES (DEFAULT, 30.30, '2023-01-04T07:37:14.974', 1, 2);
-INSERT INTO orders VALUES (DEFAULT, 20.20, '2023-01-05T07:37:14.974', 2, 1);
-INSERT INTO orders VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
-INSERT INTO orders VALUES (DEFAULT, 300.99, '2023-01-05T09:37:14.974', 2, 3);
+INSERT INTO orders
+VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
+INSERT INTO orders
+VALUES (DEFAULT, 30.30, '2023-01-04T07:37:14.974', 1, 2);
+INSERT INTO orders
+VALUES (DEFAULT, 20.20, '2023-01-05T07:37:14.974', 2, 1);
+INSERT INTO orders
+VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
+INSERT INTO orders
+VALUES (DEFAULT, 300.99, '2023-01-05T09:37:14.974', 2, 3);
