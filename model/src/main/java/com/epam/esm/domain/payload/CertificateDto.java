@@ -25,9 +25,11 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Positive(message = CERTIFICATE_INVALID_ID)
     private Long id;
 
+    @NotNull(message = CERTIFICATE_NAME_NULL)
     @Pattern(regexp = ENTITY_NAME_REGEXP, message = CERTIFICATE_INVALID_NAME)
     private String name;
 
+    @NotNull(message = CERTIFICATE_DESCRIPTION_NULL)
     @Pattern(regexp = ENTITY_BIG_TEXT_REGEXP, message = CERTIFICATE_INVALID_DESCRIPTION)
     private String description;
 
@@ -36,6 +38,7 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Digits(integer = 9, fraction = 2, message = CERTIFICATE_INVALID_PRICE)
     private BigDecimal price;
 
+    @NotNull(message = CERTIFICATE_DURATION_NULL)
     @Positive(message = CERTIFICATE_INVALID_DURATION)
     private Integer duration;
 
