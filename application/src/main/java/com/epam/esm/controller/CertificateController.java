@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
 import lombok.AllArgsConstructor;
@@ -22,9 +23,10 @@ public class CertificateController {
     @GetMapping
     public ResponseEntity<List<CertificateDto>> getAllCertificates(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<CertificateDto> certificateDtos = certificateService.findAll(allRequestParameters, size, page);
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
+        List<CertificateDto> certificateDtos =
+                certificateService.findAll(allRequestParameters, new PageDto(page, size));
         hateoasAdder.addLinks(certificateDtos);
         return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }

@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.OrderDto;
+import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
@@ -26,9 +27,9 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDto>> findAll(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<UserDto> userDtos = userService.findAll(allRequestParameters, size, page);
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
+        List<UserDto> userDtos = userService.findAll(allRequestParameters, new PageDto(page, size));
         userDtos.forEach(hateoasAdder::addLinks);
         return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
@@ -44,9 +45,9 @@ public class UserController {
     public ResponseEntity<List<OrderDto>> findAllByUserId(
             @PathVariable("user-id") Long userId,
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<OrderDto> orderDtos = orderService.findAllByUserId(allRequestParameters, size, page, userId);
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
+        List<OrderDto> orderDtos = orderService.findAllByUserId(allRequestParameters, new PageDto(page, size), userId);
         orderHateoasAdder.addLinks(orderDtos);
         return new ResponseEntity<>(orderDtos, HttpStatus.OK);
     }
@@ -58,17 +59,17 @@ public class UserController {
         return new ResponseEntity<>(addedUserDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{tag-id}")
-    public ResponseEntity<UserDto> update(@PathVariable("tag-id") Long tagId,
+    @PutMapping("/{user-id}")
+    public ResponseEntity<UserDto> update(@PathVariable("user-id") Long userId,
                                           @RequestBody UserDto userDto) {
-        UserDto updatedUserDto = userService.update(tagId, userDto);
+        UserDto updatedUserDto = userService.update(userId, userDto);
         hateoasAdder.addLinks(updatedUserDto);
         return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{tag-id}")
-    public ResponseEntity<UserDto> deleteById(@PathVariable("tag-id") Long tagId) {
-        UserDto userDto = userService.deleteById(tagId);
+    @DeleteMapping("/{user-id}")
+    public ResponseEntity<UserDto> deleteById(@PathVariable("user-id") Long userId) {
+        UserDto userDto = userService.deleteById(userId);
         hateoasAdder.addLinks(userDto);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }

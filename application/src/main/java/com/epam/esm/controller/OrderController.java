@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.OrderDto;
+import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
 import lombok.AllArgsConstructor;
@@ -23,9 +24,9 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderDto>> getAllOrders(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<OrderDto> orderDtos = orderService.findAll(allRequestParameters, size, page);
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
+        List<OrderDto> orderDtos = orderService.findAll(allRequestParameters, new PageDto(page, size));
         hateoasAdder.addLinks(orderDtos);
         return new ResponseEntity<>(orderDtos, HttpStatus.OK);
     }

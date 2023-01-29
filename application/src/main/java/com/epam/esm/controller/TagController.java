@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
@@ -26,9 +27,9 @@ public class TagController {
     @GetMapping
     public ResponseEntity<List<TagDto>> getAllTags(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<TagDto> tagDtos = tagService.findAll(allRequestParameters, size, page);
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
+        List<TagDto> tagDtos = tagService.findAll(allRequestParameters, new PageDto(page, size));
         hateoasAdder.addLinks(tagDtos);
         return new ResponseEntity<>(tagDtos, HttpStatus.OK);
     }
@@ -37,10 +38,10 @@ public class TagController {
     public ResponseEntity<List<CertificateDto>> getGiftCertificatesByTagId(
             @PathVariable("tag-id") Long tagId,
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
         List<CertificateDto> certificateDtos =
-                certificateService.findAllByTagId(allRequestParameters, size, page, tagId);
+                certificateService.findAllByTagId(allRequestParameters, new PageDto(page, size), tagId);
         certificateHateoasAdder.addLinks(certificateDtos);
         return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }
@@ -49,10 +50,10 @@ public class TagController {
     public ResponseEntity<List<CertificateDto>> getGiftCertificatesByTagName(
             @PathVariable("tag-name") String tagName,
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "size", required = false) int size) {
         List<CertificateDto> certificateDtos =
-                certificateService.findAllByTagName(allRequestParameters, size, page, tagName);
+                certificateService.findAllByTagName(allRequestParameters, new PageDto(page, size), tagName);
         certificateHateoasAdder.addLinks(certificateDtos);
         return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }
