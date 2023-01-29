@@ -1,6 +1,6 @@
 package com.epam.esm.exceptions;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -17,17 +18,16 @@ import org.springframework.web.util.WebUtils;
 
 import java.sql.SQLException;
 
+import static com.epam.esm.exceptions.ErrorCodes.METHOD_ARGUMENT_CONSTRAINT_VIOLATION;
+import static com.epam.esm.exceptions.ErrorCodes.SUFFIX_RESPONSE_ENTITY_EXCEPTIONS;
+
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
-//IllegalArgumentException: Page size must not be less than one
-//IllegalArgumentException: Page size must not be less than one
+
 
     private final Translator translator;
-
-    @Autowired
-    public GlobalRestExceptionHandler(Translator translator) {
-        this.translator = translator;
-    }
+    private final ErrorMessageFormatter messageFormatter;
 
     @ExceptionHandler(Throwable.class)
     public final ResponseEntity<ApiErrorResponse> handleAllExceptionsAndErrors(Throwable ex) {
@@ -79,6 +79,15 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        ex.printStackTrace();
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_CONSTRAINT_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex,
@@ -90,8 +99,8 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status))
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorMessage("default.unsupported.request-response.exception");
-        apiErrorResponse.setErrorCode(status.value() + ErrorCodes.SUFFIX_RESPONSE_ENTITY_EXCEPTIONS.stringCode());
+        apiErrorResponse.setErrorMessage(ex.getMessage());
+        apiErrorResponse.setErrorCode(status.value() + SUFFIX_RESPONSE_ENTITY_EXCEPTIONS.stringCode());
         if (ex instanceof NoHandlerFoundException && ex.getMessage().startsWith("No handler found for")) {
             status = HttpStatus.NOT_FOUND;
             apiErrorResponse.setErrorCode(ErrorCodes.NO_HANDLER_FOUND.stringCode());
