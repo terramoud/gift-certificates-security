@@ -79,6 +79,15 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ResourceUnsupportedOperationException.class)
+    protected ResponseEntity<ApiErrorResponse> customerNotFound(ResourceUnsupportedOperationException ex) {
+        ex.printStackTrace();
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(ErrorCodes.DATA_ACCESS_EXCEPTION.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         ex.printStackTrace();
