@@ -1,5 +1,6 @@
 package com.epam.esm.domain.payload;
 
+import com.epam.esm.domain.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,5 +20,5 @@ public class UserDto extends RepresentationModel<UserDto> {
     @Email
     private String email;
     private String password;
-    private int roleId;
+    private Role role;
 }
