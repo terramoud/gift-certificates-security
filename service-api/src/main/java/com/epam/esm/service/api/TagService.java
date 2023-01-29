@@ -1,6 +1,7 @@
 package com.epam.esm.service.api;
 
-import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.TagDto;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
@@ -8,13 +9,13 @@ import java.util.List;
 
 public interface TagService {
 
-    List<Tag> getAllTags(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<TagDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto);
 
-    Tag getTagById(Long tagId);
+    TagDto findById(Long tagId);
 
-    Tag addTag(Tag tag);
+    TagDto create(TagDto tagDto);
 
-    Tag updateTagById(Long tagId, Tag tag);
+    TagDto update(Long tagId, TagDto tag);
 
-    Tag deleteTagById(Long tagId);
+    TagDto deleteById(Long tagId);
 }

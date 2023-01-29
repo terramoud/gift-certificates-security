@@ -1,23 +1,24 @@
 package com.epam.esm.service.api;
 
-import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.PageDto;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 
 public interface CertificateService {
 
-    List<Certificate> getAllCertificates(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<CertificateDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto);
 
-    List<Certificate> getAllCertificatesByTagId(LinkedMultiValueMap<String, String> fields, int size, int page, Long tagId);
+    List<CertificateDto> findAllByTagId(LinkedMultiValueMap<String, String> fields, PageDto pageDto, Long tagId);
 
-    List<Certificate> getAllCertificatesByTagName(LinkedMultiValueMap<String, String> fields, int size, int page, String tagName);
+    List<CertificateDto> findAllByTagName(LinkedMultiValueMap<String, String> fields, PageDto pageDto, String tagName);
 
-    Certificate getCertificateById(Long id);
+    CertificateDto findById(Long id);
 
-    Certificate addCertificate(Certificate certificate);
+    CertificateDto create(CertificateDto certificateDto);
 
-    Certificate updateCertificateById(Long id, Certificate certificate);
+    CertificateDto update(Long id, CertificateDto certificateDto);
 
-    Certificate deleteCertificateById(Long certificateId);
+    CertificateDto deleteById(Long certificateId);
 }

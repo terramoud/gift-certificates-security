@@ -1,23 +1,21 @@
 package com.epam.esm.service.api;
 
-import com.epam.esm.domain.entity.Order;
+import com.epam.esm.domain.payload.OrderDto;
+import com.epam.esm.domain.payload.PageDto;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 
 public interface OrderService {
-    List<Order> getAllOrders(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<OrderDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto);
 
-    List<Order> getAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
-                                     int size,
-                                     int page,
-                                     Long userId);
+    List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> fields, PageDto pageDto, Long userId);
 
-    Order getOrderById(Long id);
+    OrderDto findById(Long id);
 
-    Order addOrder(Order order);
+    OrderDto create(OrderDto orderDto);
 
-    Order updateOrderById(Order order, Long id);
+    OrderDto update(OrderDto order, Long id);
 
-    Order deleteOrderById(Long id);
+    OrderDto deleteById(Long id);
 }

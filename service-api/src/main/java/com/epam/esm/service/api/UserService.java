@@ -1,5 +1,6 @@
 package com.epam.esm.service.api;
 
+import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 
 public interface UserService {
-    List<UserDto> findAll(LinkedMultiValueMap<String, String> fields, int size, int page);
+    List<UserDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto);
 
     UserDto findById(Long id);
 
