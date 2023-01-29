@@ -2,8 +2,6 @@ package com.epam.esm.config;
 
 import com.epam.esm.domain.entity.Tag;
 
-import java.util.Set;
-
 public class TestTags {
     public Tag tag1 = new Tag(1L, "language courses");
     public Tag tag2 = new Tag(2L, "dancing courses");
