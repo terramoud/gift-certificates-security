@@ -1,6 +1,7 @@
 package com.epam.esm.domain.converter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -24,10 +25,22 @@ public interface DtoConverter<S, D> {
      * @param dtos list source entities to convert
      * @return converted list dto entities
      */
-    default List<S> listToEntities(List<D> dtos){
+    default List<S> toEntity(List<D> dtos){
         return dtos.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Converts list Dtos to list source entities
+     *
+     * @param dtos list source entities to convert
+     * @return converted list dto entities
+     */
+    default Set<S> toEntity(Set<D> dtos){
+        return dtos.stream()
+                .map(this::toEntity)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -44,10 +57,21 @@ public interface DtoConverter<S, D> {
      * @param entities list source entities to convert
      * @return converted list dto entities
      */
-    default List<D> listToDtos(List<S> entities) {
+    default List<D> toDto(List<S> entities) {
         return entities.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Converts list source entities to Dto
+     *
+     * @param entities list source entities to convert
+     * @return converted list dto entities
+     */
+    default Set<D> toDto(Set<S> entities) {
+        return entities.stream()
+                .map(this::toDto)
+                .collect(Collectors.toSet());
+    }
 }
