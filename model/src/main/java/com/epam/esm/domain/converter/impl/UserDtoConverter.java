@@ -1,6 +1,7 @@
-package com.epam.esm.domain.converter;
+package com.epam.esm.domain.converter.impl;
 
 
+import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.domain.payload.UserDto;
 import org.springframework.stereotype.Component;
