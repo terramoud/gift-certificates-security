@@ -4,24 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.io.Serializable;
+
+import static com.epam.esm.domain.validation.ValidationConstants.*;
 
 @Data
 @AllArgsConstructor
-public class PageDto implements Serializable {
-    private static final long serialVersionUID = -3319772390593018460L;
+public class PageDto {
 
     @Value("${pagination.defaultPage}")
-//    @PositiveOrZero(message = "pagination.invalid.page")
-    @PositiveOrZero()
+    @PositiveOrZero(message = INVALID_PAGE)
     private final int page;
 
-
+    @Value("${pagination.defaultSize}")
+    @Positive(message = INVALID_LIMIT_SIZE)
     private final int size;
-
-    @NotNull
-    private String licensePlate;
-
 }
