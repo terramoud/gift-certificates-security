@@ -7,7 +7,6 @@ import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
 import com.epam.esm.domain.validation.OnCreate;
-import com.epam.esm.domain.validation.UserValidator;
 import com.epam.esm.exceptions.ErrorCodes;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
@@ -40,7 +39,6 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
     private static final String USER_NOT_FOUND = "user.not.found";
 
     private final UserRepository userRepository;
-    private final UserValidator validator;
     private final DtoConverter<User, UserDto> converter;
     private final DtoConverter<Order, OrderDto> orderConverter;
 

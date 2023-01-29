@@ -4,9 +4,7 @@ import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
-import com.epam.esm.domain.validation.CertificateValidator;
 import com.epam.esm.domain.validation.OnCreate;
-import com.epam.esm.domain.validation.UserValidator;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.OrderRepository;
 import com.epam.esm.service.api.OrderService;
@@ -37,8 +35,6 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     private static final String CHANGE_FILLED_ORDER = "forbidden.change.filled.order";
 
     private final OrderRepository orderRepository;
-    private final UserValidator userValidator;
-    private final CertificateValidator certificateValidator;
     private final DtoConverter<Order, OrderDto> converter;
 
     @Override

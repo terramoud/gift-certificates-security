@@ -1,11 +1,11 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.domain.converter.CertificateDtoConverter;
-import com.epam.esm.domain.converter.TagDtoConverter;
+import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.CertificateRepository;
@@ -42,9 +42,9 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
     private static final String WRONG_TAG_ID = "wrong.tag.id";
 
     private final CertificateRepository certificateRepository;
-    private final CertificateDtoConverter converter;
+    private final DtoConverter<Certificate, CertificateDto> converter;
     private final TagRepository tagRepository;
-    private final TagDtoConverter tagConverter;
+    private final DtoConverter<Tag, TagDto> tagConverter;
 
     @Override
     public List<CertificateDto> findAll(LinkedMultiValueMap<String, String> fields, @Valid PageDto pageDto) {

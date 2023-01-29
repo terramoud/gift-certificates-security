@@ -1,12 +1,13 @@
 package com.epam.esm.service.impl;
 
 
-import com.epam.esm.domain.converter.CertificateDtoConverter;
-import com.epam.esm.domain.converter.TagDtoConverter;
+import com.epam.esm.domain.converter.DtoConverter;
+import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.validation.OnCreate;
-import com.epam.esm.domain.validation.TagValidator;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.TagService;
@@ -37,9 +38,8 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
     private static final String TAG_ID_NOT_MAPPED = "tag.id.not.mapped";
 
     private final TagRepository tagRepository;
-    private final TagValidator validator;
-    private final TagDtoConverter converter;
-    private final CertificateDtoConverter certificateConverter;
+    private final DtoConverter<Tag, TagDto> converter;
+    private final DtoConverter<Certificate, CertificateDto> certificateConverter;
 
     @Override
     public List<TagDto> findAll(LinkedMultiValueMap<String, String> fields, @Valid PageDto pageDto) {
