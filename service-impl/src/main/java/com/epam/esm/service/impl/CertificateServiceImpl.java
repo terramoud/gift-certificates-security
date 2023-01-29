@@ -12,6 +12,7 @@ import com.epam.esm.repository.api.CertificateRepository;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.CertificateService;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,15 +27,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Service
 @Transactional
 @Validated
-public class CertificateServiceImpl implements CertificateService {
+public class CertificateServiceImpl extends AbstractService<CertificateDto, Long> implements CertificateService {
 
-    private static final String TAG_NAME_REGEXP = "^[\\p{L}][\\p{L} \\-']{0,30}[\\p{L}]$";
     private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
     private static final String CERTIFICATE_ID_NOT_MAPPED = "certificate.id.not.mapped";
+    private static final String TAG_NAME_REGEXP = "^[\\p{L}][\\p{L} \\-']{0,30}[\\p{L}]$";
     private static final String WRONG_TAG_NAME = "wrong.tag.name";
     private static final String WRONG_CERTIFICATE_ID = "wrong.certificate.id";
     private static final String WRONG_TAG_ID = "wrong.tag.id";
@@ -77,8 +79,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Validated(OnCreate.class)
     @Override
     public CertificateDto create(@Valid CertificateDto certificateDto) {
-        Certificate certificate = converter.toEntity(certificateDto);
-        return converter.toDto(certificateRepository.save(certificate));
+        return converter.toDto(certificateRepository.save(converter.toEntity(certificateDto)));
     }
 
     @Override
@@ -91,17 +92,17 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public CertificateDto update(@Positive(message = WRONG_CERTIFICATE_ID) Long id,
                                  @Valid CertificateDto certificateDto) {
-        if (!isCertificateIdEqualsRequestId(certificateDto.getId(), id)) {
+        if (!isEqualsIds(certificateDto.getId(), id)) {
             throw new InvalidResourcePropertyException(CERTIFICATE_ID_NOT_MAPPED, id, ErrorCodes.INVALID_ID_PROPERTY);
         }
-        Certificate certificateToUpdate = converter.toEntity(findById(id));
+        Certificate certificateToUpdate = converter.toEntity(findById(id))  ;
         Set<Tag> tagsToUpdate = tagConverter.toEntity(certificateDto.getTags());
         certificateToUpdate.addTags(getUniqueTagsForThisCertificate(certificateToUpdate.getTags(), tagsToUpdate));
         updateTags(tagsToUpdate);
         return converter.toDto(certificateRepository.update(certificateToUpdate, id));
     }
 
-    private Set<Tag> getUniqueTagsForThisCertificate(Set<Tag> sourceTags, Set<@Valid Tag> tagsToUpdate) {
+    private Set<@Valid Tag> getUniqueTagsForThisCertificate(Set<Tag> sourceTags, Set<@Valid Tag> tagsToUpdate) {
         Set<Long> sourceTagsIds = sourceTags.stream()
                 .map(Tag::getId)
                 .collect(Collectors.toSet());
@@ -112,9 +113,5 @@ public class CertificateServiceImpl implements CertificateService {
 
     private void updateTags(Set<@Valid Tag> tagsToUpdate) {
         tagsToUpdate.forEach(tag -> tagRepository.update(tag, tag.getId()));
-    }
-
-    private boolean isCertificateIdEqualsRequestId(Long certificateId, Long requestId) {
-        return certificateId.equals(requestId);
     }
 }

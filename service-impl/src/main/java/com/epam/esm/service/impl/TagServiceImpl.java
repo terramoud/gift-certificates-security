@@ -61,18 +61,21 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
     }
 
     @Override
-    public TagDto deleteById(@Positive(message = WRONG_TAG_ID) Long tagId) {
-        TagDto tagDto = findById(tagId);
-        tagRepository.delete(converter.toEntity(tagDto));
-        return tagDto;
-    }
-
-    @Override
     public TagDto update(@Positive(message = WRONG_TAG_ID) Long id,
                          @Valid TagDto tagDto) {
         if (!isEqualsIds(tagDto.getId(), id)) {
             throw new InvalidResourcePropertyException(TAG_ID_NOT_MAPPED, tagDto.getId(), INVALID_ID_PROPERTY);
         }
+        if (tagRepository.findById(id).isEmpty()) {
+            throw new ResourceNotFoundException(TAG_NOT_FOUND, id, ErrorCodes.NOT_FOUND_TAG_RESOURCE);
+        }
         return converter.toDto(tagRepository.update(converter.toEntity(tagDto), id));
+    }
+
+    @Override
+    public TagDto deleteById(@Positive(message = WRONG_TAG_ID) Long tagId) {
+        TagDto tagDto = findById(tagId);
+        tagRepository.delete(converter.toEntity(findById(tagId)));
+        return tagDto;
     }
 }
