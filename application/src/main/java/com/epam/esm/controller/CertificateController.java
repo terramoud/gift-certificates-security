@@ -4,6 +4,12 @@ import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +24,7 @@ import java.util.List;
 public class CertificateController {
 
     private final CertificateService certificateService;
+    private final ObjectMapper objectMapper;
     private final HateoasAdder<CertificateDto> hateoasAdder;
 
     @GetMapping
@@ -40,22 +47,13 @@ public class CertificateController {
 
     @PostMapping
     public ResponseEntity<CertificateDto> addCertificate(@RequestBody CertificateDto certificateDto) {
-        CertificateDto addedCertificateDto  = certificateService.create(certificateDto);
+        CertificateDto addedCertificateDto = certificateService.create(certificateDto);
         hateoasAdder.addLinks(addedCertificateDto);
         return new ResponseEntity<>(addedCertificateDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{certificate-id}")
-    public ResponseEntity<CertificateDto> updateCertificateById(
-            @PathVariable("certificate-id") Long certificateId,
-            @RequestBody CertificateDto certificateDto) {
-        CertificateDto updatedCertificateDto = certificateService.update(certificateId, certificateDto);
-        hateoasAdder.addLinks(updatedCertificateDto);
-        return new ResponseEntity<>(updatedCertificateDto, HttpStatus.OK);
-    }
-
     @PutMapping("/{certificate-id}")
-    public ResponseEntity<CertificateDto> updateCertificateByIdPut(
+    public ResponseEntity<CertificateDto> updateCertificateById(
             @PathVariable("certificate-id") Long certificateId,
             @RequestBody CertificateDto certificateDto) {
         CertificateDto updatedCertificateDto = certificateService.update(certificateId, certificateDto);
@@ -68,5 +66,21 @@ public class CertificateController {
         CertificateDto certificateDto = certificateService.deleteById(certificateId);
         hateoasAdder.addLinks(certificateDto);
         return new ResponseEntity<>(certificateDto, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{certificate-id}")
+    public ResponseEntity<CertificateDto> updateCertificatePartiallyById(
+            @PathVariable("certificate-id") Long certificateId,
+            @RequestBody JsonPatch patch) throws JsonPatchException, JsonProcessingException {
+        CertificateDto partiallyModifiedDto = applyPatch(patch, certificateService.findById(certificateId));
+        CertificateDto updatedDto = certificateService.update(certificateId, partiallyModifiedDto);
+        hateoasAdder.addLinks(updatedDto);
+        return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+    }
+
+    private CertificateDto applyPatch(JsonPatch patch, CertificateDto certificateDto)
+            throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = patch.apply(objectMapper.convertValue(certificateDto, JsonNode.class));
+        return objectMapper.treeToValue(patched, CertificateDto.class);
     }
 }
