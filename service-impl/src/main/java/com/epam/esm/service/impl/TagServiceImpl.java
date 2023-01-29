@@ -1,82 +1,78 @@
 package com.epam.esm.service.impl;
 
 
-import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.converter.CertificateDtoConverter;
+import com.epam.esm.domain.converter.TagDtoConverter;
+import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.TagDto;
+import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.TagValidator;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
+import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Service
 @Transactional
-public class TagServiceImpl implements TagService {
+@Validated
+public class TagServiceImpl extends AbstractService<TagDto, Long> implements TagService {
 
-    public static final String TAG_NOT_FOUND = "tag.not.found";
-    public static final String TAG_ERROR_INVALID_ID = "tag.error.invalid.id";
+    private static final String TAG_NOT_FOUND = "tag.not.found";
+    private static final String WRONG_TAG_ID = "wrong.tag.id";
+    private static final String TAG_ID_NOT_MAPPED = "tag.id.not.mapped";
 
     private final TagRepository tagRepository;
     private final TagValidator validator;
+    private final TagDtoConverter converter;
+    private final CertificateDtoConverter certificateConverter;
 
-    @Autowired
-    public TagServiceImpl(TagRepository tagRepository, TagValidator tagValidator) {
-        this.tagRepository = tagRepository;
-        this.validator = tagValidator;
+    @Override
+    public List<TagDto> findAll(LinkedMultiValueMap<String, String> fields, @Valid PageDto pageDto) {
+        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
+        return converter.toDto(tagRepository.findAll(fields, pageRequest));
     }
 
     @Override
-    public List<Tag> getAllTags(LinkedMultiValueMap<String, String> fields, int size, int page) {
-        if (size < 1) throw new InvalidPaginationParameterException(
-                "limit", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        if (page < 0) throw new InvalidPaginationParameterException(
-                "offset", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        Pageable pageRequest = PageRequest.of(page, size);
-        return tagRepository.findAll(fields, pageRequest);
-    }
-
-    @Override
-    public Tag getTagById(Long tagId) {
-        if (!validator.validateId(tagId)) throw new InvalidResourcePropertyException(
-                TAG_ERROR_INVALID_ID, tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        return tagRepository.findById(tagId)
+    public TagDto findById(@Positive(message = WRONG_TAG_ID) Long tagId) {
+        return converter.toDto(tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        TAG_NOT_FOUND, tagId, ErrorCodes.NOT_FOUND_TAG_RESOURCE));
+                        TAG_NOT_FOUND, tagId, ErrorCodes.NOT_FOUND_TAG_RESOURCE)));
+    }
+
+    @Validated(OnCreate.class)
+    @Override
+    public TagDto create(@Valid TagDto tagDto) {
+        return converter.toDto(tagRepository.save(converter.toEntity(tagDto)));
     }
 
     @Override
-    public Tag addTag(Tag tag) {
-        if (!validator.validateId(tag.getId())) throw new InvalidResourcePropertyException(
-                TAG_ERROR_INVALID_ID, tag.getId(), ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (!validator.validateName(tag.getName())) throw new InvalidResourceNameException(
-                "tag.error.invalid.name", tag.getName(), ErrorCodes.INVALID_TAG_NAME_PROPERTY);
-        return tagRepository.save(tag);
+    public TagDto deleteById(@Positive(message = WRONG_TAG_ID) Long tagId) {
+        TagDto tagDto = findById(tagId);
+        tagRepository.delete(converter.toEntity(tagDto));
+        return tagDto;
     }
 
     @Override
-    public Tag updateTagById(Long tagId, Tag tag) {
-        if (!validator.validateId(tagId)) throw new InvalidResourcePropertyException(
-                TAG_ERROR_INVALID_ID, tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (!validator.validateId(tag.getId()) || !tag.getId().equals(tagId))
-            throw new InvalidResourcePropertyException(
-                        "tag.error.paramId.no.equals.bodyId", tag.getId(), ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        Tag tagToUpdate = getTagById(tagId);
-        if (tag.getName() != null) tagToUpdate.setName(tag.getName());
-        if (!validator.validateName(tagToUpdate.getName())) throw new InvalidResourceNameException(
-                "tag.error.invalid.name", tag.getName(), ErrorCodes.INVALID_TAG_NAME_PROPERTY);
-        return tagRepository.update(tagToUpdate, tagId);
-    }
-
-    @Override
-    public Tag deleteTagById(Long tagId) {
-        Tag tag = getTagById(tagId);
-        tagRepository.delete(tag);
-        return tag;
+    public TagDto update(@Positive(message = WRONG_TAG_ID) Long id,
+                         @Valid TagDto tagDto) {
+        if (!isEqualsIds(tagDto.getId(), id)) {
+            throw new InvalidResourcePropertyException(TAG_ID_NOT_MAPPED, tagDto.getId(), INVALID_ID_PROPERTY);
+        }
+        return converter.toDto(tagRepository.update(converter.toEntity(tagDto), id));
     }
 }
