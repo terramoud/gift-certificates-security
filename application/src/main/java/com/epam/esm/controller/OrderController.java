@@ -45,14 +45,6 @@ public class OrderController {
         return new ResponseEntity<>(addedOrderDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{order-id}")
-    public ResponseEntity<OrderDto> updateOrderById(@PathVariable("order-id") Long orderId,
-                                                    @RequestBody OrderDto orderDto) {
-        OrderDto updatedOrderDto = orderService.update(orderDto, orderId);
-        hateoasAdder.addLinks(updatedOrderDto);
-        return new ResponseEntity<>(updatedOrderDto, HttpStatus.OK);
-    }
-
     @DeleteMapping("/{order-id}")
     public ResponseEntity<OrderDto> deleteOrderById(@PathVariable("order-id") Long orderId) {
         OrderDto orderDto = orderService.deleteById(orderId);
