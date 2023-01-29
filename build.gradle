@@ -23,6 +23,7 @@ allprojects {
 		runtimeOnly 'com.h2database:h2'
 		runtimeOnly 'com.mysql:mysql-connector-j'
 		annotationProcessor 'org.projectlombok:lombok'
+		implementation 'com.github.java-json-tools:json-patch:1.13'
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	}
 
