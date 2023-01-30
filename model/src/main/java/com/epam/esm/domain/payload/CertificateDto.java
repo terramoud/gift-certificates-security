@@ -30,11 +30,11 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     private String name;
 
     @NotNull(message = CERTIFICATE_DESCRIPTION_NULL)
-    @Pattern(regexp = ENTITY_BIG_TEXT_REGEXP, message = CERTIFICATE_INVALID_DESCRIPTION)
+    @Size(min = 3, max = 500, message = CERTIFICATE_INVALID_DESCRIPTION)
     private String description;
 
     @NotNull(message = CERTIFICATE_PRICE_NULL)
-    @DecimalMin(value = "0.1", inclusive = false, message = CERTIFICATE_SMALL_PRICE)
+    @DecimalMin(value = "0.1", inclusive = false, message = CERTIFICATE_INVALID_PRICE)
     @Digits(integer = 9, fraction = 2, message = CERTIFICATE_INVALID_PRICE)
     private BigDecimal price;
 
