@@ -1,6 +1,7 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.RepositoryTestConfig;
+import com.epam.esm.config.TestUsers;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +44,6 @@ class UserRepositoryImplTest {
     void setUp() {
 
     }
-
-    private final static User USER2 = new User(2L, "Peter");
 
     /**
      * @see UserRepositoryImpl#findAll(LinkedMultiValueMap, Pageable)
@@ -93,7 +92,8 @@ class UserRepositoryImplTest {
      */
     @Test
     void testFindByIdShouldReturnTagWithId() {
-        Optional<User> expected = Optional.of(USER2);
+        TestUsers testUsers = new TestUsers();
+        Optional<User> expected = Optional.of(testUsers.user2);
         Optional<User> tag = userRepository.findById(2L);
         assertEquals(expected, tag);
     }
@@ -103,8 +103,11 @@ class UserRepositoryImplTest {
      */
     @Test
     void testSave() {
-        User newUser = new User();
+        TestUsers testUsers = new TestUsers();
+        User newUser = testUsers.user1;
+        testUsers.user1.setId(null);
         newUser.setLogin("new User");
+        newUser.setEmail("new Email");
         User savedUser = userRepository.save(newUser);
         Optional<User> expected = userRepository.findById(savedUser.getId());
         assertEquals(expected.get(), newUser);
