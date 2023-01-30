@@ -5,20 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.web.util.WebUtils;
 
+import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 
 import static com.epam.esm.exceptions.ErrorCodes.*;
@@ -27,7 +22,7 @@ import static com.epam.esm.exceptions.ExceptionConstants.*;
 @RestControllerAdvice
 @RequiredArgsConstructor
 @Slf4j
-public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalRestExceptionHandler {
 
 
     private final Translator translator;
@@ -101,27 +96,36 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @NonNull
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex,
-                                                             @Nullable Object body,
-                                                             @NonNull HttpHeaders headers,
-                                                             @NonNull HttpStatus status,
-                                                             @NonNull WebRequest request) {
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
         log.warn(ex.getMessage(), ex);
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, RequestAttributes.SCOPE_REQUEST);
-        }
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_TYPE_MISTMATCH.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(PATH_VARIABLE_CONSTRAINT_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    protected ResponseEntity<ApiErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
         apiErrorResponse.setErrorMessage(ex.getMessage());
-        apiErrorResponse.setErrorCode(status.value() + SUFFIX_RESPONSE_ENTITY_EXCEPTIONS.stringCode());
-        if (ex instanceof NoHandlerFoundException && ex.getMessage().startsWith("No handler found for")) {
-            status = HttpStatus.NOT_FOUND;
+        if (ex.getMessage().startsWith("No handler found for")) {
             apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
             apiErrorResponse.setErrorMessage(ex.getMessage()
                     .replace("No handler found for", translator.toLocale(NO_HANDLER_FOUND_FOR)));
         }
-        return new ResponseEntity<>(apiErrorResponse, headers, status);
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({InvalidResourcePropertyException.class})
