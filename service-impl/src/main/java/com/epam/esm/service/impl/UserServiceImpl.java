@@ -6,7 +6,6 @@ import com.epam.esm.domain.entity.User;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
-import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.exceptions.ErrorCodes;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
@@ -19,10 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
@@ -31,7 +27,6 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @Data
 @Service
 @Transactional
-@Validated
 public class UserServiceImpl extends AbstractService<UserDto, Long> implements UserService {
 
     private static final String WRONG_USER_ID = "wrong.tag.id";
@@ -43,27 +38,25 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
     private final DtoConverter<Order, OrderDto> orderConverter;
 
     @Override
-    public List<UserDto> findAll(LinkedMultiValueMap<String, String> fields, @Valid PageDto pageDto) {
+    public List<UserDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
         return converter.toDto(userRepository.findAll(fields, pageRequest));
     }
 
     @Override
-    public UserDto findById(@Positive(message = WRONG_USER_ID) Long id) {
+    public UserDto findById(Long id) {
         return converter.toDto(userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE)));
     }
 
-    @Validated(OnCreate.class)
     @Override
-    public UserDto create(@Valid UserDto userDto) {
+    public UserDto create(UserDto userDto) {
         return converter.toDto(userRepository.save(converter.toEntity(userDto)));
     }
 
     @Override
-    public UserDto update(@Positive(message = WRONG_USER_ID) Long id,
-                          @Valid UserDto userDto) {
+    public UserDto update(Long id, UserDto userDto) {
         if (!isEqualsIds(userDto.getId(), id)) {
             throw new InvalidResourcePropertyException(USER_ID_NOT_MAPPED, userDto.getId(), INVALID_ID_PROPERTY);
         }
@@ -74,7 +67,7 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
     }
 
     @Override
-    public UserDto deleteById(@Positive(message = WRONG_USER_ID) Long id) {
+    public UserDto deleteById(Long id) {
         UserDto userDto = findById(id);
         userRepository.delete(converter.toEntity(userDto));
         return userDto;

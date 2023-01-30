@@ -4,6 +4,7 @@ import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.CertificateRepository;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @NoArgsConstructor
+@Slf4j
 public class CertificateRepositoryImpl implements CertificateRepository {
 
     public static final String CERTIFICATE_ID = "id";
@@ -71,7 +74,8 @@ public class CertificateRepositoryImpl implements CertificateRepository {
             root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
             criteriaQuery.where(criteriaBuilder.equal(root.get(CERTIFICATE_ID), id));
             return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException | PersistenceException ex) {
+            log.warn(ex.getMessage(), ex);
             return Optional.empty();
         }
     }
