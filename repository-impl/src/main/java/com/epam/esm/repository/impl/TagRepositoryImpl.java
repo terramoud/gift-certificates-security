@@ -1,13 +1,10 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.TagRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
@@ -18,10 +15,9 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Repository
-@Transactional
+@NoArgsConstructor
 public class TagRepositoryImpl implements TagRepository {
 
-    private static final Logger LOG = LogManager.getLogger(TagRepositoryImpl.class);
     public static final String TAG_ID = "id";
     public static final String TAG_NAME = "name";
     public static final String FILTER_KEY_NAME = "name";
@@ -37,10 +33,6 @@ public class TagRepositoryImpl implements TagRepository {
 
     @PersistenceContext
     private EntityManager em;
-
-    public TagRepositoryImpl() {
-
-    }
 
     public Optional<Tag> findById(Long id) {
         return Optional.ofNullable(em.find(Tag.class, id));
@@ -75,12 +67,13 @@ public class TagRepositoryImpl implements TagRepository {
     private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
                                     CriteriaBuilder criteriaBuilder,
                                     Root<Tag> root) {
-        String searchQuery = fields.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0);
-        String filterByName = fields.getOrDefault(FILTER_KEY_NAME, List.of("")).get(0);
+        String searchQuery = fields.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
+        String filterByName = fields.getOrDefault(FILTER_KEY_NAME, List.of("")).get(0).trim();
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.like(root.get(TAG_NAME), "%" + searchQuery.trim() + "%"));
-        if (!filterByName.isEmpty())
+        predicates.add(criteriaBuilder.like(root.get(TAG_NAME), createLikeQuery(searchQuery)));
+        if (!filterByName.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(TAG_NAME), filterByName));
+        }
         return predicates;
     }
 
@@ -89,7 +82,9 @@ public class TagRepositoryImpl implements TagRepository {
                       CriteriaQuery<Tag> criteriaQuery,
                       Root<Tag> root) {
         String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(TAG_ID)).get(0).trim();
-        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(TAG_ID);
+        if (stringSortParams.isEmpty()) {
+            stringSortParams = "+".concat(TAG_ID);
+        }
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
                 .map(el -> el.startsWith(TAG_NAME) ? "+".concat(el) : el)

@@ -4,12 +4,10 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.OrderRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.NoArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
@@ -20,17 +18,21 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Repository
-@Transactional
+@NoArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
 
-    private static final Logger LOG = LogManager.getLogger(OrderRepositoryImpl.class);
-    public static final String ORDER_ID = "id";
-    public static final String ORDER_COST = "cost";
-    public static final String ORDER_CREATE_DATE = "createDate";
-    public static final String SORT_REQUEST_PARAM = "sort";
-    public static final String PARAM_ID = "id";
-    public static final String PARAM_COST = "cost";
-    public static final String PARAM_CREATE_DATE = "create_date";
+    private static final String ORDER_ID = "id";
+    private static final String ORDER_COST = "cost";
+    private static final String ORDER_CREATE_DATE = "createDate";
+    private static final String SORT_REQUEST_PARAM = "sort";
+    private static final String PARAM_ID = "id";
+    private static final String PARAM_COST = "cost";
+    private static final String PARAM_CREATE_DATE = "create_date";
+
+    private static final String JOINED_FIELD_CERTIFICATE = "certificate";
+    private static final String JOINED_FIELD_USER = "user";
+    private static final String CERTIFICATE_JOINED_FIELD_TAGS = "tags";
+    private static final String USER_ID = "id";
 
     private final Map<String, BiFunction<CriteriaBuilder, Root<Order>, javax.persistence.criteria.Order>> sortBy =
             Map.of(
@@ -45,18 +47,14 @@ public class OrderRepositoryImpl implements OrderRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public OrderRepositoryImpl() {
-
-    }
-
     public Optional<Order> findById(Long id) {
         try {
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
             CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
             Root<Order> root = criteriaQuery.from(Order.class);
-            root.fetch("certificate", JoinType.LEFT)
-                    .fetch("tags", JoinType.LEFT);
-            criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+            root.fetch(JOINED_FIELD_CERTIFICATE, JoinType.LEFT)
+                    .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
+            criteriaQuery.where(criteriaBuilder.equal(root.get(ORDER_ID), id));
             return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -83,8 +81,8 @@ public class OrderRepositoryImpl implements OrderRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
-        root.fetch("certificate", JoinType.LEFT)
-                .fetch("tags", JoinType.LEFT);
+        root.fetch(JOINED_FIELD_CERTIFICATE, JoinType.LEFT)
+                .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
@@ -99,11 +97,11 @@ public class OrderRepositoryImpl implements OrderRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
-        root.fetch("certificate", JoinType.LEFT)
-                .fetch("tags", JoinType.LEFT);
+        root.fetch(JOINED_FIELD_CERTIFICATE, JoinType.LEFT)
+                .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Order, User> userJoin = root.join("user");
-        predicates.add(criteriaBuilder.equal(userJoin.get("id"), userId));
+        Join<Order, User> userJoin = root.join(JOINED_FIELD_USER);
+        predicates.add(criteriaBuilder.equal(userJoin.get(USER_ID), userId));
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
         sort(fields, criteriaBuilder, criteriaQuery, root);
@@ -116,10 +114,12 @@ public class OrderRepositoryImpl implements OrderRepository {
         String filterByCost = fields.getOrDefault(PARAM_COST, List.of("")).get(0);
         String filterByCreateDate = fields.getOrDefault(PARAM_CREATE_DATE, List.of("")).get(0);
         List<Predicate> predicates = new ArrayList<>();
-        if (!filterByCost.isEmpty())
+        if (!filterByCost.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(ORDER_COST), filterByCost));
-        if (!filterByCreateDate.isEmpty())
+        }
+        if (!filterByCreateDate.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(ORDER_CREATE_DATE), filterByCreateDate));
+        }
         return predicates;
     }
 
@@ -128,7 +128,9 @@ public class OrderRepositoryImpl implements OrderRepository {
                       CriteriaQuery<Order> criteriaQuery,
                       Root<Order> root) {
         String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(PARAM_ID)).get(0).trim();
-        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(PARAM_ID);
+        if (stringSortParams.isEmpty()) {
+            stringSortParams = "+".concat(PARAM_ID);
+        }
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
                 .map(el -> el.startsWith(PARAM_COST) ? "+".concat(el) : el)

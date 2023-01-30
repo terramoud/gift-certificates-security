@@ -3,12 +3,10 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.CertificateRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.NoArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
@@ -19,10 +17,9 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Repository
-@Transactional
+@NoArgsConstructor
 public class CertificateRepositoryImpl implements CertificateRepository {
 
-    private static final Logger LOG = LogManager.getLogger(CertificateRepositoryImpl.class);
     public static final String CERTIFICATE_ID = "id";
     public static final String CERTIFICATE_NAME = "name";
     public static final String CERTIFICATE_DESCRIPTION = "description";
@@ -40,6 +37,10 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     public static final String FILTER_BY_DURATION = "duration";
     public static final String FILTER_BY_CREATE_DATE = "create_date";
     public static final String FILTER_BY_LAST_UPDATE_DATE = "last_update_date";
+
+    public static final String JOINED_FIELD_NAME = "tags";
+    private static final String TAG_ID_FIELD = "id";
+    private static final String TAG_NAME_FIELD = "name";
 
     private final Map<String, BiFunction<CriteriaBuilder, Root<Certificate>, Order>> sortBy = Map.ofEntries(
             Map.entry("+id", (cb, root) -> cb.asc(root.get(CERTIFICATE_ID))),
@@ -67,8 +68,8 @@ public class CertificateRepositoryImpl implements CertificateRepository {
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
             CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
             Root<Certificate> root = criteriaQuery.from(Certificate.class);
-            root.fetch("tags", JoinType.LEFT);
-            criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+            root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
+            criteriaQuery.where(criteriaBuilder.equal(root.get(CERTIFICATE_ID), id));
             return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -96,7 +97,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        root.fetch("tags", JoinType.LEFT);
+        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
@@ -111,10 +112,10 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        root.fetch("tags", JoinType.LEFT);
+        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Certificate, Tag> certificatesTags = root.join("tags");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("id"), tagId));
+        Join<Certificate, Tag> certificatesTags = root.join(JOINED_FIELD_NAME);
+        predicates.add(criteriaBuilder.equal(certificatesTags.get(TAG_ID_FIELD), tagId));
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
         sort(fields, criteriaBuilder, criteriaQuery, root);
@@ -128,10 +129,10 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        root.fetch("tags", JoinType.LEFT);
+        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
         List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Certificate, Tag> certificatesTags = root.join("tags");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("name"), tagName));
+        Join<Certificate, Tag> certificatesTags = root.join(JOINED_FIELD_NAME);
+        predicates.add(criteriaBuilder.equal(certificatesTags.get(TAG_NAME_FIELD), tagName));
         criteriaQuery.where(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root);
         sort(fields, criteriaBuilder, criteriaQuery, root);
@@ -150,21 +151,27 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         String filterByLastUpdateDate = fields.getOrDefault(FILTER_BY_LAST_UPDATE_DATE, List.of("")).get(0).trim();
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(criteriaBuilder.or(
-                criteriaBuilder.like(root.get(CERTIFICATE_NAME), "%" + searchQuery + "%"),
-                criteriaBuilder.like(root.get(CERTIFICATE_DESCRIPTION), "%" + searchQuery + "%")
+                criteriaBuilder.like(root.get(CERTIFICATE_NAME), createLikeQuery(searchQuery)),
+                criteriaBuilder.like(root.get(CERTIFICATE_DESCRIPTION), createLikeQuery(searchQuery))
         ));
-        if (!filterByName.isEmpty())
+        if (!filterByName.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_NAME), filterByName));
-        if (!filterByDescription.isEmpty())
+        }
+        if (!filterByDescription.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DESCRIPTION), filterByDescription));
-        if (!filterByPrice.isEmpty())
+        }
+        if (!filterByPrice.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_PRICE), filterByPrice));
-        if (!filterByDuration.isEmpty())
+        }
+        if (!filterByDuration.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DURATION), filterByDuration));
-        if (!filterByCreateDate.isEmpty())
+        }
+        if (!filterByCreateDate.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_CREATE_DATE), filterByCreateDate));
-        if (!filterByLastUpdateDate.isEmpty())
+        }
+        if (!filterByLastUpdateDate.isEmpty()) {
             predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_LAST_UPDATE_DATE), filterByLastUpdateDate));
+        }
         return predicates;
     }
 
@@ -173,7 +180,9 @@ public class CertificateRepositoryImpl implements CertificateRepository {
                       CriteriaQuery<Certificate> criteriaQuery,
                       Root<Certificate> root) {
         String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAM, List.of(FILTER_BY_ID)).get(0);
-        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(FILTER_BY_ID);
+        if (stringSortParams.isEmpty()) {
+            stringSortParams = "+".concat(FILTER_BY_ID);
+        }
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
                 .map(el -> el.startsWith(FILTER_BY_ID) ? "+".concat(el) : el)
