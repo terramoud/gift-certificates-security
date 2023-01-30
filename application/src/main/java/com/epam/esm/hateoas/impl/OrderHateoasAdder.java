@@ -40,9 +40,6 @@ public class OrderHateoasAdder implements HateoasAdder<OrderDto> {
                 .deleteOrderById(orderDto.getId()))
                 .withRel(DELETE));
         orderDto.add(linkTo(methodOn(CONTROLLER)
-                .updateOrderById(orderDto.getId(), orderDto))
-                .withRel(UPDATE));
-        orderDto.add(linkTo(methodOn(CONTROLLER)
                 .addOrder(orderDto))
                 .withRel(CREATE));
         orderDto.add(linkTo(methodOn(CONTROLLER)
