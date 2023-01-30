@@ -74,9 +74,11 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
 
     @Override
     public CertificateDto deleteById(Long id) {
-        CertificateDto certificateDto = findById(id);
-        certificateRepository.delete(converter.toEntity(certificateDto));
-        return certificateDto;
+        Certificate certificate = certificateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+        certificateRepository.delete(certificate);
+        return converter.toDto(certificate);
     }
 
     @Override

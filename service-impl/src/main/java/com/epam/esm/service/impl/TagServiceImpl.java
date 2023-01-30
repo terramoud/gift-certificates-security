@@ -66,8 +66,10 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
 
     @Override
     public TagDto deleteById(Long tagId) {
-        TagDto tagDto = findById(tagId);
-        tagRepository.delete(converter.toEntity(findById(tagId)));
-        return tagDto;
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        TAG_NOT_FOUND, tagId, ErrorCodes.NOT_FOUND_TAG_RESOURCE));
+        tagRepository.delete(tag);
+        return converter.toDto(tag);
     }
 }

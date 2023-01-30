@@ -63,8 +63,10 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
 
     @Override
     public OrderDto deleteById(Long id) {
-        OrderDto orderDto = findById(id);
-        orderRepository.delete(converter.toEntity(orderDto));
-        return orderDto;
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ORDER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_ORDER_RESOURCE));
+        orderRepository.delete(order);
+        return converter.toDto(order);
     }
 }

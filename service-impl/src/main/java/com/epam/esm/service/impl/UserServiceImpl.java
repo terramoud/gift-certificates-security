@@ -68,8 +68,10 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
 
     @Override
     public UserDto deleteById(Long id) {
-        UserDto userDto = findById(id);
-        userRepository.delete(converter.toEntity(userDto));
-        return userDto;
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE));
+        userRepository.delete(user);
+        return converter.toDto(user);
     }
 }
