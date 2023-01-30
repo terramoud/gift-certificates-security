@@ -6,16 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCodes {
-//    RESOURCE_NOT_FOUND(40401),
-//    HANDLER_NOT_FOUND(40402),
-//    NOT_VALID_PARAM(40001),
-//    INTERNAL_ERROR(50001),
-//    METHOD_NOT_ALLOWED(40501),
-//    UNSUPPORTED_MEDIA_TYPE(41501);
-
     SUFFIX_RESPONSE_ENTITY_EXCEPTIONS(
             99,
-"Suffix for response request exception to create error custom code"),
+            "Suffix for response request exception to create error custom code"),
     NOT_CHANGE_ROW(42201, "Any row of database isn't changed by query"),
     NOT_CREATE_ROW(42202, "Any row of database isn't created by query"),
     NOT_FOUND_TAG_RESOURCE(40401, "Unable to find tag in database"),
@@ -37,7 +30,9 @@ public enum ErrorCodes {
     DATA_INTEGRITY_VIOLATION(40010, "Cannot add or update row: a foreign key constraint fails"),
     INVALID_PAGINATION_PARAMETER(40011, "Invalid value of SQL parameters: LIMIT or OFFSET or ORDER BY"),
     INVALID_CERTIFICATE_NAME_PROPERTY(40012, "Invalid certificate's name property"),
-    METHOD_ARGUMENT_CONSTRAINT_VIOLATION(40016, "method argument constraint violation"),
+    METHOD_ARGUMENT_CONSTRAINT_VIOLATION(40016, "Method argument constraint violation"),
+    PATH_VARIABLE_CONSTRAINT_VIOLATION(40017, "Path variable constraint violation"),
+    METHOD_ARGUMENT_TYPE_MISTMATCH(40018, "Cannot cast @PathVariable to necessary type"),
     INTERNAL_SERVER_ERROR(50001, "An error or exception occurred on the server side"),
     NULL_INSTEAD_LIST(50002, "Returns null instead of List<>"),
     SQL_ERROR(50003, "Default code for all sql exceptions");
