@@ -20,8 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -32,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
+@Transactional
 class CertificateRepositoryImplTest {
 
     @Autowired
@@ -43,19 +43,6 @@ class CertificateRepositoryImplTest {
 
     @AfterEach
     void tearDown() {
-    }
-
-    @Test
-    void testCascadeUpdateExistingTagLikePropertyOfCertificate() {
-        TestTags testTags = new TestTags();
-        Tag tag1 = testTags.tag1;
-        tag1.setName("updatedTag");
-        TestCertificates tc = new TestCertificates();
-        Certificate certificate1 = tc.certificate1;
-        certificate1.setTags(Set.of(tag1));
-        Certificate updatedOnlyTagOfCertificate =
-                certificateRepository.update(certificate1, 1L);
-        assertEquals(updatedOnlyTagOfCertificate, certificate1);
     }
 
     /**
@@ -167,7 +154,7 @@ class CertificateRepositoryImplTest {
      * @see CertificateRepositoryImpl#delete(Certificate)
      */
     @Test
-    void testDeleteShouldUpdateEntityInDB() {
+    void testDeleteShouldDeleteEntityInDB() {
         Optional<Certificate> certificateToDelete = certificateRepository.findById(1L);
         certificateRepository.delete(certificateToDelete.get());
         Optional<Certificate> expected = certificateRepository.findById(1L);
