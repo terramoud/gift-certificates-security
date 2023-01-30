@@ -94,7 +94,7 @@ public class CertificateController {
         return new ResponseEntity<>(updatedDto, HttpStatus.OK);
     }
 
-    private CertificateDto applyPatch(JsonPatch patch, CertificateDto certificateDto)
+    private @Valid CertificateDto applyPatch(JsonPatch patch, CertificateDto certificateDto)
             throws JsonPatchException, JsonProcessingException {
         JsonNode patched = patch.apply(objectMapper.convertValue(certificateDto, JsonNode.class));
         return objectMapper.treeToValue(patched, CertificateDto.class);
