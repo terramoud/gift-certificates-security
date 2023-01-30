@@ -1,5 +1,9 @@
 package com.epam.esm.domain.validation;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationConstants {
     public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
@@ -48,7 +52,4 @@ public final class ValidationConstants {
     public static final String EMAIL_REGEXP = "^\\w+([.-]?\\w+){0,249}@\\w+([.-]?\\w+){0,249}(\\.\\w{2,3}){1,249}$";
     public static final String LOGIN_REGEXP = "^[\\p{L}][\\p{L}0-9]{2,31}$";
     public static final String PASSWORD_REGEXP = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,31}$";
-
-    private ValidationConstants() {
-    }
 }
