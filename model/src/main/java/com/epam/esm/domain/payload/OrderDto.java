@@ -31,7 +31,6 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     @Digits(integer = 9, fraction = 2, message = ORDER_INVALID_COST)
     private BigDecimal cost;
 
-    @FutureOrPresent
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 

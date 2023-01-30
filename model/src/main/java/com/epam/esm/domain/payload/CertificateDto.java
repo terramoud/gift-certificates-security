@@ -42,11 +42,9 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Positive(message = CERTIFICATE_INVALID_DURATION)
     private Integer duration;
 
-    @FutureOrPresent
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 
-    @FutureOrPresent
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime lastUpdateDate;
 
