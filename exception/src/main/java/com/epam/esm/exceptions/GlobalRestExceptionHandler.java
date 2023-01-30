@@ -30,10 +30,10 @@ public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(Throwable.class)
     public final ResponseEntity<ApiErrorResponse> handleAllExceptionsAndErrors(Throwable ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(INTERNAL_SERVER_ERROR.stringCode());
-        apiErrorResponse.setErrorMessage(SERVER_ERROR_500);
+        apiErrorResponse.setErrorMessage(translator.toLocale(SERVER_ERROR_500));
         if (ex.getMessage() != null && ex.getMessage().startsWith("get null list resources")) {
             apiErrorResponse.setErrorCode(NULL_INSTEAD_LIST.stringCode());
             apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()
@@ -44,25 +44,25 @@ public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(DataAccessException.class)
     public final ResponseEntity<ApiErrorResponse> handleDataAccessException(DataAccessException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(DATA_ACCESS_EXCEPTION.stringCode());
-        apiErrorResponse.setErrorMessage(DATA_ACCESS_CONSTRAINT);
+        apiErrorResponse.setErrorMessage(translator.toLocale(DATA_ACCESS_CONSTRAINT));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public final ResponseEntity<ApiErrorResponse> handleDataAccessException(DataIntegrityViolationException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(DATA_INTEGRITY_VIOLATION.stringCode());
-        apiErrorResponse.setErrorMessage(VIOLATION_DATA_INTEGRITY);
+        apiErrorResponse.setErrorMessage(translator.toLocale(VIOLATION_DATA_INTEGRITY));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public final ResponseEntity<ApiErrorResponse> handleDuplicateKey(DuplicateKeyException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorMessage(translator.toLocale(MYSQL_ERROR_DUPLICATE_COLUMN));
         apiErrorResponse.setErrorCode(SQL_DUPLICATE_ENTRY.stringCode());
@@ -71,16 +71,16 @@ public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(SQLException.class)
     protected ResponseEntity<ApiErrorResponse> customerNotFound(SQLException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(SQL_ERROR.stringCode());
-        apiErrorResponse.setErrorMessage(SQL_ERROR_DEFAULT_MESSAGE);
+        apiErrorResponse.setErrorMessage(translator.toLocale(SQL_ERROR_DEFAULT_MESSAGE));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceUnsupportedOperationException.class)
     protected ResponseEntity<ApiErrorResponse> customerNotFound(ResourceUnsupportedOperationException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(DATA_ACCESS_EXCEPTION.stringCode());
         apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
@@ -89,7 +89,7 @@ public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        log.warn(ex.getMessage(), ex);
+        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(METHOD_ARGUMENT_CONSTRAINT_VIOLATION.stringCode());
         apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
