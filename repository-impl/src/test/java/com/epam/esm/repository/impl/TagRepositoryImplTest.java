@@ -2,7 +2,6 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Certificate;
-import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
@@ -22,7 +21,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -47,27 +45,6 @@ class TagRepositoryImplTest {
 
     }
 
-    @Test
-    void df() {
-        BigDecimal maxCost = (BigDecimal) em.createQuery("select max(o.cost) from Order o").getSingleResult();
-        System.out.println(maxCost);
-        Order singleResult = em.createQuery("select o FROM Order o WHERE o.cost = " + maxCost, Order.class)
-                .getSingleResult();
-        System.out.println("singleResult = " + singleResult);
-
-
-//        em.createQuery("select t from Order o inner join o.certificate on o")
-    }
-
-    @Test
-    void testRoundMillis() {
-        Certificate certificate = em.find(Certificate.class, 1L);
-        String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN)
-                .withZone(ZoneId.of("UTC"));
-        System.out.println("expected = " + certificate.getCreateDate().format(formatter));
-    }
-
     /**
      * @see TagRepositoryImpl#findAll(LinkedMultiValueMap, Pageable)
      */
@@ -76,8 +53,7 @@ class TagRepositoryImplTest {
     void testFindAllShouldReturnSortedListTagsByIdAndName(LinkedMultiValueMap<String, String> fields,
                                                           Pageable pageable,
                                                           Comparator<Tag> tagComparator) {
-        List<Tag> tagList = em.createQuery(
-                "SELECT t FROM Tag t ORDER BY t.id ASC", Tag.class).getResultList();
+        List<Tag> tagList = em.createQuery("SELECT t FROM Tag t ORDER BY t.id ASC", Tag.class).getResultList();
         List<Tag> expected = List.of(tagList.stream()
                 .sorted(tagComparator)
                 .skip(pageable.getOffset())
