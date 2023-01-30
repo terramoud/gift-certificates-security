@@ -24,13 +24,13 @@ public class UserHateoasAdder implements HateoasAdder<UserDto> {
     @Override
     public void addLinks(UserDto userDto) {
         userDto.add(linkTo(methodOn(CONTROLLER)
-                .getUserById(userDto.getId()))
+                .findById(userDto.getId()))
                 .withSelfRel());
         userDto.add(linkTo(methodOn(CONTROLLER)
-                .getAllUsers(REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
+                .findAll(REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
                 .withRel("users"));
         userDto.add(linkTo(methodOn(CONTROLLER)
-                .getAllOrdersByUserId(userDto.getId(), REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
+                .findAllByUserId(userDto.getId(), REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
                 .withRel("orders"));
     }
 }
