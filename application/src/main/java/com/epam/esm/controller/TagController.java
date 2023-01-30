@@ -77,7 +77,7 @@ public class TagController {
     public ResponseEntity<TagDto> getTagById(
             @PathVariable("tag-id") @Positive(message = TAG_INVALID_ID) Long tagId) {
         TagDto tagDto = tagService.findById(tagId);
-        hateoasAdder.addLinks(tagService.findById(tagId));
+        hateoasAdder.addLinks(tagDto);
         return new ResponseEntity<>(tagDto, HttpStatus.OK);
     }
 
