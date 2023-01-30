@@ -1,6 +1,7 @@
 package com.epam.esm.domain.payload;
 
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -21,8 +22,8 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
 public class CertificateDto extends RepresentationModel<CertificateDto> {
 
     @Null(message = CERTIFICATE_ON_CREATE_VIOLATION, groups = OnCreate.class)
-    @NotNull(message = CERTIFICATE_ID_NULL)
-    @Positive(message = CERTIFICATE_INVALID_ID)
+    @NotNull(message = CERTIFICATE_ID_NULL, groups = OnUpdate.class)
+    @Positive(message = CERTIFICATE_INVALID_ID, groups = OnUpdate.class)
     private Long id;
 
     @NotNull(message = CERTIFICATE_NAME_NULL)

@@ -2,6 +2,7 @@ package com.epam.esm.domain.payload;
 
 import com.epam.esm.domain.entity.Role;
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,8 +20,8 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
 public class UserDto extends RepresentationModel<UserDto> {
 
     @Null(message = USER_ON_CREATE_VIOLATION, groups = OnCreate.class)
-    @NotNull(message = USER_ID_NULL)
-    @Positive(message = USER_INVALID_ID)
+    @NotNull(message = USER_ID_NULL, groups = OnUpdate.class)
+    @Positive(message = USER_INVALID_ID, groups = OnUpdate.class)
     private Long id;
 
     @NotNull(message = USER_LOGIN_NULL)

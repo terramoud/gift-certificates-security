@@ -1,6 +1,7 @@
 package com.epam.esm.domain.payload;
 
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -18,8 +19,8 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
 public class TagDto extends RepresentationModel<TagDto> {
 
     @Null(message = TAG_ON_CREATE_VIOLATION, groups = OnCreate.class)
-    @NotNull(message = TAG_ID_NULL)
-    @Positive(message = TAG_INVALID_ID)
+    @NotNull(message = TAG_ID_NULL, groups = OnUpdate.class)
+    @Positive(message = TAG_INVALID_ID, groups = OnUpdate.class)
     private Long id;
 
     @NotNull(message = TAG_NAME_NULL)
