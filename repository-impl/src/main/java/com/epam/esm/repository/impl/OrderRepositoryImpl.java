@@ -5,6 +5,7 @@ import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.api.OrderRepository;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -12,13 +13,17 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Repository
+@Transactional
 @NoArgsConstructor
+@Slf4j
 public class OrderRepositoryImpl implements OrderRepository {
 
     private static final String ORDER_ID = "id";
@@ -56,7 +61,8 @@ public class OrderRepositoryImpl implements OrderRepository {
                     .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
             criteriaQuery.where(criteriaBuilder.equal(root.get(ORDER_ID), id));
             return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException | PersistenceException ex) {
+            log.warn(ex.getMessage(), ex);
             return Optional.empty();
         }
     }
