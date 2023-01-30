@@ -18,12 +18,10 @@ public final class ValidationConstants {
     public static final String CERTIFICATE_DESCRIPTION_NULL = "certificate.description.null";
     public static final String CERTIFICATE_PRICE_NULL = "certificate.price.null";
     public static final String CERTIFICATE_DURATION_NULL = "certificate.duration.null";
-    public static final String CERTIFICATE_SMALL_PRICE = "certificate.very.small.price";
 
     public static final String ORDER_ON_CREATE_VIOLATION = "order.id.on-create.violation";
     public static final String ORDER_INVALID_ID = "order.invalid.id";
     public static final String ORDER_INVALID_COST = "order.invalid.cost";
-    public static final String ORDER_SMALL_COST = "order.very.small.cost";
     public static final String ORDER_COST_NULL = "order.cost.null";
     public static final String ORDER_ID_NULL = "order.id.null";
 
@@ -35,7 +33,7 @@ public final class ValidationConstants {
 
     public static final String USER_ON_CREATE_VIOLATION = "user.id.on-create.violation";
     public static final String USER_INVALID_ID = "user.invalid.id";
-    public static final String USER_INVALID_LOGIN = "user.invalid.name";
+    public static final String USER_INVALID_LOGIN = "user.invalid.login";
     public static final String USER_INVALID_EMAIL = "user.invalid.email";
     public static final String USER_INVALID_PASSWORD = "user.invalid.password";
     public static final String USER_ID_NULL = "user.id.null";
@@ -48,7 +46,6 @@ public final class ValidationConstants {
     public static final String INVALID_SIZE = "invalid.size.limit";
 
     public static final String ENTITY_NAME_REGEXP = "^[\\p{L}][\\p{L} \\-']{0,30}[\\p{L}]$";
-    public static final String ENTITY_BIG_TEXT_REGEXP = "^[\\p{L}]{3}[^<>]{0,500}";
     public static final String EMAIL_REGEXP = "^\\w+([.-]?\\w+){0,249}@\\w+([.-]?\\w+){0,249}(\\.\\w{2,3}){1,249}$";
     public static final String LOGIN_REGEXP = "^[\\p{L}][\\p{L}0-9]{2,31}$";
     public static final String PASSWORD_REGEXP = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,31}$";
