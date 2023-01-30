@@ -31,9 +31,6 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
     private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
     private static final String CERTIFICATE_ID_NOT_MAPPED = "certificate.id.not.mapped";
     private static final String TAG_NAME_REGEXP = "^[\\p{L}][\\p{L} \\-']{0,30}[\\p{L}]$";
-    private static final String WRONG_TAG_NAME = "wrong.tag.name";
-    private static final String WRONG_CERTIFICATE_ID = "wrong.certificate.id";
-    private static final String WRONG_TAG_ID = "wrong.tag.id";
 
     private final CertificateRepository certificateRepository;
     private final DtoConverter<Certificate, CertificateDto> converter;
