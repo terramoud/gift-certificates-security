@@ -39,9 +39,9 @@ public class TagHateoasAdder implements HateoasAdder<TagDto> {
                 .withRel("tags"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
                 .getGiftCertificatesByTagId(tagDto.getId(), REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
-                .withRel("gift-certificates"));
+                .withRel("gift-certificates-by-tag-id"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
                 .getGiftCertificatesByTagName(tagDto.getName(), REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
-                .withRel("gift-certificates"));
+                .withRel("gift-certificates-by-tag-name"));
     }
 }
