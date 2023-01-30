@@ -105,8 +105,9 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus status,
             WebRequest request) {
         ex.printStackTrace();
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status))
+        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+        }
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorMessage(ex.getMessage());
         apiErrorResponse.setErrorCode(status.value() + SUFFIX_RESPONSE_ENTITY_EXCEPTIONS.stringCode());
