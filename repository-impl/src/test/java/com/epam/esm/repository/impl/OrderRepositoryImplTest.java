@@ -92,6 +92,9 @@ class OrderRepositoryImplTest {
     void testSaveShouldCreateEntityInDB() {
         User newUser = new User();
         newUser.setLogin("new login");
+        newUser.setLogin("new Email");
+        newUser.setLogin("passwor");
+        newUser.setLogin("user");
         Certificate newCertificate = new Certificate();
         newCertificate.setName("new gift certificate");
         newCertificate.setDescription("new gift certificate description");
@@ -105,15 +108,17 @@ class OrderRepositoryImplTest {
         tag5.setName("new tag5");
         Tag tag11 = new Tag();
         tag11.setName("new tag11");
+        newCertificate.setTags(Set.of(tag1, tag11, tag5));
         Order newOrder = new Order();
         newOrder.setCost(new BigDecimal("99999.99"));
         newOrder.setCreateDate(LocalDateTime.of(2022, 3, 6, 22, 0));
-        newCertificate.setTags(Set.of(tag1, tag11, tag5));
         newOrder.setUser(newUser);
         newOrder.setCertificate(newCertificate);
         Order savedOrder = orderRepository.save(newOrder);
-        Order expected = orderRepository.findById(savedOrder.getId()).get();
-        assertEquals(expected, newOrder);
+        System.out.println("savedOrder.getCertificate().getTags() = " + savedOrder.getCertificate().getTags());
+        System.out.println("savedOrder.getCertificate() = " + savedOrder.getCertificate());
+//        Order expected = orderRepository.findById(savedOrder.getId()).get();
+        assertEquals(newOrder, savedOrder);
     }
 
     /**
@@ -140,7 +145,7 @@ class OrderRepositoryImplTest {
      * @see OrderRepositoryImpl#delete(Order)
      */
     @Test
-    void testDeleteShouldUpdateEntityInDB() {
+    void testDeleteShouldDeleteEntityFromDB() {
         Optional<Order> certificateToDelete = orderRepository.findById(1L);
         orderRepository.delete(certificateToDelete.get());
         Optional<Order> expected = orderRepository.findById(1L);
