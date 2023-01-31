@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface OrderService extends BaseService<OrderDto, Long> {
 
-    List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> fields, PageDto pageDto, Long userId);
+    List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> fields,
+                                   PageDto pageDto,
+                                   Long userId);
 
 }

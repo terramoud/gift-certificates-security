@@ -24,7 +24,6 @@ import static com.epam.esm.exceptions.ExceptionConstants.*;
 @Slf4j
 public class GlobalRestExceptionHandler {
 
-
     private final Translator translator;
     private final ErrorMessageFormatter messageFormatter;
 

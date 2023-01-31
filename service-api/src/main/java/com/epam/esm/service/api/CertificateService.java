@@ -8,7 +8,11 @@ import java.util.List;
 
 public interface CertificateService extends BaseService<CertificateDto, Long> {
 
-    List<CertificateDto> findAllByTagId(LinkedMultiValueMap<String, String> fields, PageDto pageDto, Long tagId);
+    List<CertificateDto> findAllByTagId(LinkedMultiValueMap<String, String> fields,
+                                        PageDto pageDto,
+                                        Long tagId);
 
-    List<CertificateDto> findAllByTagName(LinkedMultiValueMap<String, String> fields, PageDto pageDto, String tagName);
+    List<CertificateDto> findAllByTagName(LinkedMultiValueMap<String, String> fields,
+                                          PageDto pageDto,
+                                          String tagName);
 }
