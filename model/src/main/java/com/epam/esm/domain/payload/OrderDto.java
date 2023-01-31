@@ -3,6 +3,7 @@ package com.epam.esm.domain.payload;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,10 +33,13 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     @Digits(integer = 9, fraction = 2, message = ORDER_INVALID_COST)
     private BigDecimal cost;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Valid UserDto user;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Valid CertificateDto certificate;
 }

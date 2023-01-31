@@ -2,8 +2,7 @@ package com.epam.esm.domain.payload;
 
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -43,9 +42,11 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Positive(message = CERTIFICATE_INVALID_DURATION)
     private Integer duration;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime lastUpdateDate;
 
