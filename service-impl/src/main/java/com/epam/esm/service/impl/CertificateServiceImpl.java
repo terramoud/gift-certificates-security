@@ -20,7 +20,6 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -86,23 +85,12 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
         if (!isEqualsIds(certificateDto.getId(), id)) {
             throw new InvalidResourcePropertyException(CERTIFICATE_ID_NOT_MAPPED, id, ErrorCodes.INVALID_ID_PROPERTY);
         }
-        Certificate certificateToUpdate = converter.toEntity(findById(id));
-        Set<Tag> tagsToUpdate = tagConverter.toEntity(certificateDto.getTags());
-        certificateToUpdate.addTags(getUniqueTagsForThisCertificate(certificateToUpdate.getTags(), tagsToUpdate));
-        updateTags(tagsToUpdate);
-        return converter.toDto(certificateRepository.update(certificateToUpdate, id));
-    }
-
-    private Set<Tag> getUniqueTagsForThisCertificate(Set<Tag> sourceTags, Set<Tag> tagsToUpdate) {
-        Set<Long> sourceTagsIds = sourceTags.stream()
-                .map(Tag::getId)
-                .collect(Collectors.toSet());
-        return tagsToUpdate.stream()
-                .filter(tag -> !sourceTagsIds.contains(tag.getId()))
-                .collect(Collectors.toSet());
-    }
-
-    private void updateTags(Set<Tag> tagsToUpdate) {
+        Certificate sourceCertificate = converter.toEntity(findById(id));
+        Certificate certificateToUpdate = converter.toEntity(certificateDto);
+        Set<Tag> tagsToUpdate = Set.copyOf(certificateToUpdate.getTags());
+        certificateToUpdate.mergeTags(sourceCertificate.getTags());
+        Certificate updated = certificateRepository.update(certificateToUpdate, id);
         tagsToUpdate.forEach(tag -> tagRepository.update(tag, tag.getId()));
+        return converter.toDto(updated);
     }
 }
