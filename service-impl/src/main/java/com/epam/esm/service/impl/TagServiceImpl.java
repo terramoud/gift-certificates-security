@@ -20,6 +20,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 
+import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
 @EqualsAndHashCode(callSuper = true)
@@ -27,9 +28,6 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @Service
 @Transactional
 public class TagServiceImpl extends AbstractService<TagDto, Long> implements TagService {
-
-    private static final String TAG_NOT_FOUND = "tag.not.found";
-    private static final String TAG_ID_NOT_MAPPED = "tag.id.not.mapped";
 
     private final TagRepository tagRepository;
     private final DtoConverter<Tag, TagDto> converter;

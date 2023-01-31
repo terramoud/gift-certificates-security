@@ -21,6 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 
+import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
 @EqualsAndHashCode(callSuper = true)
@@ -28,10 +29,6 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @Service
 @Transactional
 public class UserServiceImpl extends AbstractService<UserDto, Long> implements UserService {
-
-    private static final String WRONG_USER_ID = "wrong.tag.id";
-    private static final String USER_ID_NOT_MAPPED = "tag.id.not.mapped";
-    private static final String USER_NOT_FOUND = "user.not.found";
 
     private final UserRepository userRepository;
     private final DtoConverter<User, UserDto> converter;

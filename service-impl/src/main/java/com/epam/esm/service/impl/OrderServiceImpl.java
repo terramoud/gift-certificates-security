@@ -17,14 +17,14 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 
+import static com.epam.esm.domain.validation.ValidationConstants.*;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service
 @Transactional
 public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements OrderService {
 
-    private static final String ORDER_NOT_FOUND = "order.not.found";
-    private static final String CHANGE_FILLED_ORDER = "forbidden.change.filled.order";
 
     private final OrderRepository orderRepository;
     private final DtoConverter<Order, OrderDto> converter;
@@ -49,7 +49,6 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ORDER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_ORDER_RESOURCE)));
     }
-
 
     @Override
     public OrderDto create(OrderDto orderDto) {

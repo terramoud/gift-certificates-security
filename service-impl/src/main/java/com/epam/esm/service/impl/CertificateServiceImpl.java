@@ -21,15 +21,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.esm.domain.validation.ValidationConstants.*;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service
 @Transactional
 public class CertificateServiceImpl extends AbstractService<CertificateDto, Long> implements CertificateService {
-
-    private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
-    private static final String CERTIFICATE_ID_NOT_MAPPED = "certificate.id.not.mapped";
-    private static final String TAG_NAME_REGEXP = "^[\\p{L}][\\p{L} \\-']{0,30}[\\p{L}]$";
 
     private final CertificateRepository certificateRepository;
     private final DtoConverter<Certificate, CertificateDto> converter;
