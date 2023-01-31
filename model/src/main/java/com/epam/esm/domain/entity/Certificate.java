@@ -87,6 +87,10 @@ public class Certificate extends AbstractEntity implements Serializable {
         this.tags.addAll(newTags);
     }
 
+    public void addTags(Set<Tag> tags) {
+        this.tags.addAll(tags);
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createDate = LocalDateTime.now();
