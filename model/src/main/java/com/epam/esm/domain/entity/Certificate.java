@@ -31,24 +31,22 @@ public class Certificate extends AbstractEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @Column(name = "description", unique = true)
+    @Column(name = "description", unique = true, nullable = false)
     private String description;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = false)
     private Integer duration;
 
-    @Column(name = "create_date", columnDefinition="TIMESTAMP(9)", updatable = false)
-//    @CreationTimestamp
+    @Column(name = "create_date", nullable = false, updatable = false)
     private LocalDateTime createDate;
 
-    @Column(name = "last_update_date", columnDefinition="TIMESTAMP(9)")
-//    @CreationTimestamp
+    @Column(name = "last_update_date", nullable = false)
     private LocalDateTime lastUpdateDate;
 
     @ToString.Exclude
@@ -95,11 +93,8 @@ public class Certificate extends AbstractEntity implements Serializable {
         this.lastUpdateDate = createDate;
     }
 
-    @PostUpdate
-    protected void afterUpdate() {
+    @PreUpdate
+    protected void onUpdate() {
         this.lastUpdateDate = LocalDateTime.now();
     }
 }
-
-
-

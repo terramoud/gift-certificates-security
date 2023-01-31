@@ -24,18 +24,18 @@ public class Order extends AbstractEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "cost", nullable = false)
+    @Column(name = "cost", nullable = false, updatable = false)
     private BigDecimal cost;
 
-    @Column(name = "create_date", columnDefinition = "TIMESTAMP", nullable = false)
+    @Column(name = "create_date", columnDefinition = "TIMESTAMP", updatable = false)
     private LocalDateTime createDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "gift_certificate_id")
+    @JoinColumn(name = "gift_certificate_id", nullable = false)
     private Certificate certificate;
 
     public Order(Long id, BigDecimal cost, LocalDateTime createDate, User user, Certificate certificate) {
