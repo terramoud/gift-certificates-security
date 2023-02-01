@@ -24,6 +24,7 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
 @RestController
 @RequestMapping("api/v1/tags")
 @AllArgsConstructor
+@Validated
 public class TagController {
 
     private static final String PAGE_DEFAULT = "0";
