@@ -5,16 +5,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.epam.esm.exceptions.ErrorCodes.*;
 import static com.epam.esm.exceptions.ExceptionConstants.*;
@@ -22,10 +31,59 @@ import static com.epam.esm.exceptions.ExceptionConstants.*;
 @RestControllerAdvice
 @RequiredArgsConstructor
 @Slf4j
-public class GlobalRestExceptionHandler {
+public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     private final Translator translator;
     private final ErrorMessageFormatter messageFormatter;
+
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+                                                                         @Nonnull HttpHeaders headers,
+                                                                         @Nonnull HttpStatus status,
+                                                                         @Nonnull WebRequest request) {
+        pageNotFoundLogger.warn(ex.getMessage());
+        Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
+        if (!CollectionUtils.isEmpty(supportedMethods)) {
+            Objects.requireNonNull(headers).setAllow(supportedMethods);
+        }
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(UNSUPPORTED_HTTP_METHOD.stringCode());
+        apiErrorResponse.setErrorMessage(
+                String.format("Not supported HTTP method. Available methods are: %s", supportedMethods));
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
+    }
+
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(@Nonnull NoHandlerFoundException ex,
+                                                                   @Nonnull HttpHeaders headers,
+                                                                   @Nonnull HttpStatus status,
+                                                                   @Nonnull WebRequest request) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
+        apiErrorResponse.setErrorMessage(ex.getMessage());
+        if (ex.getMessage().startsWith("No handler found for")) {
+            apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
+            apiErrorResponse.setErrorMessage(ex.getMessage()
+                    .replace("No handler found for", translator.toLocale(NO_HANDLER_FOUND_FOR)));
+        }
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
+    }
+
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@Nonnull MethodArgumentNotValidException ex,
+                                                                  @Nonnull HttpHeaders headers,
+                                                                  @Nonnull HttpStatus status,
+                                                                  @Nonnull WebRequest request) {
+        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_CONSTRAINT_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
+    }
 
     @ExceptionHandler(Throwable.class)
     public final ResponseEntity<ApiErrorResponse> handleAllExceptionsAndErrors(Throwable ex) {
@@ -51,7 +109,7 @@ public class GlobalRestExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public final ResponseEntity<ApiErrorResponse> handleDataAccessException(DataIntegrityViolationException ex) {
+    public final ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(DATA_INTEGRITY_VIOLATION.stringCode());
@@ -86,15 +144,6 @@ public class GlobalRestExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_CONSTRAINT_VIOLATION.stringCode());
-        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
-        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
         log.warn(ex.getMessage(), ex);
@@ -111,20 +160,6 @@ public class GlobalRestExceptionHandler {
         apiErrorResponse.setErrorCode(PATH_VARIABLE_CONSTRAINT_VIOLATION.stringCode());
         apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    protected ResponseEntity<ApiErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex) {
-        log.warn(ex.getMessage(), ex);
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
-        apiErrorResponse.setErrorMessage(ex.getMessage());
-        if (ex.getMessage().startsWith("No handler found for")) {
-            apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
-            apiErrorResponse.setErrorMessage(ex.getMessage()
-                    .replace("No handler found for", translator.toLocale(NO_HANDLER_FOUND_FOR)));
-        }
-        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({InvalidResourcePropertyException.class})
