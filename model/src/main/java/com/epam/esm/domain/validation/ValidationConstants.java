@@ -13,6 +13,7 @@ public final class ValidationConstants {
     public static final String CERTIFICATE_INVALID_DESCRIPTION = "certificate.invalid.description";
     public static final String CERTIFICATE_INVALID_PRICE = "certificate.invalid.price";
     public static final String CERTIFICATE_INVALID_DURATION = "certificate.invalid.duration";
+    public static final String CERTIFICATE_NULL = "certificate.null";
     public static final String CERTIFICATE_ID_NULL = "certificate.id.null";
     public static final String CERTIFICATE_NAME_NULL = "certificate.name.null";
     public static final String CERTIFICATE_DESCRIPTION_NULL = "certificate.description.null";
@@ -42,6 +43,7 @@ public final class ValidationConstants {
     public static final String USER_INVALID_LOGIN = "user.invalid.login";
     public static final String USER_INVALID_EMAIL = "user.invalid.email";
     public static final String USER_INVALID_PASSWORD = "user.invalid.password";
+    public static final String USER_NULL = "user.null";
     public static final String USER_ID_NULL = "user.id.null";
     public static final String USER_LOGIN_NULL = "user.login.null";
     public static final String USER_EMAIL_NULL = "user.email.null";
