@@ -33,6 +33,7 @@ public enum ErrorCodes {
     METHOD_ARGUMENT_CONSTRAINT_VIOLATION(40016, "Method argument constraint violation"),
     PATH_VARIABLE_CONSTRAINT_VIOLATION(40017, "Path variable constraint violation"),
     METHOD_ARGUMENT_TYPE_MISTMATCH(40018, "Cannot cast @PathVariable to necessary type"),
+    UNSUPPORTED_HTTP_METHOD(40019, "Invalid character found in the request"),
     INTERNAL_SERVER_ERROR(50001, "An error or exception occurred on the server side"),
     NULL_INSTEAD_LIST(50002, "Returns null instead of List<>"),
     SQL_ERROR(50003, "Default code for all sql exceptions");
