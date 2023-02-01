@@ -139,6 +139,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         }
         List<String> sortParams = Arrays.stream(stringSortParams.split(","))
                 .map(String::trim)
+                .map(el -> el.startsWith(PARAM_ID) ? "+".concat(el) : el)
                 .map(el -> el.startsWith(PARAM_COST) ? "+".concat(el) : el)
                 .map(el -> el.startsWith(PARAM_CREATE_DATE) ? "+".concat(el) : el)
                 .distinct()
