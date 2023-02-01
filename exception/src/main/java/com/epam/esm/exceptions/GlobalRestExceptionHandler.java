@@ -33,6 +33,9 @@ import static com.epam.esm.exceptions.ExceptionConstants.*;
 @Slf4j
 public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    public static final String PATTERN_UNSUPPORTED_HTTP_METHOD = "Not supported HTTP method. Available methods are: %s";
+    public static final String NO_HANDLER_FOUND_FOR = "No handler found for";
+    public static final String GET_NULL_LIST_RESOURCES = "get null list resources";
     private final Translator translator;
     private final ErrorMessageFormatter messageFormatter;
 
@@ -50,7 +53,7 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(UNSUPPORTED_HTTP_METHOD.stringCode());
         apiErrorResponse.setErrorMessage(
-                String.format("Not supported HTTP method. Available methods are: %s", supportedMethods));
+                String.format(PATTERN_UNSUPPORTED_HTTP_METHOD, supportedMethods));
         return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
     }
 
@@ -64,10 +67,10 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
         apiErrorResponse.setErrorMessage(ex.getMessage());
-        if (ex.getMessage().startsWith("No handler found for")) {
+        if (ex.getMessage().startsWith(NO_HANDLER_FOUND_FOR)) {
             apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
             apiErrorResponse.setErrorMessage(ex.getMessage()
-                    .replace("No handler found for", translator.toLocale(NO_HANDLER_FOUND_FOR)));
+                    .replace(NO_HANDLER_FOUND_FOR, translator.toLocale(ExceptionConstants.NO_HANDLER_FOUND_FOR)));
         }
         return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
     }
@@ -91,10 +94,10 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(INTERNAL_SERVER_ERROR.stringCode());
         apiErrorResponse.setErrorMessage(translator.toLocale(SERVER_ERROR_500));
-        if (ex.getMessage() != null && ex.getMessage().startsWith("get null list resources")) {
+        if (ex.getMessage() != null && ex.getMessage().startsWith(GET_NULL_LIST_RESOURCES)) {
             apiErrorResponse.setErrorCode(NULL_INSTEAD_LIST.stringCode());
             apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()
-                    .replace("get null list resources", NULL_INSTEAD_LIST_RESOURCES)));
+                    .replace(GET_NULL_LIST_RESOURCES, NULL_INSTEAD_LIST_RESOURCES)));
         }
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
