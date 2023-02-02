@@ -32,7 +32,8 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     @Override
     public List<OrderDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(orderRepository.findAll(fields, pageRequest));
+        List<Order> orders = orderRepository.findAll(fields, pageRequest);
+        return converter.toDto(orders);
     }
 
     @Override
@@ -40,19 +41,23 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
                                           PageDto pageDto,
                                           Long id) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(orderRepository.findAllOrdersByUserId(fields, pageRequest, id));
+        List<Order> orders = orderRepository.findAllOrdersByUserId(fields, pageRequest, id);
+        return converter.toDto(orders);
     }
 
     @Override
     public OrderDto findById(Long id) {
-        return converter.toDto(orderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ORDER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_ORDER_RESOURCE)));
+                        ORDER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_ORDER_RESOURCE));
+        return converter.toDto(order);
     }
 
     @Override
     public OrderDto create(OrderDto orderDto) {
-        return converter.toDto(orderRepository.save(converter.toEntity(orderDto)));
+        Order order = converter.toEntity(orderDto);
+        orderRepository.save(order);
+        return converter.toDto(order);
     }
 
     @Override

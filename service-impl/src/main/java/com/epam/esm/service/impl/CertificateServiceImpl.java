@@ -37,7 +37,8 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
     @Override
     public List<CertificateDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(certificateRepository.findAll(fields, pageRequest));
+        List<Certificate> certificates = certificateRepository.findAll(fields, pageRequest);
+        return converter.toDto(certificates);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
                                                PageDto pageDto,
                                                Long id) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(certificateRepository.findAllCertificatesByTagId(fields, pageRequest, id));
+        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagId(fields, pageRequest, id);
+        return converter.toDto(certificates);
     }
 
     @Override
@@ -53,20 +55,24 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
                                                  PageDto pageDto,
                                                  String tagName) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(certificateRepository.findAllCertificatesByTagName(fields, pageRequest, tagName));
+        List<Certificate> allByTag = certificateRepository.findAllCertificatesByTagName(fields, pageRequest, tagName);
+        return converter.toDto(allByTag);
     }
 
     @Override
     public CertificateDto findById(Long id) {
-        return converter.toDto(certificateRepository.findById(id)
+        Certificate certificate = certificateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE)));
+                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+        return converter.toDto(certificate);
     }
 
 
     @Override
     public CertificateDto create(CertificateDto certificateDto) {
-        return converter.toDto(certificateRepository.save(converter.toEntity(certificateDto)));
+        Certificate certificate = converter.toEntity(certificateDto);
+        certificateRepository.save(certificate);
+        return converter.toDto(certificate);
     }
 
     @Override

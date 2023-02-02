@@ -36,19 +36,23 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
     @Override
     public List<TagDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(tagRepository.findAll(fields, pageRequest));
+        List<Tag> tags = tagRepository.findAll(fields, pageRequest);
+        return converter.toDto(tags);
     }
 
     @Override
     public TagDto findById(Long tagId) {
-        return converter.toDto(tagRepository.findById(tagId)
+        Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        TAG_NOT_FOUND, tagId, ErrorCodes.NOT_FOUND_TAG_RESOURCE)));
+                        TAG_NOT_FOUND, tagId, ErrorCodes.NOT_FOUND_TAG_RESOURCE));
+        return converter.toDto(tag);
     }
 
     @Override
     public TagDto create(TagDto tagDto) {
-        return converter.toDto(tagRepository.save(converter.toEntity(tagDto)));
+        Tag tag = converter.toEntity(tagDto);
+        tagRepository.save(tag);
+        return converter.toDto(tag);
     }
 
     @Override
@@ -59,7 +63,9 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
         if (tagRepository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException(TAG_NOT_FOUND, id, ErrorCodes.NOT_FOUND_TAG_RESOURCE);
         }
-        return converter.toDto(tagRepository.update(converter.toEntity(tagDto), id));
+        Tag tag = converter.toEntity(tagDto);
+        Tag updated = tagRepository.update(tag, id);
+        return converter.toDto(updated);
     }
 
     @Override

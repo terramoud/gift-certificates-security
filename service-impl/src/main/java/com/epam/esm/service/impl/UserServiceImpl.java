@@ -37,19 +37,23 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
     @Override
     public List<UserDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        return converter.toDto(userRepository.findAll(fields, pageRequest));
+        List<User> users = userRepository.findAll(fields, pageRequest);
+        return converter.toDto(users);
     }
 
     @Override
     public UserDto findById(Long id) {
-        return converter.toDto(userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE)));
+                        USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE));
+        return converter.toDto(user);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        return converter.toDto(userRepository.save(converter.toEntity(userDto)));
+        User user = converter.toEntity(userDto);
+        userRepository.save(user);
+        return converter.toDto(user);
     }
 
     @Override
@@ -60,7 +64,9 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
         if (userRepository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException(USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE);
         }
-        return converter.toDto(userRepository.update(converter.toEntity(userDto), id));
+        User user = converter.toEntity(userDto);
+        User updated = userRepository.update(user, id);
+        return converter.toDto(updated);
     }
 
     @Override
