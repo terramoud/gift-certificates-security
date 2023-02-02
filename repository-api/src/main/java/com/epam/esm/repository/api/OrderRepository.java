@@ -12,5 +12,4 @@ public interface OrderRepository extends BaseRepository<Order, Long> {
     List<Order> findAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
                                       Pageable pageable,
                                       Long userId);
-    Order insert(Order order);
 }

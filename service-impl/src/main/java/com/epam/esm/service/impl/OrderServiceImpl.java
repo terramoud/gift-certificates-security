@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -30,10 +29,7 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service
-@Transactional
-@Validated
 public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements OrderService {
-
 
     private static final Long MIN_ENTITY_ID = 1L;
     private final OrderRepository orderRepository;
@@ -68,6 +64,7 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     }
 
     @Override
+    @Transactional
     public OrderDto create(OrderDto orderDto) {
         Order order = converter.toEntity(orderDto);
         Long userId = order.getUser().getId();
@@ -76,7 +73,7 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
         Certificate certificate = getCertificateById(certificateId);
         order.setUser(user);
         order.setCertificate(certificate);
-        orderRepository.insert(order);
+        orderRepository.save(order);
         return converter.toDto(order);
     }
 
@@ -97,11 +94,13 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     }
 
     @Override
+    @Transactional
     public OrderDto update(Long id, OrderDto orderDto) {
         throw new ResourceUnsupportedOperationException(CHANGE_FILLED_ORDER);
     }
 
     @Override
+    @Transactional
     public OrderDto deleteById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
