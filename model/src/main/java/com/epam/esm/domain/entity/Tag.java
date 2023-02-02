@@ -1,9 +1,6 @@
 package com.epam.esm.domain.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,6 +15,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "tags")
 public class Tag extends AbstractEntity implements Serializable {
@@ -30,9 +28,4 @@ public class Tag extends AbstractEntity implements Serializable {
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;
-
-    public Tag(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 }
