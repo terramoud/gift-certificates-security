@@ -91,11 +91,13 @@ class OrderRepositoryImplTest {
     @Test
     void testSaveShouldCreateEntityInDB() {
         User newUser = new User();
+        newUser.setId(1L);
         newUser.setLogin("new login");
         newUser.setLogin("new Email");
         newUser.setLogin("passwor");
         newUser.setLogin("user");
         Certificate newCertificate = new Certificate();
+        newCertificate.setId(1L);
         newCertificate.setName("new gift certificate");
         newCertificate.setDescription("new gift certificate description");
         newCertificate.setPrice(new BigDecimal("99.98"));
@@ -103,10 +105,13 @@ class OrderRepositoryImplTest {
         newCertificate.setCreateDate(LocalDateTime.of(2022, 3, 6, 22, 0));
         newCertificate.setLastUpdateDate(LocalDateTime.now());
         Tag tag1 = new Tag();
+        tag1.setId(1L);
         tag1.setName("new tag1");
         Tag tag5 = new Tag();
+        tag5.setId(5L);
         tag5.setName("new tag5");
         Tag tag11 = new Tag();
+        tag11.setId(11L);
         tag11.setName("new tag11");
         newCertificate.setTags(Set.of(tag1, tag11, tag5));
         Order newOrder = new Order();
@@ -115,10 +120,8 @@ class OrderRepositoryImplTest {
         newOrder.setUser(newUser);
         newOrder.setCertificate(newCertificate);
         Order savedOrder = orderRepository.save(newOrder);
-        System.out.println("savedOrder.getCertificate().getTags() = " + savedOrder.getCertificate().getTags());
-        System.out.println("savedOrder.getCertificate() = " + savedOrder.getCertificate());
-//        Order expected = orderRepository.findById(savedOrder.getId()).get();
-        assertEquals(newOrder, savedOrder);
+        Order expected = orderRepository.findById(savedOrder.getId()).get();
+        assertEquals(expected, savedOrder);
     }
 
     /**
@@ -137,7 +140,6 @@ class OrderRepositoryImplTest {
         order.setCertificate(tc.certificate1);
         Order updatedOrder = orderRepository.update(order, 1L);
         Order expected = orderRepository.findById(1L).get();
-        System.out.println("expected = " + expected);
         assertEquals(expected, updatedOrder);
     }
 
