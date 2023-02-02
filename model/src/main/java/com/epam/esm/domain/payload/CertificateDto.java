@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
@@ -51,5 +52,5 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     private LocalDateTime lastUpdateDate;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Set<@Valid TagDto> tags;
+    private Set<@Valid TagDto> tags = new HashSet<>();
 }
