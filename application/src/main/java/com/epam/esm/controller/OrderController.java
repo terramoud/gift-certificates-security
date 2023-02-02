@@ -2,7 +2,6 @@ package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
-import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
 import lombok.AllArgsConstructor;
@@ -49,7 +48,6 @@ public class OrderController {
     }
 
     @PostMapping
-    @Validated(OnCreate.class)
     public ResponseEntity<OrderDto> addOrder(@RequestBody @Valid OrderDto orderDto) {
         OrderDto addedOrderDto = orderService.create(orderDto);
         hateoasAdder.addLinks(addedOrderDto);
@@ -57,8 +55,8 @@ public class OrderController {
     }
 
     @DeleteMapping("/{order-id}")
-    public ResponseEntity<OrderDto> deleteOrderById(
-            @PathVariable("order-id") @Positive(message = ORDER_INVALID_ID) Long orderId) {
+    public ResponseEntity<OrderDto> deleteOrderById(@PathVariable("order-id")
+                                                    @Positive(message = ORDER_INVALID_ID) Long orderId) {
         OrderDto orderDto = orderService.deleteById(orderId);
         hateoasAdder.addLinks(orderDto);
         return new ResponseEntity<>(orderDto, HttpStatus.OK);
