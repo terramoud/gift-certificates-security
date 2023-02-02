@@ -4,6 +4,7 @@ import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
@@ -77,6 +78,7 @@ public class UserController {
     }
 
     @PutMapping("/{user-id}")
+    @Validated({OnUpdate.class})
     public ResponseEntity<UserDto> update(
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId,
             @RequestBody @Valid UserDto userDto) {

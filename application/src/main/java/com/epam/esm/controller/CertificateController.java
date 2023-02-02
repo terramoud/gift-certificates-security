@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,6 +69,7 @@ public class CertificateController {
     }
 
     @PutMapping("/{certificate-id}")
+    @Validated({OnUpdate.class})
     public ResponseEntity<CertificateDto> updateCertificateById(
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
             @RequestBody @Valid CertificateDto certificateDto) {

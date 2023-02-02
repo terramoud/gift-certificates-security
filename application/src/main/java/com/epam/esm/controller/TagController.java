@@ -4,6 +4,7 @@ import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
 import com.epam.esm.service.api.TagService;
@@ -91,6 +92,7 @@ public class TagController {
     }
 
     @PutMapping("/{tag-id}")
+    @Validated({OnUpdate.class})
     public ResponseEntity<TagDto> updateTagById(
             @PathVariable("tag-id") @Positive(message = TAG_INVALID_ID) Long tagId,
             @RequestBody @Valid TagDto tagDto) {
