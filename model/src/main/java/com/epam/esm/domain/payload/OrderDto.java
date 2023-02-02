@@ -37,9 +37,11 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 
+    @NotNull(message = USER_NULL)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Valid UserDto user;
 
+    @NotNull(message = CERTIFICATE_NULL)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Valid CertificateDto certificate;
 }
