@@ -25,7 +25,7 @@ public interface DtoConverter<S, D> {
      * @param dtos list source entities to convert
      * @return converted list dto entities
      */
-    default List<S> toEntity(List<D> dtos){
+    default List<S> toEntity(List<D> dtos) {
         return dtos.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toList());
@@ -37,7 +37,7 @@ public interface DtoConverter<S, D> {
      * @param dtos list source entities to convert
      * @return converted list dto entities
      */
-    default Set<S> toEntity(Set<D> dtos){
+    default Set<S> toEntity(Set<D> dtos) {
         return dtos.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toSet());
