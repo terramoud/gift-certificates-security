@@ -43,6 +43,17 @@ class TagRepositoryImplTest {
     }
 
     /**
+     * @see TagRepositoryImpl#findMostPopularTagOfUserWithHighestCostOfAllOrders()
+     */
+    @Test
+    void testFindMostPopularTagOfUserWithHighestCostOfAllOrders() {
+        Optional<Tag> tag = tagRepository.findMostPopularTagOfUserWithHighestCostOfAllOrders();
+        TestTags testTags = new TestTags();
+        Optional<Tag> expected = Optional.of(testTags.tag9);
+        assertEquals(expected, tag);
+    }
+
+    /**
      * @see TagRepositoryImpl#findAll(LinkedMultiValueMap, Pageable)
      */
     @ParameterizedTest
