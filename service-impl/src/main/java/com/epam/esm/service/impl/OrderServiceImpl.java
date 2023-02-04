@@ -71,6 +71,7 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
         Long certificateId = order.getCertificate().getId();
         User user = getUserById(userId);
         Certificate certificate = getCertificateById(certificateId);
+        order.setCost(certificate.getPrice());
         order.setUser(user);
         order.setCertificate(certificate);
         Order savedOrder = orderRepository.save(order);
