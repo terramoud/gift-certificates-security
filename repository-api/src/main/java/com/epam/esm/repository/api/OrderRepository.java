@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public interface OrderRepository extends BaseRepository<Order, Long> {
-    List<Order> findAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
-                                      Pageable pageable,
-                                      Long userId);
+    List<Order> findAllByUserId(LinkedMultiValueMap<String, String> fields,
+                                Pageable pageable,
+                                Long userId);
 }
