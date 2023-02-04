@@ -110,9 +110,9 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     }
 
     @Override
-    public List<Certificate> findAllCertificatesByTagId(LinkedMultiValueMap<String, String> fields,
-                                                        Pageable pageable,
-                                                        Long tagId) {
+    public List<Certificate> findAllByTagId(LinkedMultiValueMap<String, String> fields,
+                                            Pageable pageable,
+                                            Long tagId) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);
@@ -127,9 +127,9 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     }
 
     @Override
-    public List<Certificate> findAllCertificatesByTagName(LinkedMultiValueMap<String, String> fields,
-                                                          Pageable pageable,
-                                                          String tagName) {
+    public List<Certificate> findAllByTagName(LinkedMultiValueMap<String, String> fields,
+                                              Pageable pageable,
+                                              String tagName) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
         Root<Certificate> root = criteriaQuery.from(Certificate.class);

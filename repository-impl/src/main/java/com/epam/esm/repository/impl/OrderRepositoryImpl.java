@@ -97,9 +97,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public List<Order> findAllOrdersByUserId(LinkedMultiValueMap<String, String> fields,
-                                             Pageable pageable,
-                                             Long userId) {
+    public List<Order> findAllByUserId(LinkedMultiValueMap<String, String> fields,
+                                       Pageable pageable,
+                                       Long userId) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
