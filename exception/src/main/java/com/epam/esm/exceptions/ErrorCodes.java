@@ -36,7 +36,8 @@ public enum ErrorCodes {
     UNSUPPORTED_HTTP_METHOD(40019, "Invalid character found in the request"),
     INTERNAL_SERVER_ERROR(50001, "An error or exception occurred on the server side"),
     NULL_INSTEAD_LIST(50002, "Returns null instead of List<>"),
-    SQL_ERROR(50003, "Default code for all sql exceptions");
+    SQL_ERROR(50003, "Default code for all sql exceptions"),
+    ILLEGAL_ARGUMENT(50004, "Invalid method argument");
 
     private final int code;
     private final String reasonPhrase;
