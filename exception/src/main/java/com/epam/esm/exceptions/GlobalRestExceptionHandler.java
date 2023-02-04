@@ -168,6 +168,15 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MostPopularTagNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleMostPopularTagNotFound(MostPopularTagNotFoundException ex) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(ex.getErrorCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         log.warn(messageFormatter.getLocalizedMessage(ex), ex);
