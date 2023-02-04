@@ -33,9 +33,6 @@ import static com.epam.esm.exceptions.ExceptionConstants.*;
 @Slf4j
 public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    public static final String PATTERN_UNSUPPORTED_HTTP_METHOD = "Not supported HTTP method. Available methods are: %s";
-    public static final String NO_HANDLER_FOUND_FOR = "No handler found for";
-    public static final String GET_NULL_LIST_RESOURCES = "get null list resources";
     private final Translator translator;
     private final ErrorMessageFormatter messageFormatter;
 
@@ -98,6 +95,21 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
             apiErrorResponse.setErrorCode(NULL_INSTEAD_LIST.stringCode());
             apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()
                     .replace(GET_NULL_LIST_RESOURCES, NULL_INSTEAD_LIST_RESOURCES)));
+        }
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public final ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.error(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(ILLEGAL_ARGUMENT.stringCode());
+        apiErrorResponse.setErrorMessage(ex.getLocalizedMessage());
+        if (ex.getMessage() != null && ex.getMessage().startsWith(DEFAULT_ERROR_MESSAGE_INVALID_PAGE)) {
+            apiErrorResponse.setErrorMessage(translator.toLocale(INVALID_PAGE_INDEX));
+        }
+        if (ex.getMessage() != null && ex.getMessage().startsWith(DEFAULT_ERROR_MESSAGE_INVALID_SIZE)) {
+            apiErrorResponse.setErrorMessage(translator.toLocale(INVALID_PAGE_SIZE));
         }
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
