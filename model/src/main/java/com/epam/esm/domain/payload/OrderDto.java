@@ -23,9 +23,6 @@ public class OrderDto extends RepresentationModel<OrderDto> {
     @Null(message = ORDER_ON_CREATE_VIOLATION)
     private Long id;
 
-    @NotNull(message = ORDER_COST_NULL)
-    @DecimalMin(value = "0.1", inclusive = false, message = ORDER_INVALID_COST)
-    @Digits(integer = 9, fraction = 2, message = ORDER_INVALID_COST)
     private BigDecimal cost;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
