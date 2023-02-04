@@ -12,4 +12,6 @@ public final class ExceptionConstants {
     public static final String MYSQL_ERROR_DUPLICATE_COLUMN = "mysql.error.duplicate.column";
     public static final String SQL_ERROR_DEFAULT_MESSAGE = "sql.error.default.message";
     public static final String NO_HANDLER_FOUND_FOR = "no.handler.found.for";
+    public static final String INVALID_PAGE_INDEX = "invalid.page.value";
+    public static final String INVALID_PAGE_SIZE = "invalid.size.limit";
 }
