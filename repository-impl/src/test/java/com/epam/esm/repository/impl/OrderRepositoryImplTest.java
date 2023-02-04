@@ -61,15 +61,15 @@ class OrderRepositoryImplTest {
     }
 
     /**
-     * @see OrderRepositoryImpl#findAllOrdersByUserId(LinkedMultiValueMap, Pageable, Long)
+     * @see OrderRepositoryImpl#findAllByUserId(LinkedMultiValueMap, Pageable, Long)
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllOrdersByUserId")
     void testFindAllOrdersByUserIdShouldReturnSortedListOrdersByUserId(LinkedMultiValueMap<String, String> fields,
                                                                      Pageable pageable,
-                                                                     Long tagId,
+                                                                     Long userId,
                                                                      List<Order> expected) {
-        List<Order> orders = orderRepository.findAllOrdersByUserId(fields, pageable, tagId);
+        List<Order> orders = orderRepository.findAllByUserId(fields, pageable, userId);
         assertEquals(expected, orders);
     }
 
@@ -94,7 +94,7 @@ class OrderRepositoryImplTest {
         newUser.setId(1L);
         newUser.setLogin("new login");
         newUser.setLogin("new Email");
-        newUser.setLogin("passwor");
+        newUser.setLogin("password");
         newUser.setLogin("user");
         Certificate newCertificate = new Certificate();
         newCertificate.setId(1L);
@@ -120,7 +120,7 @@ class OrderRepositoryImplTest {
         newOrder.setUser(newUser);
         newOrder.setCertificate(newCertificate);
         Order savedOrder = orderRepository.save(newOrder);
-        Order expected = orderRepository.findById(savedOrder.getId()).get();
+        Order expected = orderRepository.findById(savedOrder.getId()).orElseThrow();
         assertEquals(expected, savedOrder);
     }
 
@@ -131,7 +131,7 @@ class OrderRepositoryImplTest {
     void testUpdateShouldUpdateEntityInDB() {
         TestUsers tu = new TestUsers();
         TestCertificates tc = new TestCertificates();
-        Order order = orderRepository.findById(1L).get();
+        Order order = orderRepository.findById(1L).orElseThrow();
         order.setCost(new BigDecimal("99999.99"));
         order.setCreateDate(LocalDateTime.of(2022, 3, 6, 22, 0));
         tu.user1.setLogin("updated login");
@@ -139,7 +139,7 @@ class OrderRepositoryImplTest {
         tc.certificate1.setName("updated Certificate");
         order.setCertificate(tc.certificate1);
         Order updatedOrder = orderRepository.update(order, 1L);
-        Order expected = orderRepository.findById(1L).get();
+        Order expected = orderRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedOrder);
     }
 
@@ -148,8 +148,8 @@ class OrderRepositoryImplTest {
      */
     @Test
     void testDeleteShouldDeleteEntityFromDB() {
-        Optional<Order> certificateToDelete = orderRepository.findById(1L);
-        orderRepository.delete(certificateToDelete.get());
+        Optional<Order> orderToDelete = orderRepository.findById(1L);
+        orderRepository.delete(orderToDelete.orElseThrow());
         Optional<Order> expected = orderRepository.findById(1L);
         assertThat(expected).isEmpty();
     }

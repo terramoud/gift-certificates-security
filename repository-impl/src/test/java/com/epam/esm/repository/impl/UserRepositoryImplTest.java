@@ -50,18 +50,18 @@ class UserRepositoryImplTest {
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAll")
-    void testFindAllShouldReturnSortedListTagsByIdAndName(LinkedMultiValueMap<String, String> fields,
+    void testFindAllShouldReturnSortedListUsersByIdAndLogin(LinkedMultiValueMap<String, String> fields,
                                                           Pageable pageable,
                                                           Comparator<User> userComparator) {
-        List<User> tagList = em.createQuery(
+        List<User> userList = em.createQuery(
                 "SELECT u FROM User u ORDER BY u.id ASC", User.class).getResultList();
-        List<User> expected = List.of(tagList.stream()
+        List<User> expected = List.of(userList.stream()
                 .sorted(userComparator)
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .toArray(User[]::new));
-        List<User> tags = userRepository.findAll(fields, pageable);
-        assertEquals(expected, tags);
+        List<User> users = userRepository.findAll(fields, pageable);
+        assertEquals(expected, users);
     }
 
     /**
@@ -69,40 +69,40 @@ class UserRepositoryImplTest {
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllBySearchPartOfNameAndFilter")
-    void testFindAllShouldReturnSortedListTagsBySearch(LinkedMultiValueMap<String, String> fields,
+    void testFindAllShouldReturnSortedListUsersBySearch(LinkedMultiValueMap<String, String> fields,
                                                        Pageable pageable,
                                                        Comparator<User> userComparator) {
         String searchQuery = fields.getOrDefault("search", List.of("")).get(0);
-        String tagName = fields.getOrDefault("login", List.of("")).get(0);
-        String andNameEqualsTagName = (tagName.isEmpty()) ? "" : "and t.name = '" + tagName + "'";
-        List<User> tagListByBySearchPartOfName = em.createQuery(
+        String login = fields.getOrDefault("login", List.of("")).get(0);
+        String andLoginEqualsUserLogin = (login.isEmpty()) ? "" : "and t.name = '" + login + "'";
+        List<User> userListByBySearchPartOfName = em.createQuery(
                 "SELECT u FROM User u WHERE u.login like '%" + searchQuery +
-                        "%' " + andNameEqualsTagName + " ORDER BY u.id ASC", User.class).getResultList();
-        List<User> expected = List.of(tagListByBySearchPartOfName.stream()
+                        "%' " + andLoginEqualsUserLogin + " ORDER BY u.id ASC", User.class).getResultList();
+        List<User> expected = List.of(userListByBySearchPartOfName.stream()
                 .sorted(userComparator)
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .toArray(User[]::new));
-        List<User> tags = userRepository.findAll(fields, pageable);
-        assertEquals(expected, tags);
+        List<User> users = userRepository.findAll(fields, pageable);
+        assertEquals(expected, users);
     }
 
     /**
      * @see UserRepositoryImpl#findById(Long)
      */
     @Test
-    void testFindByIdShouldReturnTagWithId() {
+    void testFindByIdShouldReturnUserWithId() {
         TestUsers testUsers = new TestUsers();
         Optional<User> expected = Optional.of(testUsers.user2);
-        Optional<User> tag = userRepository.findById(2L);
-        assertEquals(expected, tag);
+        Optional<User> user = userRepository.findById(2L);
+        assertEquals(expected, user);
     }
 
     /**
      * @see UserRepositoryImpl#save(User)
      */
     @Test
-    void testSave() {
+    void testSaveShouldCreateEntityInDB() {
         TestUsers testUsers = new TestUsers();
         User newUser = testUsers.user1;
         testUsers.user1.setId(null);
@@ -110,18 +110,18 @@ class UserRepositoryImplTest {
         newUser.setEmail("new Email");
         User savedUser = userRepository.save(newUser);
         Optional<User> expected = userRepository.findById(savedUser.getId());
-        assertEquals(expected.get(), newUser);
+        assertEquals(expected.orElseThrow(), newUser);
     }
 
     /**
      * @see UserRepositoryImpl#update(User, Long)
      */
     @Test
-    void testUpdate() {
+    void testUpdateShouldUpdateEntityInDB() {
         User user = em.find(User.class, 2L);
         user.setLogin("changed login");
         User updatedUser = userRepository.update(user, 2L);
-        User expected = userRepository.findById(2L).get();
+        User expected = userRepository.findById(2L).orElseThrow();
         assertEquals(expected, updatedUser);
     }
 
@@ -129,9 +129,9 @@ class UserRepositoryImplTest {
      * @see UserRepositoryImpl#delete(User)
      */
     @Test
-    void testDelete() {
+    void testDeleteShouldDeleteEntityInDB() {
         Optional<User> userToDelete = userRepository.findById(1L);
-        userRepository.delete(userToDelete.get());
+        userRepository.delete(userToDelete.orElseThrow());
         Optional<User> user = userRepository.findById(1L);
         assertThat(user).isEmpty();
     }

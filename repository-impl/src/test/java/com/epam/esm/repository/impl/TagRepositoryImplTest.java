@@ -1,7 +1,6 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.TestTags;
-import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
@@ -21,8 +20,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -101,23 +98,23 @@ class TagRepositoryImplTest {
      * @see TagRepositoryImpl#save(Tag)
      */
     @Test
-    void testSave() {
+    void testSaveShouldCreateEntityInDB() {
         Tag newTag = new Tag();
         newTag.setName("new Tag");
         tagRepository.save(newTag);
         Optional<Tag> expected = tagRepository.findById(newTag.getId());
-        assertEquals(expected.get(), newTag);
+        assertEquals(expected.orElseThrow(), newTag);
     }
 
     /**
      * @see TagRepositoryImpl#update(Tag, Long)
      */
     @Test
-    void testUpdate() {
+    void testUpdateShouldUpdateEntityInDB() {
         TestTags testTags = new TestTags();
         testTags.tag1.setName("changed tag");
         Tag updatedTag = tagRepository.update(testTags.tag1, 1L);
-        Tag expected = tagRepository.findById(1L).get();
+        Tag expected = tagRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedTag);
     }
 
@@ -125,9 +122,9 @@ class TagRepositoryImplTest {
      * @see TagRepositoryImpl#delete(Tag)
      */
     @Test
-    void testDelete() {
+    void testDeleteShouldDeleteEntityInDB() {
         Optional<Tag> tagToDelete = tagRepository.findById(1L);
-        tagRepository.delete(tagToDelete.get());
+        tagRepository.delete(tagToDelete.orElseThrow());
         Optional<Tag> tag = tagRepository.findById(1L);
         assertThat(tag).isEmpty();
     }

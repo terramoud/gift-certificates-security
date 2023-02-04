@@ -70,7 +70,7 @@ class CertificateRepositoryImplTest {
     }
 
     /**
-     * @see CertificateRepositoryImpl#findAllCertificatesByTagId(LinkedMultiValueMap, Pageable, Long)
+     * @see CertificateRepositoryImpl#findAllByTagId(LinkedMultiValueMap, Pageable, Long)
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllCertificatesByTagId")
@@ -79,13 +79,13 @@ class CertificateRepositoryImplTest {
             Pageable pageable,
             Long tagId,
             List<Certificate> expected) {
-        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagId(fields, pageable, tagId);
+        List<Certificate> certificates = certificateRepository.findAllByTagId(fields, pageable, tagId);
         assertEquals(expected, certificates);
     }
 
 
     /**
-     * @see CertificateRepositoryImpl#findAllCertificatesByTagName(LinkedMultiValueMap, Pageable, String)
+     * @see CertificateRepositoryImpl#findAllByTagName(LinkedMultiValueMap, Pageable, String)
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllCertificatesByTagName")
@@ -94,7 +94,7 @@ class CertificateRepositoryImplTest {
             Pageable pageable,
             String tagName,
             List<Certificate> expected) {
-        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagName(fields, pageable, tagName);
+        List<Certificate> certificates = certificateRepository.findAllByTagName(fields, pageable, tagName);
         assertEquals(expected, certificates);
     }
 
@@ -102,7 +102,7 @@ class CertificateRepositoryImplTest {
      * @see CertificateRepositoryImpl#findById(Long)
      */
     @Test
-    void testFindByIdShouldReturnTagWithId() {
+    void testFindByIdShouldReturnCertificateWithId() {
         TestCertificates tc = new TestCertificates();
         Optional<Certificate> expected = Optional.of(tc.certificate1);
         Optional<Certificate> certificate = certificateRepository.findById(1L);
@@ -129,7 +129,7 @@ class CertificateRepositoryImplTest {
         tag11.setName("new tag11");
         newCertificate.setTags(Set.of(tag1, tag11, tag5));
         certificateRepository.save(newCertificate);
-        Certificate expected = certificateRepository.findById(newCertificate.getId()).get();
+        Certificate expected = certificateRepository.findById(newCertificate.getId()).orElseThrow();
         assertEquals(expected, newCertificate);
     }
 
@@ -139,13 +139,12 @@ class CertificateRepositoryImplTest {
     @Test
     void testUpdateShouldUpdateEntityInDB() {
         TestTags tt = new TestTags();
-        Certificate certificate = certificateRepository.findById(1L).get();
+        Certificate certificate = certificateRepository.findById(1L).orElseThrow();
         certificate.setName("updated certificate");
         certificate.setLastUpdateDate(LocalDateTime.now());
         certificate.addTags(Set.of(tt.tag10, tt.tag12));
         Certificate updatedCertificate = certificateRepository.update(certificate, 1L);
-        Certificate expected = certificateRepository.findById(1L).get();
-        System.out.println("expected = " + expected.getTags());
+        Certificate expected = certificateRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedCertificate);
         assertEquals(expected.getTags(), updatedCertificate.getTags());
     }
@@ -156,7 +155,7 @@ class CertificateRepositoryImplTest {
     @Test
     void testDeleteShouldDeleteEntityInDB() {
         Optional<Certificate> certificateToDelete = certificateRepository.findById(1L);
-        certificateRepository.delete(certificateToDelete.get());
+        certificateRepository.delete(certificateToDelete.orElseThrow());
         Optional<Certificate> expected = certificateRepository.findById(1L);
         assertThat(expected).isEmpty();
     }
