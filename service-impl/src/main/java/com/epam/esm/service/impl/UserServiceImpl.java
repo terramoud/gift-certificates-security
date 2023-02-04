@@ -52,8 +52,8 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
     @Override
     public UserDto create(UserDto userDto) {
         User user = converter.toEntity(userDto);
-        userRepository.save(user);
-        return converter.toDto(user);
+        User savedUser = userRepository.save(user);
+        return converter.toDto(savedUser);
     }
 
     @Override

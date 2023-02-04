@@ -46,7 +46,7 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
                                                PageDto pageDto,
                                                Long id) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagId(fields, pageRequest, id);
+        List<Certificate> certificates = certificateRepository.findAllByTagId(fields, pageRequest, id);
         return converter.toDto(certificates);
     }
 
@@ -55,8 +55,8 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
                                                  PageDto pageDto,
                                                  String tagName) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        List<Certificate> allByTag = certificateRepository.findAllCertificatesByTagName(fields, pageRequest, tagName);
-        return converter.toDto(allByTag);
+        List<Certificate> certificates = certificateRepository.findAllByTagName(fields, pageRequest, tagName);
+        return converter.toDto(certificates);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
     @Override
     public CertificateDto create(CertificateDto certificateDto) {
         Certificate certificate = converter.toEntity(certificateDto);
-        certificateRepository.save(certificate);
-        return converter.toDto(certificate);
+        Certificate savedCertificate = certificateRepository.save(certificate);
+        return converter.toDto(savedCertificate);
     }
 
     @Override

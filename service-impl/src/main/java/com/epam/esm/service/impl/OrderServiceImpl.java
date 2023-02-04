@@ -51,7 +51,7 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
                                           PageDto pageDto,
                                           Long id) {
         Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        List<Order> orders = orderRepository.findAllOrdersByUserId(fields, pageRequest, id);
+        List<Order> orders = orderRepository.findAllByUserId(fields, pageRequest, id);
         return converter.toDto(orders);
     }
 
@@ -73,8 +73,8 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
         Certificate certificate = getCertificateById(certificateId);
         order.setUser(user);
         order.setCertificate(certificate);
-        orderRepository.save(order);
-        return converter.toDto(order);
+        Order savedOrder = orderRepository.save(order);
+        return converter.toDto(savedOrder);
     }
 
     private User getUserById(Long userId) {

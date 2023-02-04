@@ -51,8 +51,8 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
     @Override
     public TagDto create(TagDto tagDto) {
         Tag tag = converter.toEntity(tagDto);
-        tagRepository.save(tag);
-        return converter.toDto(tag);
+        Tag savedTag = tagRepository.save(tag);
+        return converter.toDto(savedTag);
     }
 
     @Override
