@@ -35,6 +35,9 @@ public class TagHateoasAdder implements HateoasAdder<TagDto> {
                 .addTag(tagDto))
                 .withRel(CREATE));
         tagDto.add(linkTo(methodOn(CONTROLLER)
+                .getMostPopularTag())
+                .withRel("most-popular-tag"));
+        tagDto.add(linkTo(methodOn(CONTROLLER)
                 .getAllTags(REQUEST_PARAMS, DEFAULT_PAGE, DEFAULT_SIZE))
                 .withRel("tags"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
