@@ -108,4 +108,12 @@ public class TagController {
         hateoasAdder.addLinks(tagDto);
         return new ResponseEntity<>(tagDto, HttpStatus.OK);
     }
+
+    @GetMapping("/popular")
+    @ResponseStatus(HttpStatus.OK)
+    public TagDto getMostPopularTag() {
+        TagDto tagDto = tagService.findMostPopularTagOfUserWithHighestCostOfAllOrders();
+        hateoasAdder.addLinks(tagDto);
+        return tagDto;
+    }
 }
