@@ -7,6 +7,7 @@ import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
+import com.epam.esm.exceptions.MostPopularTagNotFoundException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
 import com.epam.esm.repository.impl.TagRepositoryImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -164,5 +164,28 @@ class TagServiceImplTest {
     void testUpdateShouldThrowExceptionWhenTagIsNotEquals() {
         TagDto tagToUpdate = new TagDto(1L, "updated");
         assertThrows(InvalidResourcePropertyException.class, () -> tagService.update(999L, tagToUpdate));
+    }
+
+    /**
+     * @see TagServiceImpl#findMostPopularTagOfUserWithHighestCostOfAllOrders()
+     */
+    @Test
+    void testFindMostPopularTagOfUserWithHighestCostOfAllOrders() {
+        TagDto expected = new TagDto();
+        when(tagRepository.findMostPopularTagOfUserWithHighestCostOfAllOrders())
+                .thenReturn(Optional.of(new Tag()));
+        when(converter.toDto(any(Tag.class))).thenReturn(expected);
+        assertEquals(expected, tagService.findMostPopularTagOfUserWithHighestCostOfAllOrders());
+    }
+
+    /**
+     * @see TagServiceImpl#findMostPopularTagOfUserWithHighestCostOfAllOrders()
+     */
+    @Test
+    void testFindMostPopularTagOfUserWithHighestCostOfAllOrdersShouldThrowExceptionWhenTagIsNotFound() {
+        when(tagRepository.findMostPopularTagOfUserWithHighestCostOfAllOrders())
+                .thenReturn(Optional.empty());
+        assertThrows(MostPopularTagNotFoundException.class,
+                () -> tagService.findMostPopularTagOfUserWithHighestCostOfAllOrders());
     }
 }
