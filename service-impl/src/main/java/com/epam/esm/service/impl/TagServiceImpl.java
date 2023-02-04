@@ -76,4 +76,12 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
         tagRepository.delete(tag);
         return converter.toDto(tag);
     }
+
+    @Override
+    public TagDto findMostPopularTagOfUserWithHighestCostOfAllOrders() {
+        Tag tag = tagRepository.findMostPopularTagOfUserWithHighestCostOfAllOrders()
+                .orElseThrow(() -> new MostPopularTagNotFoundException(
+                        TAG_NOT_FOUND, ErrorCodes.NOT_FOUND_TAG_RESOURCE));
+        return converter.toDto(tag);
+    }
 }
