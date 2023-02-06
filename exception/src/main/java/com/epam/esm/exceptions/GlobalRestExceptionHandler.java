@@ -177,6 +177,15 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidJsonPatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidJsonPatch(InvalidJsonPatchException ex) {
+        log.error(ex.getLocalizedMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(INTERNAL_SERVER_ERROR.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         log.warn(messageFormatter.getLocalizedMessage(ex), ex);

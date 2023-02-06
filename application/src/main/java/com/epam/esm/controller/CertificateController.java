@@ -4,6 +4,7 @@ import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
+import com.epam.esm.exceptions.InvalidJsonPatchException;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,11 +27,13 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
+import static com.epam.esm.exceptions.ExceptionConstants.INVALID_JSON_PATCH;
 
 @RestController
 @RequestMapping("api/v1/gift-certificates")
 @AllArgsConstructor
 @Validated
+@Slf4j
 public class CertificateController {
 
     private static final String PAGE_DEFAULT = "0";
@@ -89,16 +93,21 @@ public class CertificateController {
     @PatchMapping("/{certificate-id}")
     public ResponseEntity<CertificateDto> updateCertificatePartiallyById(
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
-            @RequestBody JsonPatch patch) throws JsonPatchException, JsonProcessingException {
+            @RequestBody JsonPatch patch) {
         CertificateDto partiallyModifiedDto = applyPatch(patch, certificateService.findById(certificateId));
         CertificateDto updatedDto = certificateService.update(certificateId, partiallyModifiedDto);
         hateoasAdder.addLinks(updatedDto);
         return new ResponseEntity<>(updatedDto, HttpStatus.OK);
     }
 
-    private @Valid CertificateDto applyPatch(JsonPatch patch, CertificateDto certificateDto)
-            throws JsonPatchException, JsonProcessingException {
-        JsonNode patched = patch.apply(objectMapper.convertValue(certificateDto, JsonNode.class));
-        return objectMapper.treeToValue(patched, CertificateDto.class);
+    private @Valid CertificateDto applyPatch(JsonPatch patch,
+                                             CertificateDto certificateDto) throws InvalidJsonPatchException {
+        try {
+            JsonNode patched = patch.apply(objectMapper.convertValue(certificateDto, JsonNode.class));
+            return objectMapper.treeToValue(patched, CertificateDto.class);
+        } catch (JsonPatchException | JsonProcessingException | RuntimeException ex) {
+            log.error(ex.getLocalizedMessage(), ex);
+            throw new InvalidJsonPatchException(INVALID_JSON_PATCH);
+        }
     }
 }
