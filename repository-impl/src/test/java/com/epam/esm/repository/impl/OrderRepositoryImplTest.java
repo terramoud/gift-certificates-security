@@ -164,7 +164,7 @@ class OrderRepositoryImplTest {
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of(""))),
                         PageRequest.of(1, 10),
-                        List.of()),
+                        List.of(to.order11)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of(""))),
                         PageRequest.of(0, 10),
@@ -172,25 +172,36 @@ class OrderRepositoryImplTest {
                                 to.order2,
                                 to.order3,
                                 to.order4,
-                                to.order5)),
+                                to.order5,
+                                to.order6,
+                                to.order7,
+                                to.order8,
+                                to.order9,
+                                to.order10)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("-id"))),
                         PageRequest.of(1, 2),
-                        List.of(to.order3,
-                                to.order2)),
+                        List.of(to.order9,
+                                to.order8)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("+cost"))),
                         PageRequest.of(1, 3),
                         List.of(to.order5,
-                                to.order4)),
+                                to.order6,
+                                to.order7)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("+cost"))),
                         PageRequest.of(2, 4),
-                        List.of()),
+                        List.of(to.order10,
+                                to.order11,
+                                to.order4)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("-id, -create_date"))),
                         PageRequest.of(1, 4),
-                        List.of(to.order1)),
+                        List.of(to.order7,
+                                to.order6,
+                                to.order5,
+                                to.order4)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("", List.of(""))),
                         PageRequest.of(0, 10),
@@ -198,15 +209,20 @@ class OrderRepositoryImplTest {
                                 to.order2,
                                 to.order3,
                                 to.order4,
-                                to.order5)),
+                                to.order5,
+                                to.order6,
+                                to.order7,
+                                to.order8,
+                                to.order9,
+                                to.order10)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("-create_date, +cost"))),
                         PageRequest.of(0, 5),
                         List.of(to.order5,
-                                to.order4,
-                                to.order3,
-                                to.order2,
-                                to.order1))
+                                to.order6,
+                                to.order7,
+                                to.order8,
+                                to.order9))
         );
     }
 
@@ -218,13 +234,15 @@ class OrderRepositoryImplTest {
                         PageRequest.of(0, 5),
                         1L,
                         List.of(to.order1,
-                                to.order2)),
+                                to.order2,
+                                to.order5,
+                                to.order6,
+                                to.order7)),
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("sort", List.of("-create_date, +cost"))),
                         PageRequest.of(0, 5),
                         2L,
-                        List.of(to.order5,
-                                to.order4,
+                        List.of(to.order4,
                                 to.order3))
         );
     }
