@@ -12,7 +12,6 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.BiFunction;
 

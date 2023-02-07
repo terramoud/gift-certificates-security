@@ -16,9 +16,9 @@ public class UserRepositoryImpl extends AbstractRepository<User, Long> implement
     private static final String USER_EMAIL = "email";
     private static final String USER_ROLE = "role";
 
-    public static final String REQUEST_PARAM_LOGIN = "login";
-    public static final String REQUEST_PARAM_EMAIL = "email";
-    public static final String REQUEST_PARAM_ROLE = "role";
+    private static final String REQUEST_PARAM_LOGIN = "login";
+    private static final String REQUEST_PARAM_EMAIL = "email";
+    private static final String REQUEST_PARAM_ROLE = "role";
 
     private static final Map<String, BiFunction<CriteriaBuilder, Root<User>, Order>> SORT_ORDERS_MAP = Map.of(
             "+id", (cb, root) -> cb.asc(root.get(USER_ID)),
