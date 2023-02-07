@@ -37,16 +37,17 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
     private static final String TAG_ID_FIELD = "id";
     private static final String TAG_NAME_FIELD = "name";
 
-    private static final String[] ADMITTED_REQUEST_PARAMS = {
+    private static final String[] ADMITTED_SORT_PARAMS = {
             CERTIFICATE_ID,
-            CERTIFICATE_NAME,
-            CERTIFICATE_DESCRIPTION,
-            CERTIFICATE_PRICE,
-            CERTIFICATE_DURATION,
-            CERTIFICATE_CREATE_DATE,
-            CERTIFICATE_LAST_UPDATE_DATE};
+            REQUEST_PARAM_NAME,
+            REQUEST_PARAM_DESCRIPTION,
+            REQUEST_PARAM_PRICE,
+            REQUEST_PARAM_DURATION,
+            REQUEST_PARAM_CREATE_DATE,
+            REQUEST_PARAM_LAST_UPDATE_DATE
+    };
 
-    private static final String[] FIELDS_FOR_SEARCH = {CERTIFICATE_NAME, CERTIFICATE_DESCRIPTION,};
+    private static final String[] FIELDS_FOR_SEARCH = {CERTIFICATE_NAME, CERTIFICATE_DESCRIPTION};
 
     private static final Map<String, BiFunction<CriteriaBuilder, Root<Certificate>, Order>> SORT_ORDERS_MAP =
             Map.ofEntries(
@@ -78,7 +79,7 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
     public CertificateRepositoryImpl() {
         super(Certificate.class,
                 SORT_ORDERS_MAP,
-                ADMITTED_REQUEST_PARAMS,
+                ADMITTED_SORT_PARAMS,
                 REQUEST_PARAM_TO_ENTITY_FIELD_NAME,
                 FIELDS_FOR_SEARCH);
     }
@@ -114,72 +115,6 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
         Predicate predicate = criteriaBuilder.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
         return findAllByPredicates(fields, pageable, predicate);
     }
-
-//    @Override
-//    protected List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
-//                                            CriteriaBuilder criteriaBuilder,
-//                                            Root<Certificate> root,
-//                                            HashMap<Object, Object> COLUMN_FIELD_MAP, String... fieldsForSearch) {
-//        List<Predicate> predicates = new ArrayList<>();
-//        String searchQuery = requestParams.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
-//        predicates.add(criteriaBuilder.or(
-//                Arrays.stream(fieldsForSearch)
-//                    .map(entityName -> criteriaBuilder.like(root.get(entityName), createLikeQuery(searchQuery)))
-//                .toArray(Predicate[]::new)
-//        ));
-//        requestParams.entrySet().stream()
-//                .filter(param -> CertificateRepositoryImpl.COLUMN_FIELD_MAP.containsKey(param.getKey()))
-//                .forEach(param -> {
-//                    String entityFieldName = CertificateRepositoryImpl.COLUMN_FIELD_MAP.get(param.getKey());
-//                    String entityFieldValue = param.getValue().get(0).trim();
-//                    predicates.add(criteriaBuilder.equal(root.get(entityFieldName), entityFieldValue));
-//                });
-//        return predicates;
-
-
-
-//        requestParams.forEach((paramName, paramValue) -> {
-//            if (listAdmittedFilter.contains(paramName)) {
-//                predicates.add(map.get(paramName).apply(paramValue.get(0).trim()));
-//            }
-//        });
-
-//        Arrays.stream(admittedFilterNames)
-//                .forEach(f -> {
-//                    String entityFieldValue = requestParams.getOrDefault(f, List.of("")).get(0).trim();
-//                    if (!entityFieldValue.isEmpty()) {
-//                        predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_NAME), entityFieldValue));
-//                    }
-//                });
-
-
-//        String filterByName = requestParams.getOrDefault(COLUMN_NAME, List.of("")).get(0).trim();
-//        String filterByDescription = requestParams.getOrDefault(COLUMN_DESCRIPTION, List.of("")).get(0).trim();
-//        String filterByPrice = requestParams.getOrDefault(COLUMN_PRICE, List.of("")).get(0).trim();
-//        String filterByDuration = requestParams.getOrDefault(COLUMN_DURATION, List.of("")).get(0).trim();
-//        String filterByCreateDate = requestParams.getOrDefault(COLUMN_CREATE_DATE, List.of("")).get(0).trim();
-//        String filterByLastUpdateDate = requestParams.getOrDefault(COLUMN_LAST_UPDATE_DATE, List.of("")).get(0).trim();
-////        predicates = new ArrayList<>();
-//
-//        if (!filterByName.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_NAME), filterByName));
-//        }
-//        if (!filterByDescription.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DESCRIPTION), filterByDescription));
-//        }
-//        if (!filterByPrice.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_PRICE), filterByPrice));
-//        }
-//        if (!filterByDuration.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DURATION), filterByDuration));
-//        }
-//        if (!filterByCreateDate.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_CREATE_DATE), filterByCreateDate));
-//        }
-//        if (!filterByLastUpdateDate.isEmpty()) {
-//            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_LAST_UPDATE_DATE), filterByLastUpdateDate));
-//        }
-//    }
 
     @Override
     protected void fetchLeftJoin(Root<Certificate> root) {

@@ -20,12 +20,12 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
     protected static final String ENTITY_ID = "id";
     protected static final String SQL_LIKE_PATTERN = "%{0}%";
 
-    protected final Class<E> entityClass;
     protected final CriteriaBuilder criteriaBuilder;
     protected final CriteriaQuery<E> criteriaQuery;
     protected final Root<E> root;
+    private final Class<E> entityClass;
     private final Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap;
-    private final String[] admittedRequestParams;
+    private final String[] admittedSortParams;
     private final Map<String, String> requestParamToEntityFieldName;
     private final String[] fieldsForSearch;
 
@@ -34,12 +34,12 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
 
     protected AbstractRepository(Class<E> entityClass,
                                  Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap,
-                                 String[] admittedRequestParams,
+                                 String[] admittedSortParams,
                                  Map<String, String> requestParamToEntityFieldName,
                                  String[] fieldsForSearch) {
         this.entityClass = entityClass;
         this.sortOrdersMap = sortOrdersMap;
-        this.admittedRequestParams = admittedRequestParams;
+        this.admittedSortParams = admittedSortParams;
         this.requestParamToEntityFieldName = requestParamToEntityFieldName;
         this.fieldsForSearch = fieldsForSearch;
         this.criteriaBuilder = em.getCriteriaBuilder();
@@ -73,6 +73,8 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
         em.remove(entity);
     }
 
+    protected abstract void fetchLeftJoin(Root<E> root);
+
     protected List<E> findAllByPredicates(LinkedMultiValueMap<String, String> requestParams,
                                           Pageable pageable,
                                           Predicate... predicates) {
@@ -81,31 +83,25 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                 createFilters(requestParams, criteriaBuilder, root, requestParamToEntityFieldName, fieldsForSearch);
         filters.addAll(Arrays.asList(predicates));
         List<Order> sortParams =
-                createSortParams(requestParams, criteriaBuilder, root, sortOrdersMap, admittedRequestParams);
+                createSortParams(requestParams, criteriaBuilder, root, sortOrdersMap, admittedSortParams);
         criteriaQuery.select(root)
                 .orderBy(sortParams)
                 .where(filters.toArray(Predicate[]::new));
         return executeQuery(criteriaQuery, pageable);
     }
 
-    protected String createLikeQuery(String searchQuery) {
-        return MessageFormat.format(SQL_LIKE_PATTERN, searchQuery);
-    }
-
-    protected List<E> executeQuery(CriteriaQuery<E> criteriaQuery, Pageable pageable) {
+    private List<E> executeQuery(CriteriaQuery<E> criteriaQuery, Pageable pageable) {
         return em.createQuery(criteriaQuery)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
 
-    protected abstract void fetchLeftJoin(Root<E> root);
-
-    protected List<Order> createSortParams(LinkedMultiValueMap<String, String> requestSortParams,
-                                           CriteriaBuilder criteriaBuilder,
-                                           Root<E> root,
-                                           Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortBy,
-                                           String... admittedSortParams) {
+    private List<Order> createSortParams(LinkedMultiValueMap<String, String> requestSortParams,
+                                         CriteriaBuilder criteriaBuilder,
+                                         Root<E> root,
+                                         Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortBy,
+                                         String... admittedSortParams) {
         String stringSortParams = requestSortParams.getOrDefault(SORT_REQUEST_PARAM, List.of(ENTITY_ID)).get(0);
         if (stringSortParams.isEmpty()) {
             stringSortParams = "+".concat(ENTITY_ID);
@@ -120,11 +116,11 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                 .collect(Collectors.toList());
     }
 
-    protected List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
-                                            CriteriaBuilder criteriaBuilder,
-                                            Root<E> root,
-                                            Map<String, String> requestParamToEntityFieldName,
-                                            String... fieldsForSearch) {
+    private List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
+                                          CriteriaBuilder criteriaBuilder,
+                                          Root<E> root,
+                                          Map<String, String> requestParamToEntityFieldName,
+                                          String... fieldsForSearch) {
         List<Predicate> predicates = requestParams.entrySet()
                 .stream()
                 .filter(param -> requestParamToEntityFieldName.containsKey(param.getKey()))
@@ -141,5 +137,9 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                         .toArray(Predicate[]::new)
         ));
         return predicates;
+    }
+
+    private String createLikeQuery(String searchQuery) {
+        return MessageFormat.format(SQL_LIKE_PATTERN, searchQuery);
     }
 }
