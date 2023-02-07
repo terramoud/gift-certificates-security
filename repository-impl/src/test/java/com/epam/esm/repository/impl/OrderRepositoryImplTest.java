@@ -5,6 +5,7 @@ import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.domain.entity.User;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.OrderRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,7 +126,7 @@ class OrderRepositoryImplTest {
     }
 
     /**
-     * @see OrderRepositoryImpl#update(Order, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
@@ -138,7 +139,7 @@ class OrderRepositoryImplTest {
         order.setUser(tu.user1);
         tc.certificate1.setName("updated Certificate");
         order.setCertificate(tc.certificate1);
-        Order updatedOrder = orderRepository.update(order, 1L);
+        Order updatedOrder = orderRepository.update(order);
         Order expected = orderRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedOrder);
     }

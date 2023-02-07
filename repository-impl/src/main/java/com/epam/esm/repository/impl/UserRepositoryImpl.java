@@ -46,7 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User update(User entity, Long id) {
+    public User update(User entity) {
         return em.merge(entity);
     }
 

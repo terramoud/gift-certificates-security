@@ -93,8 +93,8 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
         Certificate certificateToUpdate = converter.toEntity(certificateDto);
         Set<Tag> tagsToUpdate = Set.copyOf(certificateToUpdate.getTags());
         certificateToUpdate.mergeTags(sourceCertificate.getTags());
-        Certificate updated = certificateRepository.update(certificateToUpdate, id);
-        tagsToUpdate.forEach(tag -> tagRepository.update(tag, tag.getId()));
+        Certificate updated = certificateRepository.update(certificateToUpdate);
+        tagsToUpdate.forEach(tag -> tagRepository.update(tag));
         return converter.toDto(updated);
     }
 }

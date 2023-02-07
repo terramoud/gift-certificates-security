@@ -45,7 +45,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag update(Tag entity, Long id) {
+    public Tag update(Tag entity) {
         return em.merge(entity);
     }
 

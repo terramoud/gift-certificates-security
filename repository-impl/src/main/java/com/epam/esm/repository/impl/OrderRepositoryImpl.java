@@ -74,7 +74,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order update(Order entity, Long id) {
+    public Order update(Order entity) {
         return em.merge(entity);
     }
 

@@ -160,7 +160,7 @@ class UserServiceImplTest {
     void testUpdateShouldReturnUpdatedUserDto() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(new User()));
         when(converter.toEntity(any(UserDto.class))).thenReturn(new User());
-        when(userRepository.update(any(User.class), anyLong())).thenReturn(new User());
+        when(userRepository.update(any(User.class))).thenReturn(new User());
         when(converter.toDto(any(User.class))).thenReturn(EXPECTED);
         assertEquals(EXPECTED, userService.update(1L, USER_TO_UPDATE));
     }

@@ -1,6 +1,7 @@
 package com.epam.esm.domain.entity;
 
 import lombok.*;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * @since 1.0
  */
 
+@Component
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString

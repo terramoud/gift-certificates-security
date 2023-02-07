@@ -5,6 +5,7 @@ import com.epam.esm.config.TestCertificates;
 import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.CertificateRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,7 +135,7 @@ class CertificateRepositoryImplTest {
     }
 
     /**
-     * @see CertificateRepositoryImpl#update(Certificate, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
@@ -143,7 +144,7 @@ class CertificateRepositoryImplTest {
         certificate.setName("updated certificate");
         certificate.setLastUpdateDate(LocalDateTime.now());
         certificate.addTags(Set.of(tt.tag10, tt.tag12));
-        Certificate updatedCertificate = certificateRepository.update(certificate, 1L);
+        Certificate updatedCertificate = certificateRepository.update(certificate);
         Certificate expected = certificateRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedCertificate);
         assertEquals(expected.getTags(), updatedCertificate.getTags());
