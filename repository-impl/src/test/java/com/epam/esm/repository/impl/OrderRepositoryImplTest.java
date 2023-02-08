@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -202,7 +201,7 @@ class OrderRepositoryImplTest {
                                 to.order11,
                                 to.order4)),
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-id, -create_date"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-id, -createDate"))),
                         PageRequest.of(1, 4),
                         List.of(to.order7,
                                 to.order6,
@@ -222,7 +221,7 @@ class OrderRepositoryImplTest {
                                 to.order9,
                                 to.order10)),
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-create_date, +cost"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-createDate, +cost"))),
                         PageRequest.of(0, 5),
                         List.of(to.order5,
                                 to.order6,
@@ -236,7 +235,7 @@ class OrderRepositoryImplTest {
         TestOrders to = new TestOrders();
         return Stream.of(
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+create_date"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+createDate"))),
                         PageRequest.of(0, 5),
                         1L,
                         List.of(to.order1,
@@ -245,7 +244,7 @@ class OrderRepositoryImplTest {
                                 to.order6,
                                 to.order7)),
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-create_date, +cost"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-createDate, +cost"))),
                         PageRequest.of(0, 5),
                         2L,
                         List.of(to.order4,

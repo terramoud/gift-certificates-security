@@ -1,6 +1,7 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.domain.entity.AbstractEntity;
+import com.epam.esm.domain.utils.TriFunction;
 import com.epam.esm.repository.api.BaseRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,33 +16,30 @@ import java.util.stream.Collectors;
 public abstract class AbstractRepository<E extends AbstractEntity, N> implements BaseRepository<E, N> {
     protected static final String SORT_REQUEST_PARAM = "sort";
     protected static final String SEARCH_REQUEST_PARAM = "search";
-    protected static final String ENTITY_ID = "id";
+    protected static final String ASC_BY_ID = "+id";
     protected static final String SQL_LIKE_PATTERN = "%{0}%";
 
-    protected final CriteriaBuilder criteriaBuilder;
+    protected final CriteriaBuilder cb;
     protected final CriteriaQuery<E> criteriaQuery;
     protected final Root<E> root;
     private final Class<E> entityClass;
-    private final Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap;
-    private final String[] admittedSortParams;
-    private final Map<String, String> requestParamToEntityFieldName;
-    private final String[] fieldsForSearch;
     private final EntityManager em;
+    private final Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap;
+    private final Map<String, TriFunction<CriteriaBuilder, Root<E>, String, Predicate>> fieldsToFiltersMap;
+    private final String[] fieldsForSearch;
 
     protected AbstractRepository(Class<E> entityClass,
                                  EntityManager em,
                                  Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap,
-                                 String[] admittedSortParams,
-                                 Map<String, String> requestParamToEntityFieldName,
+                                 Map<String, TriFunction<CriteriaBuilder, Root<E>, String, Predicate>> filterMap,
                                  String[] fieldsForSearch) {
         this.entityClass = entityClass;
         this.em = em;
         this.sortOrdersMap = sortOrdersMap;
-        this.admittedSortParams = admittedSortParams;
-        this.requestParamToEntityFieldName = requestParamToEntityFieldName;
+        this.fieldsToFiltersMap = filterMap;
         this.fieldsForSearch = fieldsForSearch;
-        this.criteriaBuilder = this.em.getCriteriaBuilder();
-        this.criteriaQuery = criteriaBuilder.createQuery(entityClass);
+        this.cb = this.em.getCriteriaBuilder();
+        this.criteriaQuery = cb.createQuery(entityClass);
         this.root = criteriaQuery.from(entityClass);
     }
 
@@ -74,15 +72,17 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
     protected List<E> findAllByPredicates(LinkedMultiValueMap<String, String> requestParams,
                                           Pageable pageable,
                                           Predicate... predicates) {
-        List<Predicate> filters =
-                createFilters(requestParams, criteriaBuilder, root, requestParamToEntityFieldName, fieldsForSearch);
-        if (predicates.length != 0) {
-            filters.addAll(Arrays.asList(predicates));
+        List<Predicate> predicateList = createFilters(requestParams, cb, root, fieldsToFiltersMap);
+        Predicate[] searchPredicates = createSearchQuery(requestParams, cb, root, fieldsForSearch);
+        if (searchPredicates.length != 0) {
+            predicateList.add(cb.or(searchPredicates));
         }
-        List<Order> sortParams =
-                createSortParams(requestParams, criteriaBuilder, root, sortOrdersMap, admittedSortParams);
+        if (predicates.length != 0) {
+            predicateList.addAll(Arrays.asList(predicates));
+        }
+        List<Order> sortParams = createSortParams(requestParams, cb, root, sortOrdersMap);
         criteriaQuery.select(root)
-                .where(filters.toArray(Predicate[]::new))
+                .where(predicateList.toArray(Predicate[]::new))
                 .orderBy(sortParams);
         return executeQuery(criteriaQuery, pageable);
     }
@@ -97,16 +97,13 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
     private List<Order> createSortParams(LinkedMultiValueMap<String, String> requestSortParams,
                                          CriteriaBuilder criteriaBuilder,
                                          Root<E> root,
-                                         Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortBy,
-                                         String... admittedSortParams) {
-        String stringSortParams = requestSortParams.getOrDefault(SORT_REQUEST_PARAM, List.of(ENTITY_ID)).get(0);
-        if (stringSortParams.isEmpty()) {
-            stringSortParams = "+".concat(ENTITY_ID);
+                                         Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortBy) {
+        String sortParams = requestSortParams.getOrDefault(SORT_REQUEST_PARAM, List.of(ASC_BY_ID)).get(0);
+        if (sortParams.isEmpty()) {
+            sortParams = ASC_BY_ID;
         }
-        return Arrays.stream(stringSortParams.split(","))
+        return Arrays.stream(sortParams.split(","))
                 .map(String::trim)
-                .map(sortParam -> Arrays.stream(admittedSortParams)
-                        .anyMatch(sortParam::startsWith) ? "+".concat(sortParam) : sortParam)
                 .distinct()
                 .filter(sortBy::containsKey)
                 .map(entityField -> sortBy.get(entityField).apply(criteriaBuilder, root))
@@ -116,26 +113,25 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
     private List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
                                           CriteriaBuilder criteriaBuilder,
                                           Root<E> root,
-                                          Map<String, String> requestParamToEntityFieldName,
-                                          String... fieldsForSearch) {
-        List<Predicate> predicates = requestParams.entrySet()
+                                          Map<String, TriFunction<CriteriaBuilder,
+                                                  Root<E>, String, Predicate>> filterBy) {
+        return requestParams.entrySet()
                 .stream()
-                .filter(param -> requestParamToEntityFieldName.containsKey(param.getKey()))
-                .map(param -> {
-                    String entityFieldName = requestParamToEntityFieldName.get(param.getKey());
-                    String entityFieldValue = param.getValue().get(0).trim();
-                    return criteriaBuilder.equal(root.get(entityFieldName), entityFieldValue);
-                })
+                .distinct()
+                .filter(param -> filterBy.containsKey(param.getKey()))
+                .map(param -> filterBy.get(param.getKey())
+                        .apply(criteriaBuilder, root, param.getValue().get(0).trim()))
                 .collect(Collectors.toList());
-        if (fieldsForSearch.length != 0) {
-            String searchQuery = requestParams.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
-            predicates.add(criteriaBuilder.or(
-                    Arrays.stream(fieldsForSearch)
-                            .map(entityName -> criteriaBuilder.like(root.get(entityName), createLikeQuery(searchQuery)))
-                            .toArray(Predicate[]::new)
-            ));
-        }
-        return predicates;
+    }
+
+    private Predicate[] createSearchQuery(LinkedMultiValueMap<String, String> requestParams,
+                                          CriteriaBuilder criteriaBuilder,
+                                          Root<E> root,
+                                          String[] fieldsForSearch) {
+        String searchQuery = requestParams.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
+        return Arrays.stream(fieldsForSearch)
+                .map(entityField -> criteriaBuilder.like(root.get(entityField), createLikeQuery(searchQuery)))
+                .toArray(Predicate[]::new);
     }
 
     private String createLikeQuery(String searchQuery) {

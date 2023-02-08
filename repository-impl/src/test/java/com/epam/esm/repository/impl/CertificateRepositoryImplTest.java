@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -258,7 +257,7 @@ class CertificateRepositoryImplTest {
                                 tc.certificate6,
                                 tc.certificate7)),
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+create_date, -last_update_date"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+createDate, -lastUpdateDate"))),
                         PageRequest.of(0, 5),
                         List.of(tc.certificate9,
                                 tc.certificate1,
@@ -405,5 +404,4 @@ class CertificateRepositoryImplTest {
                                 tc.certificate1))
         );
     }
-
 }

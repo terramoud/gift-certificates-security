@@ -2,6 +2,7 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.utils.TriFunction;
 import com.epam.esm.repository.api.CertificateRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,83 +21,60 @@ import java.util.function.BiFunction;
 @Slf4j
 public class CertificateRepositoryImpl extends AbstractRepository<Certificate, Long> implements CertificateRepository {
 
-    private static final String CERTIFICATE_ID = "id";
-    private static final String CERTIFICATE_NAME = "name";
-    private static final String CERTIFICATE_DESCRIPTION = "description";
-    private static final String CERTIFICATE_PRICE = "price";
-    private static final String CERTIFICATE_DURATION = "duration";
-    private static final String CERTIFICATE_CREATE_DATE = "createDate";
-    private static final String CERTIFICATE_LAST_UPDATE_DATE = "lastUpdateDate";
-
-
-    private static final String REQUEST_PARAM_NAME = "name";
-    private static final String REQUEST_PARAM_DESCRIPTION = "description";
-    private static final String REQUEST_PARAM_PRICE = "price";
-    private static final String REQUEST_PARAM_DURATION = "duration";
-    private static final String REQUEST_PARAM_CREATE_DATE = "create_date";
-    private static final String REQUEST_PARAM_LAST_UPDATE_DATE = "last_update_date";
-
-    private static final String JOINED_FIELD_NAME = "tags";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String DESCRIPTION = "description";
+    private static final String PRICE = "price";
+    private static final String DURATION = "duration";
+    private static final String CREATE_DATE = "createDate";
+    private static final String LAST_UPDATE_DATE = "lastUpdateDate";
+    private static final String JOINED_FIELD_TAGS = "tags";
     private static final String TAG_ID_FIELD = "id";
     private static final String TAG_NAME_FIELD = "name";
-
-    private static final String[] ADMITTED_SORT_PARAMS = {
-            CERTIFICATE_ID,
-            REQUEST_PARAM_NAME,
-            REQUEST_PARAM_DESCRIPTION,
-            REQUEST_PARAM_PRICE,
-            REQUEST_PARAM_DURATION,
-            REQUEST_PARAM_CREATE_DATE,
-            REQUEST_PARAM_LAST_UPDATE_DATE
-    };
-
-    private static final String[] FIELDS_FOR_SEARCH = {CERTIFICATE_NAME, CERTIFICATE_DESCRIPTION};
+    private static final String[] FIELDS_FOR_SEARCH = {NAME, DESCRIPTION};
 
     private static final Map<String, BiFunction<CriteriaBuilder, Root<Certificate>, Order>> SORT_ORDERS_MAP =
             Map.ofEntries(
-                    Map.entry("+id", (cb, root) -> cb.asc(root.get(CERTIFICATE_ID))),
-                    Map.entry("-id", (cb, root) -> cb.desc(root.get(CERTIFICATE_ID))),
-                    Map.entry("+name", (cb, root) -> cb.asc(root.get(CERTIFICATE_NAME))),
-                    Map.entry("-name", (cb, root) -> cb.desc(root.get(CERTIFICATE_NAME))),
-                    Map.entry("+description", (cb, root) -> cb.asc(root.get(CERTIFICATE_DESCRIPTION))),
-                    Map.entry("-description", (cb, root) -> cb.desc(root.get(CERTIFICATE_DESCRIPTION))),
-                    Map.entry("+price", (cb, root) -> cb.asc(root.get(CERTIFICATE_PRICE))),
-                    Map.entry("-price", (cb, root) -> cb.desc(root.get(CERTIFICATE_PRICE))),
-                    Map.entry("+duration", (cb, root) -> cb.asc(root.get(CERTIFICATE_DURATION))),
-                    Map.entry("-duration", (cb, root) -> cb.desc(root.get(CERTIFICATE_DURATION))),
-                    Map.entry("+create_date", (cb, root) -> cb.asc(root.get(CERTIFICATE_CREATE_DATE))),
-                    Map.entry("-create_date", (cb, root) -> cb.desc(root.get(CERTIFICATE_CREATE_DATE))),
-                    Map.entry("+last_update_date", (cb, root) -> cb.asc(root.get(CERTIFICATE_LAST_UPDATE_DATE))),
-                    Map.entry("-last_update_date", (cb, root) -> cb.desc(root.get(CERTIFICATE_LAST_UPDATE_DATE)))
+                    Map.entry("+id", (cb, root) -> cb.asc(root.get(ID))),
+                    Map.entry("-id", (cb, root) -> cb.desc(root.get(ID))),
+                    Map.entry("+name", (cb, root) -> cb.asc(root.get(NAME))),
+                    Map.entry("-name", (cb, root) -> cb.desc(root.get(NAME))),
+                    Map.entry("+description", (cb, root) -> cb.asc(root.get(DESCRIPTION))),
+                    Map.entry("-description", (cb, root) -> cb.desc(root.get(DESCRIPTION))),
+                    Map.entry("+price", (cb, root) -> cb.asc(root.get(PRICE))),
+                    Map.entry("-price", (cb, root) -> cb.desc(root.get(PRICE))),
+                    Map.entry("+duration", (cb, root) -> cb.asc(root.get(DURATION))),
+                    Map.entry("-duration", (cb, root) -> cb.desc(root.get(DURATION))),
+                    Map.entry("+createDate", (cb, root) -> cb.asc(root.get(CREATE_DATE))),
+                    Map.entry("-createDate", (cb, root) -> cb.desc(root.get(CREATE_DATE))),
+                    Map.entry("+lastUpdateDate", (cb, root) -> cb.asc(root.get(LAST_UPDATE_DATE))),
+                    Map.entry("-lastUpdateDate", (cb, root) -> cb.desc(root.get(LAST_UPDATE_DATE)))
             );
 
-    private static final Map<String, String> REQUEST_PARAM_TO_ENTITY_FIELD_NAME = Map.of(
-            REQUEST_PARAM_NAME, CERTIFICATE_NAME,
-            REQUEST_PARAM_DESCRIPTION, CERTIFICATE_DESCRIPTION,
-            REQUEST_PARAM_PRICE, CERTIFICATE_PRICE,
-            REQUEST_PARAM_DURATION, CERTIFICATE_DURATION,
-            REQUEST_PARAM_CREATE_DATE, CERTIFICATE_CREATE_DATE,
-            REQUEST_PARAM_LAST_UPDATE_DATE, CERTIFICATE_LAST_UPDATE_DATE
-    );
+    private static final Map<String,
+            TriFunction<CriteriaBuilder, Root<Certificate>, String, Predicate>> FIELDS_TO_FILTERS_MAP =
+            Map.ofEntries(
+                    Map.entry(NAME, (cb, r, filterValue) -> cb.equal(r.get(NAME), filterValue)),
+                    Map.entry(DESCRIPTION, (cb, r, filterValue) -> cb.equal(r.get(DESCRIPTION), filterValue)),
+                    Map.entry(PRICE, (cb, r, filterValue) -> cb.equal(r.get(PRICE), filterValue)),
+                    Map.entry(DURATION, (cb, r, filterValue) -> cb.equal(r.get(DURATION), filterValue)),
+                    Map.entry(CREATE_DATE, (cb, r, filterValue) -> cb.equal(r.get(CREATE_DATE), filterValue)),
+                    Map.entry(LAST_UPDATE_DATE, (cb, r, filterValue) -> cb.equal(r.get(LAST_UPDATE_DATE), filterValue))
+            );
 
     private final EntityManager entityManager;
 
     @Autowired
-    public CertificateRepositoryImpl(EntityManager entityManager) {
-        super(Certificate.class,
-                entityManager,
-                SORT_ORDERS_MAP,
-                ADMITTED_SORT_PARAMS,
-                REQUEST_PARAM_TO_ENTITY_FIELD_NAME,
-                FIELDS_FOR_SEARCH);
-        this.entityManager = entityManager;
-        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
+    public CertificateRepositoryImpl(EntityManager em) {
+        super(Certificate.class, em, SORT_ORDERS_MAP, FIELDS_TO_FILTERS_MAP, FIELDS_FOR_SEARCH);
+        this.entityManager = em;
+        root.fetch(JOINED_FIELD_TAGS, JoinType.LEFT);
     }
 
     @Override
     public Optional<Certificate> findById(Long id) {
         try {
-            Predicate predicate = criteriaBuilder.equal(root.get(CERTIFICATE_ID), id);
+            Predicate predicate = cb.equal(root.get(ID), id);
             criteriaQuery.where(predicate);
             Certificate certificate = entityManager.createQuery(criteriaQuery).getSingleResult();
             return Optional.ofNullable(certificate);
@@ -110,8 +88,8 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
     public List<Certificate> findAllByTagId(LinkedMultiValueMap<String, String> fields,
                                             Pageable pageable,
                                             Long tagId) {
-        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_NAME);
-        Predicate predicate = criteriaBuilder.equal(joinedTags.get(TAG_ID_FIELD), tagId);
+        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+        Predicate predicate = cb.equal(joinedTags.get(TAG_ID_FIELD), tagId);
         return findAllByPredicates(fields, pageable, predicate);
     }
 
@@ -119,8 +97,8 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
     public List<Certificate> findAllByTagName(LinkedMultiValueMap<String, String> fields,
                                               Pageable pageable,
                                               String tagName) {
-        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_NAME);
-        Predicate predicate = criteriaBuilder.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
+        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+        Predicate predicate = cb.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
         return findAllByPredicates(fields, pageable, predicate);
     }
 }
