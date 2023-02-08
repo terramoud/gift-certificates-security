@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS certificates
     description      VARCHAR(256)  NOT NULL,
     price            DECIMAL(9, 2) NOT NULL,
     duration         INT UNSIGNED  NOT NULL,
-    create_date      DATETIME      NOT NULL,
-    last_update_date DATETIME      NOT NULL
+    create_date      DATETIME(3)      NOT NULL,
+    last_update_date DATETIME(3)      NOT NULL
 );
 
 CREATE TRIGGER do_immutable_create_date
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS orders
     PRIMARY KEY (id),
     id                  INT UNSIGNED AUTO_INCREMENT,
     cost                DECIMAL(9, 2) NOT NULL,
-    create_date         DATETIME      NOT NULL,
+    create_date         DATETIME(3)      NOT NULL,
     user_id             INT UNSIGNED,
     gift_certificate_id INT UNSIGNED,
     FOREIGN KEY (gift_certificate_id)
