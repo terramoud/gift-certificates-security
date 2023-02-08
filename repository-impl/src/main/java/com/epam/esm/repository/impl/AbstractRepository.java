@@ -76,7 +76,9 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                                           Predicate... predicates) {
         List<Predicate> filters =
                 createFilters(requestParams, criteriaBuilder, root, requestParamToEntityFieldName, fieldsForSearch);
-        filters.addAll(Arrays.asList(predicates));
+        if (predicates.length != 0) {
+            filters.addAll(Arrays.asList(predicates));
+        }
         List<Order> sortParams =
                 createSortParams(requestParams, criteriaBuilder, root, sortOrdersMap, admittedSortParams);
         criteriaQuery.select(root)
@@ -125,12 +127,14 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                     return criteriaBuilder.equal(root.get(entityFieldName), entityFieldValue);
                 })
                 .collect(Collectors.toList());
-        String searchQuery = requestParams.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
-        predicates.add(criteriaBuilder.or(
-                Arrays.stream(fieldsForSearch)
-                        .map(entityName -> criteriaBuilder.like(root.get(entityName), createLikeQuery(searchQuery)))
-                        .toArray(Predicate[]::new)
-        ));
+        if (fieldsForSearch.length != 0) {
+            String searchQuery = requestParams.getOrDefault(SEARCH_REQUEST_PARAM, List.of("")).get(0).trim();
+            predicates.add(criteriaBuilder.or(
+                    Arrays.stream(fieldsForSearch)
+                            .map(entityName -> criteriaBuilder.like(root.get(entityName), createLikeQuery(searchQuery)))
+                            .toArray(Predicate[]::new)
+            ));
+        }
         return predicates;
     }
 
