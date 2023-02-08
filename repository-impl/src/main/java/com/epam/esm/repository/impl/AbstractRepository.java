@@ -71,7 +71,6 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
         em.remove(entity);
     }
 
-
     protected List<E> findAllByPredicates(LinkedMultiValueMap<String, String> requestParams,
                                           Pageable pageable,
                                           Predicate... predicates) {
