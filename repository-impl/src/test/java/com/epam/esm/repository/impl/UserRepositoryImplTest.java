@@ -35,15 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class UserRepositoryImplTest {
 
-    @Autowired
-    private UserRepository userRepository;
-
     @PersistenceContext
     protected EntityManager em;
 
+    private UserRepository userRepository;
+
     @BeforeEach
     void setUp() {
-
+        userRepository = new UserRepositoryImpl(em);
     }
 
     /**

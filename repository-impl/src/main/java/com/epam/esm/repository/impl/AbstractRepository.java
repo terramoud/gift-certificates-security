@@ -6,13 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-
 
 public abstract class AbstractRepository<E extends AbstractEntity, N> implements BaseRepository<E, N> {
     protected static final String SORT_REQUEST_PARAM = "sort";
@@ -28,21 +26,21 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
     private final String[] admittedSortParams;
     private final Map<String, String> requestParamToEntityFieldName;
     private final String[] fieldsForSearch;
-
-    @PersistenceContext
-    protected EntityManager em;
+    private final EntityManager em;
 
     protected AbstractRepository(Class<E> entityClass,
+                                 EntityManager em,
                                  Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortOrdersMap,
                                  String[] admittedSortParams,
                                  Map<String, String> requestParamToEntityFieldName,
                                  String[] fieldsForSearch) {
         this.entityClass = entityClass;
+        this.em = em;
         this.sortOrdersMap = sortOrdersMap;
         this.admittedSortParams = admittedSortParams;
         this.requestParamToEntityFieldName = requestParamToEntityFieldName;
         this.fieldsForSearch = fieldsForSearch;
-        this.criteriaBuilder = em.getCriteriaBuilder();
+        this.criteriaBuilder = this.em.getCriteriaBuilder();
         this.criteriaQuery = criteriaBuilder.createQuery(entityClass);
         this.root = criteriaQuery.from(entityClass);
     }
@@ -73,12 +71,10 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
         em.remove(entity);
     }
 
-    protected abstract void fetchLeftJoin(Root<E> root);
 
     protected List<E> findAllByPredicates(LinkedMultiValueMap<String, String> requestParams,
                                           Pageable pageable,
                                           Predicate... predicates) {
-        fetchLeftJoin(root);
         List<Predicate> filters =
                 createFilters(requestParams, criteriaBuilder, root, requestParamToEntityFieldName, fieldsForSearch);
         filters.addAll(Arrays.asList(predicates));

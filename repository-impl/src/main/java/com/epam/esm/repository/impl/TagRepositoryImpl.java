@@ -1,11 +1,17 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.TagRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.*;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.function.BiFunction;
 
@@ -23,7 +29,8 @@ public class TagRepositoryImpl extends AbstractRepository<Tag, Long> implements 
     private static final String[] ADMITTED_SORT_PARAMS = {REQUEST_PARAM_NAME};
     private static final String[] FIELDS_FOR_SEARCH = {TAG_NAME};
 
-    private static final Map<String, BiFunction<CriteriaBuilder, Root<Tag>, Order>> SORT_ORDERS_MAP = Map.of(
+    private static final Map<String, BiFunction<CriteriaBuilder, Root<Tag>,
+            javax.persistence.criteria.Order>> SORT_ORDERS_MAP = Map.of(
             "+name", (cb, root) -> cb.asc(root.get(TAG_NAME)),
             "-name", (cb, root) -> cb.desc(root.get(TAG_NAME)),
             "+id", (cb, root) -> cb.asc(root.get(TAG_ID)),
@@ -34,12 +41,17 @@ public class TagRepositoryImpl extends AbstractRepository<Tag, Long> implements 
             REQUEST_PARAM_NAME, TAG_NAME
     );
 
-    public TagRepositoryImpl() {
+    private final EntityManager entityManager;
+
+    @Autowired
+    public TagRepositoryImpl(EntityManager entityManager) {
         super(Tag.class,
+                entityManager,
                 SORT_ORDERS_MAP,
                 ADMITTED_SORT_PARAMS,
                 REQUEST_PARAM_TO_ENTITY_FIELD_NAME,
                 FIELDS_FOR_SEARCH);
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -50,7 +62,7 @@ public class TagRepositoryImpl extends AbstractRepository<Tag, Long> implements 
                 .select(order.get(ORDER_FIELD_USER).get(USER_ID))
                 .groupBy(order.get(ORDER_FIELD_USER).get(USER_ID))
                 .orderBy(criteriaBuilder.desc(criteriaBuilder.sum(order.get(ORDER_COST))));
-        Long userId = em.createQuery(longCriteriaQuery)
+        Long userId = entityManager.createQuery(longCriteriaQuery)
                 .setMaxResults(1)
                 .getResultList()
                 .get(0);
@@ -61,14 +73,9 @@ public class TagRepositoryImpl extends AbstractRepository<Tag, Long> implements 
                 .groupBy(joinedTag.get(TAG_ID))
                 .orderBy(criteriaBuilder.desc(criteriaBuilder.count(joinedTag.get(TAG_ID))))
                 .where(criteriaBuilder.equal(orderRoot.get(ORDER_FIELD_USER).get(USER_ID), userId));
-        return em.createQuery(criteriaQuery)
+        return entityManager.createQuery(criteriaQuery)
                 .setMaxResults(1)
                 .getResultList().stream()
                 .findFirst();
-    }
-
-    @Override
-    protected void fetchLeftJoin(Root<Tag> root) {
-        throw new UnsupportedOperationException();
     }
 }

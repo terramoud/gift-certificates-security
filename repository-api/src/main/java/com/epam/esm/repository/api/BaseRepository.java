@@ -1,14 +1,9 @@
 package com.epam.esm.repository.api;
 
 import com.epam.esm.domain.entity.AbstractEntity;
-import com.epam.esm.domain.entity.Certificate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 

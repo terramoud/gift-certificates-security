@@ -4,11 +4,13 @@ import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.api.CertificateRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
 import java.util.*;
@@ -76,21 +78,26 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
             REQUEST_PARAM_LAST_UPDATE_DATE, CERTIFICATE_LAST_UPDATE_DATE
     );
 
-    public CertificateRepositoryImpl() {
+    private final EntityManager entityManager;
+
+    @Autowired
+    public CertificateRepositoryImpl(EntityManager entityManager) {
         super(Certificate.class,
+                entityManager,
                 SORT_ORDERS_MAP,
                 ADMITTED_SORT_PARAMS,
                 REQUEST_PARAM_TO_ENTITY_FIELD_NAME,
                 FIELDS_FOR_SEARCH);
+        this.entityManager = entityManager;
+        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
     }
 
     @Override
     public Optional<Certificate> findById(Long id) {
         try {
-            fetchLeftJoin(root);
             Predicate predicate = criteriaBuilder.equal(root.get(CERTIFICATE_ID), id);
             criteriaQuery.where(predicate);
-            Certificate certificate = em.createQuery(criteriaQuery).getSingleResult();
+            Certificate certificate = entityManager.createQuery(criteriaQuery).getSingleResult();
             return Optional.ofNullable(certificate);
         } catch (EmptyResultDataAccessException | PersistenceException ex) {
             log.warn(ex.getMessage(), ex);
@@ -114,10 +121,5 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
         Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_NAME);
         Predicate predicate = criteriaBuilder.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
         return findAllByPredicates(fields, pageable, predicate);
-    }
-
-    @Override
-    protected void fetchLeftJoin(Root<Certificate> root) {
-        root.fetch(JOINED_FIELD_NAME, JoinType.LEFT);
     }
 }

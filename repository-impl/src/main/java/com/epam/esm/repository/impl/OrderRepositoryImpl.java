@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
 import java.util.*;
@@ -47,22 +48,28 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, Long> impleme
             PARAM_CREATE_DATE, ORDER_CREATE_DATE
     );
 
-    public OrderRepositoryImpl() {
+    private final EntityManager entityManager;
+
+    public OrderRepositoryImpl(EntityManager entityManager) {
         super(Order.class,
+                entityManager,
                 SORT_ORDERS_MAP,
                 ADMITTED_SORT_PARAMS,
                 REQUEST_PARAM_TO_ENTITY_FIELD_NAME,
                 FIELDS_FOR_SEARCH);
+        this.entityManager = entityManager;
+        root.fetch(JOINED_FIELD_CERTIFICATE, JoinType.LEFT)
+                .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
     }
 
+    @Override
     public Optional<Order> findById(Long id) {
         try {
-            fetchLeftJoin(root);
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
             Root<Order> root = criteriaQuery.from(Order.class);
             criteriaQuery.where(criteriaBuilder.equal(root.get(ORDER_ID), id));
-            return Optional.ofNullable(em.createQuery(criteriaQuery).getSingleResult());
+            return Optional.ofNullable(entityManager.createQuery(criteriaQuery).getSingleResult());
         } catch (EmptyResultDataAccessException | PersistenceException ex) {
             log.warn(ex.getMessage(), ex);
             return Optional.empty();
@@ -76,11 +83,5 @@ public class OrderRepositoryImpl extends AbstractRepository<Order, Long> impleme
         Join<Order, User> userJoin = root.join(JOINED_FIELD_USER);
         Predicate predicate = criteriaBuilder.equal(userJoin.get(USER_ID), userId);
         return findAllByPredicates(fields, pageable, predicate);
-    }
-
-    @Override
-    protected void fetchLeftJoin(Root<Order> root) {
-        root.fetch(JOINED_FIELD_CERTIFICATE, JoinType.LEFT)
-                .fetch(CERTIFICATE_JOINED_FIELD_TAGS, JoinType.LEFT);
     }
 }

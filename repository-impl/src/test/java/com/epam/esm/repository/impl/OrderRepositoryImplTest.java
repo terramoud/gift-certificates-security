@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,11 +40,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class OrderRepositoryImplTest {
 
-    @Autowired
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
+        orderRepository = new OrderRepositoryImpl(entityManager);
     }
 
     @AfterEach

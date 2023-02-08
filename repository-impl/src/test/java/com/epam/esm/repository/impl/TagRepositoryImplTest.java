@@ -32,15 +32,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class TagRepositoryImplTest {
 
-    @Autowired
-    private TagRepository tagRepository;
-
     @PersistenceContext
     protected EntityManager em;
 
+    private TagRepository tagRepository;
+
     @BeforeEach
     void setUp() {
-
+        tagRepository = new TagRepositoryImpl(em);
     }
 
     /**
