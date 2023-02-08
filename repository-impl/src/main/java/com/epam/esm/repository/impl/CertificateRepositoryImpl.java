@@ -28,6 +28,7 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
     private static final String CERTIFICATE_CREATE_DATE = "createDate";
     private static final String CERTIFICATE_LAST_UPDATE_DATE = "lastUpdateDate";
 
+
     private static final String REQUEST_PARAM_NAME = "name";
     private static final String REQUEST_PARAM_DESCRIPTION = "description";
     private static final String REQUEST_PARAM_PRICE = "price";
