@@ -82,8 +82,8 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
         List<Order> sortParams =
                 createSortParams(requestParams, criteriaBuilder, root, sortOrdersMap, admittedSortParams);
         criteriaQuery.select(root)
-                .orderBy(sortParams)
-                .where(filters.toArray(Predicate[]::new));
+                .where(filters.toArray(Predicate[]::new))
+                .orderBy(sortParams);
         return executeQuery(criteriaQuery, pageable);
     }
 

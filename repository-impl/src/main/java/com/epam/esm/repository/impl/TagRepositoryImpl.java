@@ -26,7 +26,7 @@ public class TagRepositoryImpl extends AbstractRepository<Tag, Long> implements 
     private static final String ORDER_COST = "cost";
     private static final String ORDER_FIELD_CERTIFICATE = "certificate";
     private static final String CERTIFICATE_FIELD_TAGS = "tags";
-    private static final String[] ADMITTED_SORT_PARAMS = {REQUEST_PARAM_NAME};
+    private static final String[] ADMITTED_SORT_PARAMS = {TAG_ID, REQUEST_PARAM_NAME};
     private static final String[] FIELDS_FOR_SEARCH = {TAG_NAME};
 
     private static final Map<String, BiFunction<CriteriaBuilder, Root<Tag>,
