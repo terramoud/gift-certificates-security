@@ -5,6 +5,7 @@ import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.domain.entity.User;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.OrderRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,11 +40,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class OrderRepositoryImplTest {
 
-    @Autowired
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
+        orderRepository = new OrderRepositoryImpl(entityManager);
     }
 
     @AfterEach
@@ -125,7 +131,7 @@ class OrderRepositoryImplTest {
     }
 
     /**
-     * @see OrderRepositoryImpl#update(Order, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
@@ -138,7 +144,7 @@ class OrderRepositoryImplTest {
         order.setUser(tu.user1);
         tc.certificate1.setName("updated Certificate");
         order.setCertificate(tc.certificate1);
-        Order updatedOrder = orderRepository.update(order, 1L);
+        Order updatedOrder = orderRepository.update(order);
         Order expected = orderRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedOrder);
     }

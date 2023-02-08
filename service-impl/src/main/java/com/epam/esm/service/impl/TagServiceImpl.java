@@ -64,7 +64,7 @@ public class TagServiceImpl extends AbstractService<TagDto, Long> implements Tag
             throw new ResourceNotFoundException(TAG_NOT_FOUND, id, ErrorCodes.NOT_FOUND_TAG_RESOURCE);
         }
         Tag tag = converter.toEntity(tagDto);
-        Tag updated = tagRepository.update(tag, id);
+        Tag updated = tagRepository.update(tag);
         return converter.toDto(updated);
     }
 

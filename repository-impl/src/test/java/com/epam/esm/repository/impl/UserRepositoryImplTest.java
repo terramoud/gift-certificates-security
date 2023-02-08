@@ -3,6 +3,7 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.config.RepositoryTestConfig;
 import com.epam.esm.config.TestUsers;
 import com.epam.esm.domain.entity.User;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,15 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class UserRepositoryImplTest {
 
-    @Autowired
-    private UserRepository userRepository;
-
     @PersistenceContext
     protected EntityManager em;
 
+    private UserRepository userRepository;
+
     @BeforeEach
     void setUp() {
-
+        userRepository = new UserRepositoryImpl(em);
     }
 
     /**
@@ -76,8 +76,10 @@ class UserRepositoryImplTest {
         String login = fields.getOrDefault("login", List.of("")).get(0);
         String andLoginEqualsUserLogin = (login.isEmpty()) ? "" : "and t.name = '" + login + "'";
         List<User> userListByBySearchPartOfName = em.createQuery(
-                "SELECT u FROM User u WHERE u.login like '%" + searchQuery +
-                        "%' " + andLoginEqualsUserLogin + " ORDER BY u.id ASC", User.class).getResultList();
+                "SELECT u FROM User u WHERE " +
+                        "u.login like '%" + searchQuery + "%' " + andLoginEqualsUserLogin +
+                        " or u.email like '%" + searchQuery + "%' " + andLoginEqualsUserLogin +
+                        " ORDER BY u.id ASC", User.class).getResultList();
         List<User> expected = List.of(userListByBySearchPartOfName.stream()
                 .sorted(userComparator)
                 .skip(pageable.getOffset())
@@ -114,13 +116,13 @@ class UserRepositoryImplTest {
     }
 
     /**
-     * @see UserRepositoryImpl#update(User, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
         User user = em.find(User.class, 2L);
         user.setLogin("changed login");
-        User updatedUser = userRepository.update(user, 2L);
+        User updatedUser = userRepository.update(user);
         User expected = userRepository.findById(2L).orElseThrow();
         assertEquals(expected, updatedUser);
     }

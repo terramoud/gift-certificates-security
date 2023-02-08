@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -202,8 +201,8 @@ class CertificateServiceImplTest {
         CertificateDto expected = INPUT_CERTIFICATE_DTO;
         when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(new Certificate()));
         when(converter.toEntity(any(CertificateDto.class))).thenReturn(new Certificate());
-        when(certificateRepository.update(any(Certificate.class), anyLong())).thenReturn(new Certificate());
-        lenient().when(tagRepository.update(any(Tag.class), anyLong())).thenReturn(new Tag());
+        when(certificateRepository.update(any(Certificate.class))).thenReturn(new Certificate());
+        lenient().when(tagRepository.update(any(Tag.class))).thenReturn(new Tag());
         when(converter.toDto(any(Certificate.class))).thenReturn(expected);
         assertEquals(expected, certificateService.update(1L, INPUT_CERTIFICATE_DTO));
     }

@@ -5,6 +5,7 @@ import com.epam.esm.config.TestCertificates;
 import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.CertificateRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,11 +37,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class CertificateRepositoryImplTest {
 
-    @Autowired
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private CertificateRepository certificateRepository;
 
     @BeforeEach
     void setUp() {
+        certificateRepository = new CertificateRepositoryImpl(entityManager);
     }
 
     @AfterEach
@@ -134,7 +140,7 @@ class CertificateRepositoryImplTest {
     }
 
     /**
-     * @see CertificateRepositoryImpl#update(Certificate, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
@@ -143,7 +149,7 @@ class CertificateRepositoryImplTest {
         certificate.setName("updated certificate");
         certificate.setLastUpdateDate(LocalDateTime.now());
         certificate.addTags(Set.of(tt.tag10, tt.tag12));
-        Certificate updatedCertificate = certificateRepository.update(certificate, 1L);
+        Certificate updatedCertificate = certificateRepository.update(certificate);
         Certificate expected = certificateRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedCertificate);
         assertEquals(expected.getTags(), updatedCertificate.getTags());

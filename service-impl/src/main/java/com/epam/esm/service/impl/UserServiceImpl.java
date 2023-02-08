@@ -65,7 +65,7 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
             throw new ResourceNotFoundException(USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE);
         }
         User user = converter.toEntity(userDto);
-        User updated = userRepository.update(user, id);
+        User updated = userRepository.update(user);
         return converter.toDto(updated);
     }
 

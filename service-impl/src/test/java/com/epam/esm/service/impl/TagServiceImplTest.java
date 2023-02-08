@@ -142,7 +142,7 @@ class TagServiceImplTest {
         TagDto expected = new TagDto(1L, "updated");
         when(tagRepository.findById(anyLong())).thenReturn(Optional.of(new Tag()));
         when(converter.toEntity(any(TagDto.class))).thenReturn(new Tag());
-        when(tagRepository.update(any(Tag.class), anyLong())).thenReturn(new Tag());
+        when(tagRepository.update(any(Tag.class))).thenReturn(new Tag());
         when(converter.toDto(any(Tag.class))).thenReturn(expected);
         assertEquals(expected, tagService.update(1L, new TagDto(1L, "updated")));
     }

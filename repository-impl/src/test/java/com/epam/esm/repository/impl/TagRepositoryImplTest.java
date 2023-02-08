@@ -2,6 +2,7 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,15 +32,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 class TagRepositoryImplTest {
 
-    @Autowired
-    private TagRepository tagRepository;
-
     @PersistenceContext
     protected EntityManager em;
 
+    private TagRepository tagRepository;
+
     @BeforeEach
     void setUp() {
-
+        tagRepository = new TagRepositoryImpl(em);
     }
 
     /**
@@ -118,13 +118,13 @@ class TagRepositoryImplTest {
     }
 
     /**
-     * @see TagRepositoryImpl#update(Tag, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
         TestTags testTags = new TestTags();
         testTags.tag1.setName("changed tag");
-        Tag updatedTag = tagRepository.update(testTags.tag1, 1L);
+        Tag updatedTag = tagRepository.update(testTags.tag1);
         Tag expected = tagRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedTag);
     }
