@@ -76,8 +76,10 @@ class UserRepositoryImplTest {
         String login = fields.getOrDefault("login", List.of("")).get(0);
         String andLoginEqualsUserLogin = (login.isEmpty()) ? "" : "and t.name = '" + login + "'";
         List<User> userListByBySearchPartOfName = em.createQuery(
-                "SELECT u FROM User u WHERE u.login like '%" + searchQuery +
-                        "%' " + andLoginEqualsUserLogin + " ORDER BY u.id ASC", User.class).getResultList();
+                "SELECT u FROM User u WHERE " +
+                        "u.login like '%" + searchQuery + "%' " + andLoginEqualsUserLogin +
+                        " or u.email like '%" + searchQuery + "%' " + andLoginEqualsUserLogin +
+                        " ORDER BY u.id ASC", User.class).getResultList();
         List<User> expected = List.of(userListByBySearchPartOfName.stream()
                 .sorted(userComparator)
                 .skip(pageable.getOffset())
