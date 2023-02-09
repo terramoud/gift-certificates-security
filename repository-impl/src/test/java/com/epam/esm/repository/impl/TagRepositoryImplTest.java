@@ -1,9 +1,8 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.config.TestCertificates;
 import com.epam.esm.config.TestTags;
-import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,38 +21,36 @@ import org.springframework.util.LinkedMultiValueMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
 @Transactional
 class TagRepositoryImplTest {
 
-    @Autowired
-    private TagRepository tagRepository;
-
     @PersistenceContext
     protected EntityManager em;
 
+    private TagRepository tagRepository;
+
     @BeforeEach
     void setUp() {
-
+        tagRepository = new TagRepositoryImpl(em);
     }
 
+    /**
+     * @see TagRepositoryImpl#findMostPopularTagOfUserWithHighestCostOfAllOrders()
+     */
     @Test
-    void testRoundMillis() {
-        Certificate certificate = em.find(Certificate.class, 1L);
-        String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN)
-                .withZone(ZoneId.of("UTC"));
-        System.out.println("expected = " + certificate.getCreateDate().format(formatter));
+    void testFindMostPopularTagOfUserWithHighestCostOfAllOrders() {
+        Optional<Tag> tag = tagRepository.findMostPopularTagOfUserWithHighestCostOfAllOrders();
+        TestTags testTags = new TestTags();
+        Optional<Tag> expected = Optional.of(testTags.tag9);
+        assertEquals(expected, tag);
     }
 
     /**
@@ -64,8 +61,7 @@ class TagRepositoryImplTest {
     void testFindAllShouldReturnSortedListTagsByIdAndName(LinkedMultiValueMap<String, String> fields,
                                                           Pageable pageable,
                                                           Comparator<Tag> tagComparator) {
-        List<Tag> tagList = em.createQuery(
-                "SELECT t FROM Tag t ORDER BY t.id ASC", Tag.class).getResultList();
+        List<Tag> tagList = em.createQuery("SELECT t FROM Tag t ORDER BY t.id ASC", Tag.class).getResultList();
         List<Tag> expected = List.of(tagList.stream()
                 .sorted(tagComparator)
                 .skip(pageable.getOffset())
@@ -91,52 +87,10 @@ class TagRepositoryImplTest {
                         "%' " + andNameEqualsTagName + " ORDER BY t.id ASC", Tag.class).getResultList();
         List<Tag> expected = List.of(tagListByBySearchPartOfName.stream()
                 .sorted(tagComparator)
-                .skip(0)
+                .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .toArray(Tag[]::new));
         List<Tag> tags = tagRepository.findAll(fields, pageable);
-        assertEquals(expected, tags);
-    }
-
-    /**
-     * @see TagRepositoryImpl#findAllTagsByCertificateId(LinkedMultiValueMap, Pageable, Long)
-     */
-    @ParameterizedTest
-    @MethodSource("testCasesForFindAllTagsByCertificateId")
-    void testFindAllTagsByCertificateIdShouldReturnListTags(LinkedMultiValueMap<String, String> fields,
-                                                            Pageable pageable,
-                                                            Comparator<Tag> tagComparator,
-                                                            Long certificateId) {
-        List<Tag> tagListByCertificateId = em.createQuery(
-                "SELECT t FROM Tag t INNER JOIN t.certificates c where c.id = " + certificateId +
-                        " ORDER BY t.id ASC", Tag.class).getResultList();
-        List<Tag> expected = List.of(tagListByCertificateId.stream()
-                .sorted(tagComparator)
-                .skip(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .toArray(Tag[]::new));
-        List<Tag> tags = tagRepository.findAllTagsByCertificateId(fields, pageable, certificateId);
-        assertEquals(expected, tags);
-    }
-
-    /**
-     * @see TagRepositoryImpl#findAllTagsByCertificateName(LinkedMultiValueMap, Pageable, String)
-     */
-    @ParameterizedTest
-    @MethodSource("testCasesForFindAllTagsByCertificateName")
-    void testFindAllTagsByCertificateNameShouldReturnListTags(LinkedMultiValueMap<String, String> fields,
-                                                              Pageable pageable,
-                                                              Comparator<Tag> tagComparator,
-                                                              String certificateName) {
-        List<Tag> tagListByCertificateId = em.createQuery(
-                "SELECT t FROM Tag t INNER JOIN t.certificates c where c.name = '" + certificateName +
-                        "' ORDER BY t.id ASC", Tag.class).getResultList();
-        List<Tag> expected = List.of(tagListByCertificateId.stream()
-                .sorted(tagComparator)
-                .skip(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .toArray(Tag[]::new));
-        List<Tag> tags = tagRepository.findAllTagsByCertificateName(fields, pageable, certificateName);
         assertEquals(expected, tags);
     }
 
@@ -155,31 +109,23 @@ class TagRepositoryImplTest {
      * @see TagRepositoryImpl#save(Tag)
      */
     @Test
-    void testSave() {
-        TestCertificates tc = new TestCertificates();
+    void testSaveShouldCreateEntityInDB() {
         Tag newTag = new Tag();
         newTag.setName("new Tag");
-        tc.certificate1.setId(null);
-        tc.certificate1.setName("new Certificate");
-        tc.certificate1.setDescription("new Certificate description");
-        tc.certificate10.setId(null);
-        tc.certificate10.setName("new Certificate2");
-        tc.certificate10.setDescription("new Certificate2 description");
-        newTag.setCertificates(Set.of(tc.certificate1, tc.certificate10));
         tagRepository.save(newTag);
-        Optional<Tag> byId = tagRepository.findById(newTag.getId());
-        assertEquals(byId.get(), newTag);
+        Optional<Tag> expected = tagRepository.findById(newTag.getId());
+        assertEquals(expected.orElseThrow(), newTag);
     }
 
     /**
-     * @see TagRepositoryImpl#update(Tag, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
-    void testUpdate() {
+    void testUpdateShouldUpdateEntityInDB() {
         TestTags testTags = new TestTags();
         testTags.tag1.setName("changed tag");
-        Tag updatedTag = tagRepository.update(testTags.tag1, 1L);
-        Tag expected = tagRepository.findById(1L).get();
+        Tag updatedTag = tagRepository.update(testTags.tag1);
+        Tag expected = tagRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedTag);
     }
 
@@ -187,9 +133,9 @@ class TagRepositoryImplTest {
      * @see TagRepositoryImpl#delete(Tag)
      */
     @Test
-    void testDelete() {
+    void testDeleteShouldDeleteEntityInDB() {
         Optional<Tag> tagToDelete = tagRepository.findById(1L);
-        tagRepository.delete(tagToDelete.get());
+        tagRepository.delete(tagToDelete.orElseThrow());
         Optional<Tag> tag = tagRepository.findById(1L);
         assertThat(tag).isEmpty();
     }
@@ -229,59 +175,7 @@ class TagRepositoryImplTest {
         );
     }
 
-    static Stream<Arguments> testCasesForFindAllTagsByCertificateId() {
-        return Stream.of(
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+id, -name"))),
-                        PageRequest.of(2, 5),
-                        Comparator.comparing(Tag::getId)
-                                .thenComparing(Tag::getName, Comparator.reverseOrder()),
-                        1L),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of(""))),
-                        PageRequest.of(1, 10),
-                        Comparator.comparing(Tag::getId),
-                        2L),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-id"))),
-                        PageRequest.of(1, 10),
-                        Comparator.comparing(Tag::getId, Comparator.reverseOrder()),
-                        14L),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+name"))),
-                        PageRequest.of(2, 3),
-                        Comparator.comparing(Tag::getName),
-                        10L)
-        );
-    }
-
-    static Stream<Arguments> testCasesForFindAllTagsByCertificateName() {
-        return Stream.of(
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+id, -name"))),
-                        PageRequest.of(2, 5),
-                        Comparator.comparing(Tag::getId)
-                                .thenComparing(Tag::getName, Comparator.reverseOrder()),
-                        "standard"),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of(""))),
-                        PageRequest.of(1, 10),
-                        Comparator.comparing(Tag::getId),
-                        "standard plus"),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("-id"))),
-                        PageRequest.of(1, 10),
-                        Comparator.comparing(Tag::getId, Comparator.reverseOrder()),
-                        "VIP"),
-                Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+name"))),
-                        PageRequest.of(2, 3),
-                        Comparator.comparing(Tag::getName),
-                        "")
-        );
-    }
-
-    static Stream<Arguments> testCasesForFindAllBySearchPartOfNameAndFilter() {
+    private static Stream<Arguments> testCasesForFindAllBySearchPartOfNameAndFilter() {
         return Stream.of(
                 Arguments.of(
                         new LinkedMultiValueMap<>(Map.of("search", List.of(""))),

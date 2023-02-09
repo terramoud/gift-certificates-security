@@ -2,8 +2,10 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.config.RepositoryTestConfig;
 import com.epam.esm.config.TestCertificates;
+import com.epam.esm.config.TestTags;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.repository.api.CertificateRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,13 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,11 +36,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class CertificateRepositoryImplTest {
 
-    @Autowired
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private CertificateRepository certificateRepository;
 
     @BeforeEach
     void setUp() {
+        certificateRepository = new CertificateRepositoryImpl(entityManager);
     }
 
     @AfterEach
@@ -69,7 +75,7 @@ class CertificateRepositoryImplTest {
     }
 
     /**
-     * @see CertificateRepositoryImpl#findAllCertificatesByTagId(LinkedMultiValueMap, Pageable, Long)
+     * @see CertificateRepositoryImpl#findAllByTagId(LinkedMultiValueMap, Pageable, Long)
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllCertificatesByTagId")
@@ -78,13 +84,13 @@ class CertificateRepositoryImplTest {
             Pageable pageable,
             Long tagId,
             List<Certificate> expected) {
-        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagId(fields, pageable, tagId);
+        List<Certificate> certificates = certificateRepository.findAllByTagId(fields, pageable, tagId);
         assertEquals(expected, certificates);
     }
 
 
     /**
-     * @see CertificateRepositoryImpl#findAllCertificatesByTagName(LinkedMultiValueMap, Pageable, String)
+     * @see CertificateRepositoryImpl#findAllByTagName(LinkedMultiValueMap, Pageable, String)
      */
     @ParameterizedTest
     @MethodSource("testCasesForFindAllCertificatesByTagName")
@@ -93,7 +99,7 @@ class CertificateRepositoryImplTest {
             Pageable pageable,
             String tagName,
             List<Certificate> expected) {
-        List<Certificate> certificates = certificateRepository.findAllCertificatesByTagName(fields, pageable, tagName);
+        List<Certificate> certificates = certificateRepository.findAllByTagName(fields, pageable, tagName);
         assertEquals(expected, certificates);
     }
 
@@ -101,7 +107,7 @@ class CertificateRepositoryImplTest {
      * @see CertificateRepositoryImpl#findById(Long)
      */
     @Test
-    void testFindByIdShouldReturnTagWithId() {
+    void testFindByIdShouldReturnCertificateWithId() {
         TestCertificates tc = new TestCertificates();
         Optional<Certificate> expected = Optional.of(tc.certificate1);
         Optional<Certificate> certificate = certificateRepository.findById(1L);
@@ -128,30 +134,33 @@ class CertificateRepositoryImplTest {
         tag11.setName("new tag11");
         newCertificate.setTags(Set.of(tag1, tag11, tag5));
         certificateRepository.save(newCertificate);
-        Certificate expected = certificateRepository.findById(newCertificate.getId()).get();
+        Certificate expected = certificateRepository.findById(newCertificate.getId()).orElseThrow();
         assertEquals(expected, newCertificate);
     }
 
     /**
-     * @see CertificateRepositoryImpl#update(Certificate, Long)
+     * @see BaseRepository#update(com.epam.esm.domain.entity.AbstractEntity)
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
-        TestCertificates tc = new TestCertificates();
-        tc.certificate1.setName("updated certificate");
-        tc.certificate1.setLastUpdateDate(LocalDateTime.now());
-        Certificate updatedCertificate = certificateRepository.update(tc.certificate1, 1L);
-        Certificate expected = certificateRepository.findById(1L).get();
+        TestTags tt = new TestTags();
+        Certificate certificate = certificateRepository.findById(1L).orElseThrow();
+        certificate.setName("updated certificate");
+        certificate.setLastUpdateDate(LocalDateTime.now());
+        certificate.addTags(Set.of(tt.tag10, tt.tag12));
+        Certificate updatedCertificate = certificateRepository.update(certificate);
+        Certificate expected = certificateRepository.findById(1L).orElseThrow();
         assertEquals(expected, updatedCertificate);
+        assertEquals(expected.getTags(), updatedCertificate.getTags());
     }
 
     /**
      * @see CertificateRepositoryImpl#delete(Certificate)
      */
     @Test
-    void testDeleteShouldUpdateEntityInDB() {
+    void testDeleteShouldDeleteEntityInDB() {
         Optional<Certificate> certificateToDelete = certificateRepository.findById(1L);
-        certificateRepository.delete(certificateToDelete.get());
+        certificateRepository.delete(certificateToDelete.orElseThrow());
         Optional<Certificate> expected = certificateRepository.findById(1L);
         assertThat(expected).isEmpty();
     }
@@ -248,7 +257,7 @@ class CertificateRepositoryImplTest {
                                 tc.certificate6,
                                 tc.certificate7)),
                 Arguments.of(
-                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+create_date, -last_update_date"))),
+                        new LinkedMultiValueMap<>(Map.of("sort", List.of("+createDate, -lastUpdateDate"))),
                         PageRequest.of(0, 5),
                         List.of(tc.certificate9,
                                 tc.certificate1,
@@ -395,5 +404,4 @@ class CertificateRepositoryImplTest {
                                 tc.certificate1))
         );
     }
-
 }

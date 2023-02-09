@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS certificates
     description      VARCHAR(256)  NOT NULL,
     price            DECIMAL(9, 2) NOT NULL,
     duration         INT UNSIGNED  NOT NULL,
-    create_date      DATETIME      NOT NULL,
-    last_update_date DATETIME      NOT NULL
+    create_date      DATETIME(3)      NOT NULL,
+    last_update_date DATETIME(3)      NOT NULL
 );
 
 CREATE TRIGGER do_immutable_create_date
@@ -65,8 +65,11 @@ CREATE TABLE IF NOT EXISTS certificates_tags
 CREATE TABLE IF NOT EXISTS users
 (
     PRIMARY KEY (id),
-    id    INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
-    login VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE
+    id       INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
+    login    VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE,
+    email    VARCHAR(255)                 NOT NULL UNIQUE,
+    password VARCHAR(32)                  NOT NULL,
+    role     VARCHAR(15)  NOT NULL
 );
 
 
@@ -75,7 +78,7 @@ CREATE TABLE IF NOT EXISTS orders
     PRIMARY KEY (id),
     id                  INT UNSIGNED AUTO_INCREMENT,
     cost                DECIMAL(9, 2) NOT NULL,
-    purchase_time       DATETIME      NOT NULL,
+    create_date         DATETIME(3)      NOT NULL,
     user_id             INT UNSIGNED,
     gift_certificate_id INT UNSIGNED,
     FOREIGN KEY (gift_certificate_id)
@@ -222,28 +225,60 @@ INSERT INTO certificates_tags
 VALUES (5, 12);
 INSERT INTO certificates_tags
 VALUES (3, 2);
+INSERT INTO certificates_tags
+VALUES (6, 9);
 
 -- -----------------------------------------------------
 -- fill Users
 -- -----------------------------------------------------
 INSERT INTO users
-VALUES (DEFAULT, 'admin');
+VALUES (DEFAULT, 'admin', 'admin@gmail.com', 'adminPass', 'ADMIN');
 INSERT INTO users
-VALUES (DEFAULT, 'petro');
+VALUES (DEFAULT, 'Peter', 'Peter@gmail.com', 'PeterPass', 'USER');
 INSERT INTO users
-VALUES (DEFAULT, 'testUser');
+VALUES (DEFAULT, 'testUser', 'testUser@gmail.com', 'testUserPass', 'USER');
 INSERT INTO users
-VALUES (DEFAULT, 'ivan');
+VALUES (DEFAULT, 'Jon', 'Jon@gmail.com', 'JonPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Wick', 'Wick@gmail.com', 'WickPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Neo', 'Neo@gmail.com', 'NeoPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Morpheus', 'Morpheus@gmail.com', 'MorpheusPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Igor', 'Igor@gmail.com', 'IgorPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Stepan', 'Stepan@gmail.com', 'StepanPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Jason', 'Jason@gmail.com', 'JasonPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Statham', 'Statham@gmail.com', 'StathamPass', 'USER');
+INSERT INTO users
+VALUES (DEFAULT, 'Trinity', 'Trinity@gmail.com', 'TrinityPass', 'USER');
 
 
 -- -----------------------------------------------------
 -- fill Orders
 -- -----------------------------------------------------
 INSERT INTO orders
-VALUES (DEFAULT, 10.1, '2023-01-03T07:37:14.974', 1, 1);
-
+VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
 INSERT INTO orders
-VALUES (DEFAULT, 30.3, '2023-01-04T07:37:14.974', 1, 2);
-
+VALUES (DEFAULT, 30.30, '2023-01-04T07:37:14.974', 1, 2);
 INSERT INTO orders
-VALUES (DEFAULT, 20.2, '2023-01-05T07:37:14.974', 2, 3);
+VALUES (DEFAULT, 20.20, '2023-01-05T07:37:14.974', 2, 1);
+INSERT INTO orders
+VALUES (DEFAULT, 2001.98, '2023-01-05T08:37:14.974', 2, 2);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);
+INSERT INTO orders
+VALUES (DEFAULT, 1099.99, '2023-01-05T09:37:14.974', 1, 6);

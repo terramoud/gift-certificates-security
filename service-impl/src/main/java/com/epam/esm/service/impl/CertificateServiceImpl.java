@@ -1,153 +1,100 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.CertificateRepository;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.CertificateService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
+import static com.epam.esm.domain.validation.ValidationConstants.*;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Service
 @Transactional
-public class CertificateServiceImpl implements CertificateService {
+public class CertificateServiceImpl extends AbstractService<CertificateDto, Long> implements CertificateService {
 
-    private static final String CERTIFICATE_NOT_FOUND = "certificate.not.found";
-    private static final String CERTIFICATE_ERROR_INVALID_ID = "certificate.error.invalid.id";
     private final CertificateRepository certificateRepository;
+    private final DtoConverter<Certificate, CertificateDto> converter;
+    private final TagRepository tagRepository;
+    private final DtoConverter<Tag, TagDto> tagConverter;
 
-    @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository) {
-        this.certificateRepository = certificateRepository;
+    @Override
+    public List<CertificateDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
+        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
+        List<Certificate> certificates = certificateRepository.findAll(fields, pageRequest);
+        return converter.toDto(certificates);
     }
 
     @Override
-    public List<Certificate> getAllCertificates(LinkedMultiValueMap<String, String> fields,
-                                                int size,
-                                                int page) {
-        if (size < 0) throw new InvalidPaginationParameterException(
-                "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        if (page < 0) throw new InvalidPaginationParameterException(
-                "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        Pageable pageRequest = PageRequest.of(page, size);
-        return certificateRepository.findAll(fields, pageRequest);
+    public List<CertificateDto> findAllByTagId(LinkedMultiValueMap<String, String> fields,
+                                               PageDto pageDto,
+                                               Long id) {
+        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
+        List<Certificate> certificates = certificateRepository.findAllByTagId(fields, pageRequest, id);
+        return converter.toDto(certificates);
     }
 
     @Override
-    public List<Certificate> getAllCertificatesByTagId(LinkedMultiValueMap<String, String> fields,
-                                                       int size,
-                                                       int page,
-                                                       Long tagId) {
-        if (tagId == null || tagId < 1) throw new InvalidResourcePropertyException(
-                "tag.error.invalid.id", tagId, ErrorCodes.INVALID_TAG_ID_PROPERTY);
-        if (size < 0) throw new InvalidPaginationParameterException(
-                "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        if (page < 0) throw new InvalidPaginationParameterException(
-                "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        Pageable pageRequest = PageRequest.of(page, size);
-        return certificateRepository.findAllCertificatesByTagId(fields, pageRequest, tagId);
+    public List<CertificateDto> findAllByTagName(LinkedMultiValueMap<String, String> fields,
+                                                 PageDto pageDto,
+                                                 String tagName) {
+        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
+        List<Certificate> certificates = certificateRepository.findAllByTagName(fields, pageRequest, tagName);
+        return converter.toDto(certificates);
     }
 
     @Override
-    public List<Certificate> getAllCertificatesByTagName(LinkedMultiValueMap<String, String> fields,
-                                                         int size,
-                                                         int page,
-                                                         String tagName) {
-        if (tagName == null || tagName.isEmpty() || tagName.equals("null"))
-            throw new InvalidResourceNameException(
-                    "tag.error.invalid.name", tagName, ErrorCodes.INVALID_TAG_NAME_PROPERTY);
-        if (size < 0) throw new InvalidPaginationParameterException(
-                "size", size + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        if (page < 0) throw new InvalidPaginationParameterException(
-                "page", page + "", ErrorCodes.INVALID_PAGINATION_PARAMETER);
-        Pageable pageRequest = PageRequest.of(page, size);
-        return certificateRepository.findAllCertificatesByTagName(fields, pageRequest, tagName);
-    }
-
-    @Override
-    public Certificate getCertificateById(Long certificateId) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        return certificateRepository.findById(certificateId)
+    public CertificateDto findById(Long id) {
+        Certificate certificate = certificateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+        return converter.toDto(certificate);
+    }
+
+
+    @Override
+    public CertificateDto create(CertificateDto certificateDto) {
+        Certificate certificate = converter.toEntity(certificateDto);
+        Certificate savedCertificate = certificateRepository.save(certificate);
+        return converter.toDto(savedCertificate);
     }
 
     @Override
-    public Certificate addCertificate(Certificate certificate) {
-        String name = certificate.getName();
-        String description = certificate.getDescription();
-        BigDecimal price = certificate.getPrice();
-        Integer duration = certificate.getDuration();
-        if (name == null || name.isEmpty() || name.equals("null"))
-            throw new InvalidResourceNameException(
-                    "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (description == null || description.isEmpty() || description.equals("null"))
-            throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0)
-            throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (duration == null || duration < 1)
-            throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        certificate.setCreateDate(LocalDateTime.now());
-        certificate.setLastUpdateDate(certificate.getCreateDate());
-        return certificateRepository.save(certificate);
-    }
-
-    @Override
-    public Certificate updateCertificateById(Long certificateId, Certificate certificate) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                    CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        if (certificate == null ||
-                certificate.getId() == null ||
-                certificate.getId() < 1 ||
-                !certificate.getId().equals(certificateId)) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        Certificate certificateToUpdate = certificateRepository.findById(certificateId)
+    public CertificateDto deleteById(Long id) {
+        Certificate certificate = certificateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
-        if (certificate.getName() != null) certificateToUpdate.setName(certificate.getName());
-        if (certificate.getDescription() != null) certificateToUpdate.setDescription(certificate.getDescription());
-        if (certificate.getPrice() != null) certificateToUpdate.setPrice(certificate.getPrice());
-        if (certificate.getDuration() != null) certificateToUpdate.setDuration(certificate.getDuration());
-        certificateToUpdate.setLastUpdateDate(LocalDateTime.now());
-        String name = certificateToUpdate.getName();
-        String description = certificateToUpdate.getDescription();
-        BigDecimal price = certificateToUpdate.getPrice();
-        Integer duration = certificateToUpdate.getDuration();
-        if (name.isEmpty() || name.equals("null")) throw new InvalidResourceNameException(
-                    "certificate.error.invalid.name", name, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (description.isEmpty() || description.equals("null")) throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.description", description, ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (price.compareTo(BigDecimal.ZERO) < 0) throw new InvalidResourcePropertyException(
-                    "certificate.error.invalid.price", price + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (duration < 1) throw new InvalidResourcePropertyException(
-            "certificate.error.invalid.duration", duration + "", ErrorCodes.INVALID_CERTIFICATE_PROPERTY);
-        if (certificate.getTags() != null) {
-            System.out.println("certificateToUpdate.getTags() = " + certificateToUpdate.getTags());
-            certificateToUpdate.getTags().addAll(certificate.getTags());
-            System.out.println("certificateToUpdate.getTags() = " + certificateToUpdate.getTags());
-        }
-        return certificateRepository.update(certificate, certificateId);
-    }
-
-    @Override
-    public Certificate deleteCertificateById(Long certificateId) {
-        if (certificateId == null || certificateId < 1) throw new InvalidResourcePropertyException(
-                CERTIFICATE_ERROR_INVALID_ID, certificateId, ErrorCodes.INVALID_CERTIFICATE_ID_PROPERTY);
-        Certificate certificate = certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        CERTIFICATE_NOT_FOUND, certificateId, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
+                        CERTIFICATE_NOT_FOUND, id, ErrorCodes.NOT_FOUND_CERTIFICATE_RESOURCE));
         certificateRepository.delete(certificate);
-        return certificate;
+        return converter.toDto(certificate);
+    }
+
+    @Override
+    public CertificateDto update(Long id, CertificateDto certificateDto) {
+        if (!isEqualsIds(certificateDto.getId(), id)) {
+            throw new InvalidResourcePropertyException(CERTIFICATE_ID_NOT_MAPPED, id, ErrorCodes.INVALID_ID_PROPERTY);
+        }
+        Certificate sourceCertificate = converter.toEntity(findById(id));
+        Certificate certificateToUpdate = converter.toEntity(certificateDto);
+        Set<Tag> tagsToUpdate = Set.copyOf(certificateToUpdate.getTags());
+        certificateToUpdate.mergeTags(sourceCertificate.getTags());
+        Certificate updated = certificateRepository.update(certificateToUpdate);
+        tagsToUpdate.forEach(tag -> tagRepository.update(tag));
+        return converter.toDto(updated);
     }
 }

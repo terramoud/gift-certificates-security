@@ -9,9 +9,14 @@ import java.util.Optional;
 
 
 public interface BaseRepository<E extends AbstractEntity, N> {
+
     List<E> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable);
+
     Optional<E> findById(N id);
+
     E save(E entity);
-    E update(E entity, N id);
+
+    E update(E entity);
+
     void delete(E entity);
 }

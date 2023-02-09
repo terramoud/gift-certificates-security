@@ -2,189 +2,103 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.utils.TriFunction;
 import com.epam.esm.repository.api.CertificateRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 @Repository
-@Transactional
-public class CertificateRepositoryImpl implements CertificateRepository {
+@Slf4j
+public class CertificateRepositoryImpl extends AbstractRepository<Certificate, Long> implements CertificateRepository {
 
-    private static final Logger LOG = LogManager.getLogger(CertificateRepositoryImpl.class);
-    public static final String CERTIFICATE_ID = "id";
-    public static final String CERTIFICATE_NAME = "name";
-    public static final String CERTIFICATE_DESCRIPTION = "description";
-    public static final String CERTIFICATE_PRICE = "price";
-    public static final String CERTIFICATE_DURATION = "duration";
-    public static final String CERTIFICATE_CREATE_DATE = "createDate";
-    public static final String CERTIFICATE_LAST_UPDATE_DATE = "lastUpdateDate";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String DESCRIPTION = "description";
+    private static final String PRICE = "price";
+    private static final String DURATION = "duration";
+    private static final String CREATE_DATE = "createDate";
+    private static final String LAST_UPDATE_DATE = "lastUpdateDate";
+    private static final String JOINED_FIELD_TAGS = "tags";
+    private static final String TAG_ID_FIELD = "id";
+    private static final String TAG_NAME_FIELD = "name";
+    private static final String[] FIELDS_FOR_SEARCH = {NAME, DESCRIPTION};
 
-    public static final String SORT_REQUEST_PARAMETER = "sort";
-    public static final String FILTER_BY_SEARCH_QUERY = "search";
-    public static final String FILTER_BY_ID = "id";
-    public static final String FILTER_BY_NAME = "name";
-    public static final String FILTER_BY_DESCRIPTION = "description";
-    public static final String FILTER_BY_PRICE = "price";
-    public static final String FILTER_BY_DURATION = "duration";
-    public static final String FILTER_BY_CREATE_DATE = "create_date";
-    public static final String FILTER_BY_LAST_UPDATE_DATE = "last_update_date";
+    private static final Map<String, BiFunction<CriteriaBuilder, Root<Certificate>, Order>> SORT_ORDERS_MAP =
+            Map.ofEntries(
+                    Map.entry("+id", (cb, root) -> cb.asc(root.get(ID))),
+                    Map.entry("-id", (cb, root) -> cb.desc(root.get(ID))),
+                    Map.entry("+name", (cb, root) -> cb.asc(root.get(NAME))),
+                    Map.entry("-name", (cb, root) -> cb.desc(root.get(NAME))),
+                    Map.entry("+description", (cb, root) -> cb.asc(root.get(DESCRIPTION))),
+                    Map.entry("-description", (cb, root) -> cb.desc(root.get(DESCRIPTION))),
+                    Map.entry("+price", (cb, root) -> cb.asc(root.get(PRICE))),
+                    Map.entry("-price", (cb, root) -> cb.desc(root.get(PRICE))),
+                    Map.entry("+duration", (cb, root) -> cb.asc(root.get(DURATION))),
+                    Map.entry("-duration", (cb, root) -> cb.desc(root.get(DURATION))),
+                    Map.entry("+createDate", (cb, root) -> cb.asc(root.get(CREATE_DATE))),
+                    Map.entry("-createDate", (cb, root) -> cb.desc(root.get(CREATE_DATE))),
+                    Map.entry("+lastUpdateDate", (cb, root) -> cb.asc(root.get(LAST_UPDATE_DATE))),
+                    Map.entry("-lastUpdateDate", (cb, root) -> cb.desc(root.get(LAST_UPDATE_DATE)))
+            );
 
-    private final Map<String, BiFunction<CriteriaBuilder, Root<Certificate>, Order>> sortBy = Map.ofEntries(
-            Map.entry("+id", (cb, root) -> cb.asc(root.get(CERTIFICATE_ID))),
-            Map.entry("-id", (cb, root) -> cb.desc(root.get(CERTIFICATE_ID))),
-            Map.entry("+name", (cb, root) -> cb.asc(root.get(CERTIFICATE_NAME))),
-            Map.entry("-name", (cb, root) -> cb.desc(root.get(CERTIFICATE_NAME))),
-            Map.entry("+description", (cb, root) -> cb.asc(root.get(CERTIFICATE_DESCRIPTION))),
-            Map.entry("-description", (cb, root) -> cb.desc(root.get(CERTIFICATE_DESCRIPTION))),
-            Map.entry("+price", (cb, root) -> cb.asc(root.get(CERTIFICATE_PRICE))),
-            Map.entry("-price", (cb, root) -> cb.desc(root.get(CERTIFICATE_PRICE))),
-            Map.entry("+duration", (cb, root) -> cb.asc(root.get(CERTIFICATE_DURATION))),
-            Map.entry("-duration", (cb, root) -> cb.desc(root.get(CERTIFICATE_DURATION))),
-            Map.entry("+create_date", (cb, root) -> cb.asc(root.get(CERTIFICATE_CREATE_DATE))),
-            Map.entry("-create_date", (cb, root) -> cb.desc(root.get(CERTIFICATE_CREATE_DATE))),
-            Map.entry("+last_update_date", (cb, root) -> cb.asc(root.get(CERTIFICATE_LAST_UPDATE_DATE))),
-            Map.entry("-last_update_date", (cb, root) -> cb.desc(root.get(CERTIFICATE_LAST_UPDATE_DATE)))
-    );
+    private static final Map<String,
+            TriFunction<CriteriaBuilder, Root<Certificate>, String, Predicate>> FIELDS_TO_FILTERS_MAP =
+            Map.ofEntries(
+                    Map.entry(NAME, (cb, r, filterValue) -> cb.equal(r.get(NAME), filterValue)),
+                    Map.entry(DESCRIPTION, (cb, r, filterValue) -> cb.equal(r.get(DESCRIPTION), filterValue)),
+                    Map.entry(PRICE, (cb, r, filterValue) -> cb.equal(r.get(PRICE), filterValue)),
+                    Map.entry(DURATION, (cb, r, filterValue) -> cb.equal(r.get(DURATION), filterValue)),
+                    Map.entry(CREATE_DATE, (cb, r, filterValue) -> cb.equal(r.get(CREATE_DATE), filterValue)),
+                    Map.entry(LAST_UPDATE_DATE, (cb, r, filterValue) -> cb.equal(r.get(LAST_UPDATE_DATE), filterValue))
+            );
 
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager entityManager;
 
-    public CertificateRepositoryImpl() { }
+    @Autowired
+    public CertificateRepositoryImpl(EntityManager em) {
+        super(Certificate.class, em, SORT_ORDERS_MAP, FIELDS_TO_FILTERS_MAP, FIELDS_FOR_SEARCH);
+        this.entityManager = em;
+        root.fetch(JOINED_FIELD_TAGS, JoinType.LEFT);
+    }
 
     @Override
     public Optional<Certificate> findById(Long id) {
-        return Optional.ofNullable(em.find(Certificate.class, id));
+        try {
+            Predicate predicate = cb.equal(root.get(ID), id);
+            criteriaQuery.where(predicate);
+            Certificate certificate = entityManager.createQuery(criteriaQuery).getSingleResult();
+            return Optional.ofNullable(certificate);
+        } catch (EmptyResultDataAccessException | PersistenceException ex) {
+            log.warn(ex.getMessage(), ex);
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Certificate save(Certificate entity) {
-        em.persist(entity);
-        return entity;
+    public List<Certificate> findAllByTagId(LinkedMultiValueMap<String, String> fields,
+                                            Pageable pageable,
+                                            Long tagId) {
+        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+        Predicate predicate = cb.equal(joinedTags.get(TAG_ID_FIELD), tagId);
+        return findAllByPredicates(fields, pageable, predicate);
     }
 
     @Override
-    public Certificate update(Certificate entity, Long id) {
-        return em.merge(entity);
-    }
-
-    @Override
-    public void delete(Certificate entity) {
-        em.remove(entity);
-    }
-
-    @Override
-    public List<Certificate> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-    @Override
-    public List<Certificate> findAllCertificatesByTagId(LinkedMultiValueMap<String, String> fields,
-                                                        Pageable pageable,
-                                                        Long tagId) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Certificate, Tag> certificatesTags = root.join("tags");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("id"), tagId));
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-    @Override
-    public List<Certificate> findAllCertificatesByTagName(LinkedMultiValueMap<String, String> fields,
-                                                          Pageable pageable,
-                                                          String tagName) {
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Certificate> criteriaQuery = criteriaBuilder.createQuery(Certificate.class);
-        Root<Certificate> root = criteriaQuery.from(Certificate.class);
-        List<Predicate> predicates = filters(fields, criteriaBuilder, root);
-        Join<Certificate, Tag> certificatesTags = root.join("tags");
-        predicates.add(criteriaBuilder.equal(certificatesTags.get("name"), tagName));
-        criteriaQuery.where(predicates.toArray(Predicate[]::new));
-        criteriaQuery.select(root);
-        sort(fields, criteriaBuilder, criteriaQuery, root);
-        return executeQuery(criteriaQuery, pageable);
-    }
-
-    private List<Predicate> filters(LinkedMultiValueMap<String, String> fields,
-                                    CriteriaBuilder criteriaBuilder,
-                                    Root<Certificate> root) {
-        String searchQuery = fields.getOrDefault(FILTER_BY_SEARCH_QUERY, List.of("")).get(0).trim();
-        String filterByName = fields.getOrDefault(FILTER_BY_NAME, List.of("")).get(0).trim();
-        String filterByDescription = fields.getOrDefault(FILTER_BY_DESCRIPTION, List.of("")).get(0).trim();
-        String filterByPrice = fields.getOrDefault(FILTER_BY_PRICE, List.of("")).get(0).trim();
-        String filterByDuration = fields.getOrDefault(FILTER_BY_DURATION, List.of("")).get(0).trim();
-        String filterByCreateDate = fields.getOrDefault(FILTER_BY_CREATE_DATE, List.of("")).get(0).trim();
-        String filterByLastUpdateDate = fields.getOrDefault(FILTER_BY_LAST_UPDATE_DATE, List.of("")).get(0).trim();
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.or(
-                criteriaBuilder.like(root.get(CERTIFICATE_NAME), "%" + searchQuery + "%"),
-                criteriaBuilder.like(root.get(CERTIFICATE_DESCRIPTION), "%" + searchQuery + "%")
-        ));
-        if (!filterByName.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_NAME), filterByName));
-        if (!filterByDescription.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DESCRIPTION), filterByDescription));
-        if (!filterByPrice.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_PRICE), filterByPrice));
-        if (!filterByDuration.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_DURATION), filterByDuration));
-        if (!filterByCreateDate.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_CREATE_DATE), filterByCreateDate));
-        if (!filterByLastUpdateDate.isEmpty())
-            predicates.add(criteriaBuilder.equal(root.get(CERTIFICATE_LAST_UPDATE_DATE), filterByLastUpdateDate));
-        return predicates;
-    }
-
-    private void sort(LinkedMultiValueMap<String, String> fields,
-                      CriteriaBuilder criteriaBuilder,
-                      CriteriaQuery<Certificate> criteriaQuery,
-                      Root<Certificate> root) {
-        String stringSortParams = fields.getOrDefault(SORT_REQUEST_PARAMETER, List.of(FILTER_BY_ID)).get(0);
-        if (stringSortParams.isEmpty()) stringSortParams = "+".concat(FILTER_BY_ID);
-        List<String> sortParams = Arrays.stream(stringSortParams.split(","))
-                .map(String::trim)
-                .map(el -> el.startsWith(FILTER_BY_ID) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_NAME) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_DESCRIPTION) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_PRICE) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_DURATION) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_CREATE_DATE) ? "+".concat(el) : el)
-                .map(el -> el.startsWith(FILTER_BY_LAST_UPDATE_DATE) ? "+".concat(el) : el)
-                .distinct()
-                .collect(Collectors.toList());
-        List<Order> orders = sortParams.stream()
-                .filter(sortBy::containsKey)
-                .map(certificateProperty -> sortBy.get(certificateProperty).apply(criteriaBuilder, root))
-                .collect(Collectors.toList());
-        criteriaQuery.orderBy(orders);
-    }
-
-    private List<Certificate> executeQuery(CriteriaQuery<Certificate> criteriaQuery, Pageable pageable) {
-               return em.createQuery(criteriaQuery)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+    public List<Certificate> findAllByTagName(LinkedMultiValueMap<String, String> fields,
+                                              Pageable pageable,
+                                              String tagName) {
+        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+        Predicate predicate = cb.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
+        return findAllByPredicates(fields, pageable, predicate);
     }
 }

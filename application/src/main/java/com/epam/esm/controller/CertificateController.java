@@ -1,104 +1,113 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.domain.converter.CertificateDtoConverter;
-import com.epam.esm.domain.converter.TagDtoConverter;
-import com.epam.esm.domain.dto.CertificateDto;
-import com.epam.esm.domain.dto.TagDto;
-import com.epam.esm.domain.entity.Certificate;
-import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.payload.CertificateDto;
+import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.validation.OnCreate;
+import com.epam.esm.domain.validation.OnUpdate;
+import com.epam.esm.exceptions.InvalidJsonPatchException;
+import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.CertificateService;
-import com.epam.esm.service.api.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.epam.esm.domain.validation.ValidationConstants.*;
+import static com.epam.esm.exceptions.ExceptionConstants.INVALID_JSON_PATCH;
 
 @RestController
 @RequestMapping("api/v1/gift-certificates")
+@AllArgsConstructor
+@Validated
+@Slf4j
 public class CertificateController {
 
-    private final TagService tagService;
-    private final CertificateService certificateService;
-    private final CertificateDtoConverter converter;
-    private final TagDtoConverter tagConverter;
+    private static final String PAGE_DEFAULT = "0";
+    private static final String SIZE_DEFAULT = "5";
 
-    @Autowired
-    public CertificateController(CertificateService certificateService,
-                                 TagService tagService,
-                                 CertificateDtoConverter converter,
-                                 TagDtoConverter tagConverter) {
-        this.certificateService = certificateService;
-        this.tagService = tagService;
-        this.converter = converter;
-        this.tagConverter = tagConverter;
-    }
+    private final CertificateService certificateService;
+    private final ObjectMapper objectMapper;
+    private final HateoasAdder<CertificateDto> hateoasAdder;
 
     @GetMapping
     public ResponseEntity<List<CertificateDto>> getAllCertificates(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<Certificate> certificates = certificateService.getAllCertificates(allRequestParameters, size, page);
-        List<CertificateDto> certificateDtoList = certificates.stream()
-                .map(converter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(certificateDtoList, HttpStatus.OK);
-    }
-
-    @GetMapping("/{certificate-id}/tags") // api/v1/gift-certificates/{certificate-id}/tags
-    public ResponseEntity<List<TagDto>> getAllTagsByCertificateId(
-            @PathVariable("certificate-id") Long certificateId,
-            @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<Tag> tags = tagService.getAllTagsByCertificateId(allRequestParameters, size, page, certificateId);
-        List<TagDto> tagDtoList = tags.stream()
-                .map(tagConverter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(tagDtoList, HttpStatus.OK);
-    }
-
-    @GetMapping("/name/{certificate-name}/tags") // api/v1/gift-certificates/name/{certificate-name}/tags
-    public ResponseEntity<List<TagDto>> getAllTagsByCertificateName(
-            @PathVariable("certificate-name") String certificateName,
-            @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size) {
-        List<Tag> tags = tagService.getAllTagsByCertificateName(allRequestParameters, size, page, certificateName);
-        List<TagDto> tagDtoList = tags.stream()
-                .map(tagConverter::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(tagDtoList, HttpStatus.OK);
+            @RequestParam(value = "page", defaultValue = PAGE_DEFAULT)
+            @PositiveOrZero(message = INVALID_PAGE) int page,
+            @RequestParam(value = "size", defaultValue = SIZE_DEFAULT)
+            @Positive(message = INVALID_SIZE) int size) {
+        List<CertificateDto> certificateDtos =
+                certificateService.findAll(allRequestParameters, new PageDto(page, size));
+        hateoasAdder.addLinks(certificateDtos);
+        return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{certificate-id}")
-    public ResponseEntity<CertificateDto> getCertificateById(@PathVariable("certificate-id") Long certificateId) {
-        Certificate certificate = certificateService.getCertificateById(certificateId);
-        return new ResponseEntity<>(converter.toDto(certificate), HttpStatus.OK);
+    public ResponseEntity<CertificateDto> getCertificateById(
+            @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId) {
+        CertificateDto certificateDto = certificateService.findById(certificateId);
+        hateoasAdder.addLinks(certificateDto);
+        return new ResponseEntity<>(certificateDto, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<CertificateDto> addCertificate(@RequestBody CertificateDto certificateDto) {
-        Certificate addedCertificate = certificateService.addCertificate(converter.ToCertificate(certificateDto));
-        return new ResponseEntity<>(converter.toDto(addedCertificate), HttpStatus.CREATED);
+    @Validated(OnCreate.class)
+    public ResponseEntity<CertificateDto> addCertificate(@RequestBody @Valid CertificateDto certificateDto) {
+        CertificateDto addedCertificateDto = certificateService.create(certificateDto);
+        hateoasAdder.addLinks(addedCertificateDto);
+        return new ResponseEntity<>(addedCertificateDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{certificate-id}")
+    @Validated({OnUpdate.class})
     public ResponseEntity<CertificateDto> updateCertificateById(
-            @PathVariable("certificate-id") Long certificateId,
-            @RequestBody CertificateDto certificateDto) {
-        Certificate updatedCertificate = certificateService
-                .updateCertificateById(certificateId, converter.ToCertificate(certificateDto));
-        return new ResponseEntity<>(converter.toDto(updatedCertificate), HttpStatus.OK);
+            @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
+            @RequestBody @Valid CertificateDto certificateDto) {
+        CertificateDto updatedCertificateDto = certificateService.update(certificateId, certificateDto);
+        hateoasAdder.addLinks(updatedCertificateDto);
+        return new ResponseEntity<>(updatedCertificateDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{certificate-id}")
-    public ResponseEntity<CertificateDto> deleteCertificateById(@PathVariable("certificate-id") Long certificateId) {
-        Certificate certificate = certificateService.deleteCertificateById(certificateId);
-        return new ResponseEntity<>(converter.toDto(certificate), HttpStatus.OK);
+    public ResponseEntity<CertificateDto> deleteCertificateById(
+            @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId) {
+        CertificateDto certificateDto = certificateService.deleteById(certificateId);
+        hateoasAdder.addLinks(certificateDto);
+        return new ResponseEntity<>(certificateDto, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{certificate-id}")
+    public ResponseEntity<CertificateDto> updateCertificatePartiallyById(
+            @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
+            @RequestBody JsonPatch patch) {
+        CertificateDto partiallyModifiedDto = applyPatch(patch, certificateService.findById(certificateId));
+        CertificateDto updatedDto = certificateService.update(certificateId, partiallyModifiedDto);
+        hateoasAdder.addLinks(updatedDto);
+        return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+    }
+
+    private @Valid CertificateDto applyPatch(JsonPatch patch,
+                                             CertificateDto certificateDto) throws InvalidJsonPatchException {
+        try {
+            JsonNode patched = patch.apply(objectMapper.convertValue(certificateDto, JsonNode.class));
+            return objectMapper.treeToValue(patched, CertificateDto.class);
+        } catch (JsonPatchException | JsonProcessingException | RuntimeException ex) {
+            log.error(ex.getLocalizedMessage(), ex);
+            throw new InvalidJsonPatchException(INVALID_JSON_PATCH);
+        }
     }
 }

@@ -1,14 +1,24 @@
-package com.epam.esm.domain.converter;
+package com.epam.esm.domain.converter.impl;
 
 
-import com.epam.esm.domain.dto.CertificateDto;
+import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Certificate;
+import com.epam.esm.domain.payload.CertificateDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CertificateDtoConverter {
+public class CertificateDtoConverter implements DtoConverter<Certificate, CertificateDto> {
 
-    public Certificate ToCertificate(CertificateDto dto) {
+    private final TagDtoConverter tagConverter;
+
+    @Autowired
+    public CertificateDtoConverter(TagDtoConverter tagConverter) {
+        this.tagConverter = tagConverter;
+    }
+
+    @Override
+    public Certificate toEntity(CertificateDto dto) {
         return new Certificate(
                 dto.getId(),
                 dto.getName(),
@@ -17,10 +27,11 @@ public class CertificateDtoConverter {
                 dto.getDuration(),
                 dto.getCreateDate(),
                 dto.getLastUpdateDate(),
-                dto.getTags()
+                tagConverter.toEntity(dto.getTags())
         );
     }
 
+    @Override
     public CertificateDto toDto(Certificate certificate) {
         return new CertificateDto(
                 certificate.getId(),
@@ -30,7 +41,7 @@ public class CertificateDtoConverter {
                 certificate.getDuration(),
                 certificate.getCreateDate(),
                 certificate.getLastUpdateDate(),
-                certificate.getTags()
+                tagConverter.toDto(certificate.getTags())
         );
     }
 }

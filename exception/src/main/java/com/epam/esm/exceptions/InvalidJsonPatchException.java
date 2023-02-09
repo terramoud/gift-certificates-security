@@ -1,26 +1,15 @@
 package com.epam.esm.exceptions;
 
-public class InvalidPaginationParameterException extends RuntimeException {
+import lombok.Getter;
 
-    private String parameterName;
-    private String parameterValue;
-    private String errorCode;
-
-    public InvalidPaginationParameterException(String parameterName,
-                                               String parameterValue,
-                                               ErrorCodes errorCode) {
-        super();
-        this.parameterName = parameterName;
-        this.parameterValue = parameterValue;
-        this.errorCode = errorCode.stringCode();
-    }
-
+@Getter
+public class InvalidJsonPatchException extends RuntimeException {
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public InvalidPaginationParameterException() {
+    public InvalidJsonPatchException() {
         super();
     }
 
@@ -32,7 +21,7 @@ public class InvalidPaginationParameterException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public InvalidPaginationParameterException(String message) {
+    public InvalidJsonPatchException(String message) {
         super(message);
     }
 
@@ -50,7 +39,7 @@ public class InvalidPaginationParameterException extends RuntimeException {
      *                unknown.)
      * @since 1.4
      */
-    public InvalidPaginationParameterException(String message, Throwable cause) {
+    public InvalidJsonPatchException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -67,7 +56,7 @@ public class InvalidPaginationParameterException extends RuntimeException {
      *              unknown.)
      * @since 1.4
      */
-    public InvalidPaginationParameterException(Throwable cause) {
+    public InvalidJsonPatchException(Throwable cause) {
         super(cause);
     }
 
@@ -85,32 +74,7 @@ public class InvalidPaginationParameterException extends RuntimeException {
      *                           be writable
      * @since 1.7
      */
-    protected InvalidPaginationParameterException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected InvalidJsonPatchException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
-
-    public String getParameterValue() {
-        return parameterValue;
-    }
-
-    public void setParameterValue(String parameterValue) {
-        this.parameterValue = parameterValue;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
     }
 }

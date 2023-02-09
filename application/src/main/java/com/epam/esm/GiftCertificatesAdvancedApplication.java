@@ -9,9 +9,15 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 @EnableWebMvc
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 public class GiftCertificatesAdvancedApplication {
+
+	@PersistenceContext
+	public EntityManager em;
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext ctx = SpringApplication.run(GiftCertificatesAdvancedApplication.class, args);
@@ -37,5 +43,10 @@ public class GiftCertificatesAdvancedApplication {
 	@Bean
 	public Translator translator() {
 		return new Translator(messageSource());
+	}
+
+	@Bean
+	public EntityManager entityManager() {
+		return em;
 	}
 }

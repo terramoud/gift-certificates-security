@@ -1,104 +1,198 @@
 package com.epam.esm.exceptions;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.web.util.WebUtils;
 
+import javax.annotation.Nonnull;
+import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.Set;
+
+import static com.epam.esm.exceptions.ErrorCodes.*;
+import static com.epam.esm.exceptions.ExceptionConstants.*;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
+@Slf4j
 public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
-//IllegalArgumentException: Page size must not be less than one
-//IllegalArgumentException: Page size must not be less than one
 
     private final Translator translator;
+    private final ErrorMessageFormatter messageFormatter;
 
-    @Autowired
-    public GlobalRestExceptionHandler(Translator translator) {
-        this.translator = translator;
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+                                                                         @Nonnull HttpHeaders headers,
+                                                                         @Nonnull HttpStatus status,
+                                                                         @Nonnull WebRequest request) {
+        pageNotFoundLogger.warn(ex.getMessage());
+        Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
+        if (!CollectionUtils.isEmpty(supportedMethods)) {
+            Objects.requireNonNull(headers).setAllow(supportedMethods);
+        }
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(UNSUPPORTED_HTTP_METHOD.stringCode());
+        apiErrorResponse.setErrorMessage(
+                String.format(PATTERN_UNSUPPORTED_HTTP_METHOD, supportedMethods));
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
+    }
+
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(@Nonnull NoHandlerFoundException ex,
+                                                                   @Nonnull HttpHeaders headers,
+                                                                   @Nonnull HttpStatus status,
+                                                                   @Nonnull WebRequest request) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
+        apiErrorResponse.setErrorMessage(ex.getMessage());
+        if (ex.getMessage().startsWith(NO_HANDLER_FOUND_FOR)) {
+            apiErrorResponse.setErrorCode(NO_HANDLER_FOUND.stringCode());
+            apiErrorResponse.setErrorMessage(ex.getMessage()
+                    .replace(NO_HANDLER_FOUND_FOR, translator.toLocale(ExceptionConstants.NO_HANDLER_FOUND_FOR)));
+        }
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
+    }
+
+    @Nonnull
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@Nonnull MethodArgumentNotValidException ex,
+                                                                  @Nonnull HttpHeaders headers,
+                                                                  @Nonnull HttpStatus status,
+                                                                  @Nonnull WebRequest request) {
+        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_CONSTRAINT_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return handleExceptionInternal(ex, apiErrorResponse, headers, status, request);
     }
 
     @ExceptionHandler(Throwable.class)
     public final ResponseEntity<ApiErrorResponse> handleAllExceptionsAndErrors(Throwable ex) {
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(ErrorCodes.INTERNAL_SERVER_ERROR.stringCode());
-        apiErrorResponse.setErrorMessage("internal.server.error");
-        if (ex.getMessage() != null && ex.getMessage().startsWith("get null list resources")) {
-            apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage().replace(
-                    "get null list resources", "get.null.list.resources")));
-            apiErrorResponse.setErrorCode(ErrorCodes.NULL_INSTEAD_LIST.stringCode());
+        apiErrorResponse.setErrorCode(INTERNAL_SERVER_ERROR.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(SERVER_ERROR_500));
+        if (ex.getMessage() != null && ex.getMessage().startsWith(GET_NULL_LIST_RESOURCES)) {
+            apiErrorResponse.setErrorCode(NULL_INSTEAD_LIST.stringCode());
+            apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()
+                    .replace(GET_NULL_LIST_RESOURCES, NULL_INSTEAD_LIST_RESOURCES)));
+        }
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public final ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.error(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(ILLEGAL_ARGUMENT.stringCode());
+        apiErrorResponse.setErrorMessage(ex.getLocalizedMessage());
+        if (ex.getMessage() != null && ex.getMessage().startsWith(DEFAULT_ERROR_MESSAGE_INVALID_PAGE)) {
+            apiErrorResponse.setErrorMessage(translator.toLocale(INVALID_PAGE_INDEX));
+        }
+        if (ex.getMessage() != null && ex.getMessage().startsWith(DEFAULT_ERROR_MESSAGE_INVALID_SIZE)) {
+            apiErrorResponse.setErrorMessage(translator.toLocale(INVALID_PAGE_SIZE));
         }
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public final ResponseEntity<ApiErrorResponse> handleDataAccessException(DataAccessException ex) {
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(ErrorCodes.DATA_ACCESS_EXCEPTION.stringCode());
-        apiErrorResponse.setErrorMessage("data.access.exception");
+        apiErrorResponse.setErrorCode(DATA_ACCESS_EXCEPTION.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(DATA_ACCESS_CONSTRAINT));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public final ResponseEntity<ApiErrorResponse> handleDataAccessException(DataIntegrityViolationException ex) {
-        ex.printStackTrace();
+    public final ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(ErrorCodes.DATA_INTEGRITY_VIOLATION.stringCode());
-        apiErrorResponse.setErrorMessage("data.integrity.violation");
+        apiErrorResponse.setErrorCode(DATA_INTEGRITY_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(VIOLATION_DATA_INTEGRITY));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public final ResponseEntity<ApiErrorResponse> handleDuplicateKey(DuplicateKeyException ex) {
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorMessage(translator.toLocale("mysql.error.duplicate.column"));
-        apiErrorResponse.setErrorCode(ErrorCodes.SQL_DUPLICATE_ENTRY.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(MYSQL_ERROR_DUPLICATE_COLUMN));
+        apiErrorResponse.setErrorCode(SQL_DUPLICATE_ENTRY.stringCode());
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLException.class)
     protected ResponseEntity<ApiErrorResponse> customerNotFound(SQLException ex) {
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorCode(ErrorCodes.SQL_ERROR.stringCode());
-        apiErrorResponse.setErrorMessage("sql.error.default.message");
+        apiErrorResponse.setErrorCode(SQL_ERROR.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(SQL_ERROR_DEFAULT_MESSAGE));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(
-            Exception ex,
-            @Nullable Object body,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
-        ex.printStackTrace();
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status))
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+    @ExceptionHandler(ResourceUnsupportedOperationException.class)
+    protected ResponseEntity<ApiErrorResponse> customerNotFound(ResourceUnsupportedOperationException ex) {
+        log.error(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-        apiErrorResponse.setErrorMessage("default.unsupported.request-response.exception");
-        apiErrorResponse.setErrorCode(status.value() + ErrorCodes.SUFFIX_RESPONSE_ENTITY_EXCEPTIONS.stringCode());
-        if (ex instanceof NoHandlerFoundException && ex.getMessage().startsWith("No handler found for")) {
-            status = HttpStatus.NOT_FOUND;
-            apiErrorResponse.setErrorCode(ErrorCodes.NO_HANDLER_FOUND.stringCode());
-            apiErrorResponse.setErrorMessage(ex.getMessage().replace(
-                    "No handler found for", translator.toLocale("no.handler.found.for")));
-        }
-        return new ResponseEntity<>(apiErrorResponse, headers, status);
+        apiErrorResponse.setErrorCode(DATA_ACCESS_EXCEPTION.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(METHOD_ARGUMENT_TYPE_MISTMATCH.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MostPopularTagNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleMostPopularTagNotFound(MostPopularTagNotFoundException ex) {
+        log.warn(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(ex.getErrorCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidJsonPatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidJsonPatch(InvalidJsonPatchException ex) {
+        log.error(ex.getLocalizedMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(INTERNAL_SERVER_ERROR.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn(messageFormatter.getLocalizedMessage(ex), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(PATH_VARIABLE_CONSTRAINT_VIOLATION.stringCode());
+        apiErrorResponse.setErrorMessage(messageFormatter.getLocalizedMessage(ex));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({InvalidResourcePropertyException.class})
@@ -127,23 +221,11 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     protected ResponseEntity<ApiErrorResponse> handleResourceException(ResourceException ex, HttpStatus httpStatus) {
-        ex.printStackTrace();
+        log.warn(ex.getMessage(), ex);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorCode(ex.getErrorCode());
-        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getMessage()) + " " + ex.getDetails());
-        return new ResponseEntity<>(apiErrorResponse, httpStatus);
-    }
-
-    @ExceptionHandler(InvalidPaginationParameterException.class)
-    public final ResponseEntity<ApiErrorResponse> handleInvalidInputParameter(InvalidPaginationParameterException ex) {
-        ex.printStackTrace();
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
         apiErrorResponse.setErrorMessage(
-                translator.toLocale("error.invalid.pagination.parameter")
-                        .concat(" " + ex.getParameterName())
-                        .concat(translator.toLocale("cannot.be"))
-                        .concat(" " + ex.getParameterValue()));
-        apiErrorResponse.setErrorCode(ex.getErrorCode());
-        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+                String.format("%s %s", translator.toLocale(ex.getMessage()), ex.getDetails()));
+        return new ResponseEntity<>(apiErrorResponse, httpStatus);
     }
 }

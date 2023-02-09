@@ -1,9 +1,6 @@
 package com.epam.esm.domain.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,8 +9,9 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@ToString
 @Entity
 @Table(name = "orders")
 public class Order extends AbstractEntity implements Serializable {
@@ -24,17 +22,22 @@ public class Order extends AbstractEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "cost", nullable = false)
+    @Column(name = "cost", nullable = false, updatable = false)
     private BigDecimal cost;
 
-    @Column(name = "purchase_time", columnDefinition = "TIMESTAMP", nullable = false)
-    private LocalDateTime purchaseTime;
+    @Column(name = "create_date", columnDefinition = "TIMESTAMP", updatable = false)
+    private LocalDateTime createDate;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "gift_certificate_id")
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "gift_certificate_id", nullable = false)
     private Certificate certificate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createDate = LocalDateTime.now();
+    }
 }
