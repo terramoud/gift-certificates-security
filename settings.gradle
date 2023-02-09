@@ -5,7 +5,7 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'gift-certificates-advanced'
+rootProject.name = 'gift-certificates-spring-security'
 include 'application'
 include 'model'
 include 'service-api'
