@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS certificates
     description      VARCHAR(256)  NOT NULL,
     price            DECIMAL(9, 2) NOT NULL,
     duration         INT UNSIGNED  NOT NULL,
-    create_date      DATETIME(3)      NOT NULL,
-    last_update_date DATETIME(3)      NOT NULL
+    create_date      DATETIME(3)   NOT NULL,
+    last_update_date DATETIME(3)   NOT NULL
 );
 
 CREATE TRIGGER do_immutable_create_date
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS users
     id       INT UNSIGNED                 NOT NULL AUTO_INCREMENT,
     login    VARCHAR(32) COLLATE utf8_bin NOT NULL UNIQUE,
     email    VARCHAR(255)                 NOT NULL UNIQUE,
-    password VARCHAR(32)                  NOT NULL,
-    role     VARCHAR(15)  NOT NULL
+    password VARCHAR(512)                 NOT NULL,
+    role     VARCHAR(15)                  NOT NULL
 );
 
 
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS orders
     PRIMARY KEY (id),
     id                  INT UNSIGNED AUTO_INCREMENT,
     cost                DECIMAL(9, 2) NOT NULL,
-    create_date         DATETIME(3)      NOT NULL,
+    create_date         DATETIME(3)   NOT NULL,
     user_id             INT UNSIGNED,
     gift_certificate_id INT UNSIGNED,
     FOREIGN KEY (gift_certificate_id)
@@ -231,30 +231,18 @@ VALUES (6, 9);
 -- -----------------------------------------------------
 -- fill Users
 -- -----------------------------------------------------
-INSERT INTO users
-VALUES (DEFAULT, 'admin', 'admin@gmail.com', 'adminPass', 'ADMIN');
-INSERT INTO users
-VALUES (DEFAULT, 'Peter', 'Peter@gmail.com', 'PeterPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'testUser', 'testUser@gmail.com', 'testUserPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Jon', 'Jon@gmail.com', 'JonPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Wick', 'Wick@gmail.com', 'WickPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Neo', 'Neo@gmail.com', 'NeoPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Morpheus', 'Morpheus@gmail.com', 'MorpheusPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Igor', 'Igor@gmail.com', 'IgorPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Stepan', 'Stepan@gmail.com', 'StepanPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Jason', 'Jason@gmail.com', 'JasonPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Statham', 'Statham@gmail.com', 'StathamPass', 'USER');
-INSERT INTO users
-VALUES (DEFAULT, 'Trinity', 'Trinity@gmail.com', 'TrinityPass', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'admin', 'admin@gmail.com', '$2a$10$A98lGpoVba4tTSWMUUBl/.j/d7vuLBoiCMxb25hMtBj8S0JzUc6Nu', 'ADMIN');
+INSERT INTO users VALUES (DEFAULT, 'Peter', 'Peter@gmail.com', '$2a$10$ag9qW9c1gbV407bY5/GGzuIgUi75NiTS9MV9iK2ZFbH6AuGER.lLO', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'testUser', 'testUser@gmail.com', '$2a$10$jaoRM4TZRnWrC83jbyhA2OSOZ0liSJhXPpoUB88XSwyub7EFz/v.O', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Jon', 'Jon@gmail.com', '$2a$10$MihRjy3CcgJGu/.JTB511ufB7iPJHyk9BiffASo..DB4gkN81Yqie', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Wick', 'Wick@gmail.com', '$2a$10$eV4pAxO/xV9PorfG1.Qvt.vhvGcVgFE429PwFRHywiwucIAPsOG9q', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Neo', 'Neo@gmail.com', '$2a$10$wKAPChZ62wUyDCJKtntYbuT1AijIstg.cbVdIFIYCGNPULBl7e/Ra', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Morpheus', 'Morpheus@gmail.com', '$2a$10$kWuVaKrM0UNRdOkUNz8EXO3tWk6yv//KnL4U/hJfAXf4UgYj3g62m', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Igor', 'Igor@gmail.com', '$2a$10$ObJEGHYBvLWC3b93hzwPc.MMi.51fLFt8CPjOFtmmMt9hfOORsnjG', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Stepan', 'Stepan@gmail.com', '$2a$10$B9Z9adkyzcvP5uncdgAD1ulioPEudvZmZ3rPEVbwuiphKRr4ke.4q', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Jason', 'Jason@gmail.com', '$2a$10$XsqEhDSe0m2tj4p3o/aIKeWNuj4dK7carFeKRJRONXCf/xkwv805K', 'USER');
+INSERT INTO users VALUES (DEFAULT, 'Statham', 'Statham@gmail.com', '$2a$10$7LmogaHyjT6ozv0FjybEHu1M0.xhrTWZSR6vvsB8Nc9ZoQFTsiwBC','USER');
+INSERT INTO users VALUES (DEFAULT, 'Trinity', 'Trinity@gmail.com', '$2a$10$PY3YtSItPOQ4AuHpFF5ICupCrfCuMB91.9r4CbWL5VaEUc.AYvpha','USER');
 
 
 -- -----------------------------------------------------
