@@ -14,13 +14,14 @@ import javax.persistence.PersistenceContext;
 
 @EnableWebMvc
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
-public class GiftCertificatesAdvancedApplication {
+public class OAuth2ResourceServerApplication {
 
 	@PersistenceContext
 	public EntityManager em;
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext ctx = SpringApplication.run(GiftCertificatesAdvancedApplication.class, args);
+		ConfigurableApplicationContext ctx =
+				SpringApplication.run(OAuth2ResourceServerApplication.class, args);
 
 		DispatcherServlet dispatcherServlet = (DispatcherServlet) ctx.getBean("dispatcherServlet");
 		dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
