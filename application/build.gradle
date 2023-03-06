@@ -1,4 +1,8 @@
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
     implementation project(":model")
     implementation project(":service-api")
     implementation project(":service-impl")
