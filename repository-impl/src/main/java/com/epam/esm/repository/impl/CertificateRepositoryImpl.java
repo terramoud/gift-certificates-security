@@ -84,21 +84,68 @@ public class CertificateRepositoryImpl extends AbstractRepository<Certificate, L
         }
     }
 
+//    @Override
+//    public List<Certificate> findAllByTagId(LinkedMultiValueMap<String, String> fields,
+//                                            Pageable pageable,
+//                                            Long tagId) {
+//        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+//        Predicate predicate = cb.equal(joinedTags.get(TAG_ID_FIELD), tagId);
+//        return findAllByPredicates(fields, pageable, predicate);
+//    }
+
     @Override
     public List<Certificate> findAllByTagId(LinkedMultiValueMap<String, String> fields,
                                             Pageable pageable,
                                             Long tagId) {
-        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
-        Predicate predicate = cb.equal(joinedTags.get(TAG_ID_FIELD), tagId);
-        return findAllByPredicates(fields, pageable, predicate);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> query = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> certificateRoot = query.from(Certificate.class);
+        Join<Certificate, Tag> joinedTags = certificateRoot.join(JOINED_FIELD_TAGS);
+
+        List<Predicate> predicateList = createFilters(fields, criteriaBuilder, certificateRoot, FIELDS_TO_FILTERS_MAP);
+        Predicate[] searchPredicates = createSearchQuery(fields, criteriaBuilder, certificateRoot, FIELDS_FOR_SEARCH);
+        if (searchPredicates.length != 0) {
+            predicateList.add(criteriaBuilder.or(searchPredicates));
+        }
+
+        predicateList.add(criteriaBuilder.equal(joinedTags.get(TAG_ID_FIELD), tagId));
+        List<Order> sortParams = createSortParams(fields, criteriaBuilder, certificateRoot, SORT_ORDERS_MAP);
+        query.select(certificateRoot)
+                .where(predicateList.toArray(Predicate[]::new))
+                .orderBy(sortParams);
+        return entityManager.createQuery(query)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 
     @Override
     public List<Certificate> findAllByTagName(LinkedMultiValueMap<String, String> fields,
                                               Pageable pageable,
                                               String tagName) {
-        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
-        Predicate predicate = cb.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
-        return findAllByPredicates(fields, pageable, predicate);
+//        Join<Certificate, Tag> joinedTags = root.join(JOINED_FIELD_TAGS);
+//        Predicate predicate = cb.equal(joinedTags.get(TAG_NAME_FIELD), tagName);
+//        return findAllByPredicates(fields, pageable, predicate);
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Certificate> query = criteriaBuilder.createQuery(Certificate.class);
+        Root<Certificate> certificateRoot = query.from(Certificate.class);
+        Join<Certificate, Tag> joinedTags = certificateRoot.join(JOINED_FIELD_TAGS);
+
+        List<Predicate> predicateList = createFilters(fields, criteriaBuilder, certificateRoot, FIELDS_TO_FILTERS_MAP);
+        Predicate[] searchPredicates = createSearchQuery(fields, criteriaBuilder, certificateRoot, FIELDS_FOR_SEARCH);
+        if (searchPredicates.length != 0) {
+            predicateList.add(criteriaBuilder.or(searchPredicates));
+        }
+
+        predicateList.add(criteriaBuilder.equal(joinedTags.get(TAG_NAME_FIELD), tagName));
+        List<Order> sortParams = createSortParams(fields, criteriaBuilder, certificateRoot, SORT_ORDERS_MAP);
+        query.select(certificateRoot)
+                .where(predicateList.toArray(Predicate[]::new))
+                .orderBy(sortParams);
+        return entityManager.createQuery(query)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 }

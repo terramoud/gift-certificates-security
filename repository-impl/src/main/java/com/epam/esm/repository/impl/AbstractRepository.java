@@ -87,14 +87,14 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
         return executeQuery(criteriaQuery, pageable);
     }
 
-    private List<E> executeQuery(CriteriaQuery<E> criteriaQuery, Pageable pageable) {
+    protected List<E> executeQuery(CriteriaQuery<E> criteriaQuery, Pageable pageable) {
         return em.createQuery(criteriaQuery)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
 
-    private List<Order> createSortParams(LinkedMultiValueMap<String, String> requestSortParams,
+    protected List<Order> createSortParams(LinkedMultiValueMap<String, String> requestSortParams,
                                          CriteriaBuilder criteriaBuilder,
                                          Root<E> root,
                                          Map<String, BiFunction<CriteriaBuilder, Root<E>, Order>> sortBy) {
@@ -110,7 +110,7 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                 .collect(Collectors.toList());
     }
 
-    private List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
+    protected List<Predicate> createFilters(LinkedMultiValueMap<String, String> requestParams,
                                           CriteriaBuilder criteriaBuilder,
                                           Root<E> root,
                                           Map<String, TriFunction<CriteriaBuilder,
@@ -124,7 +124,7 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                 .collect(Collectors.toList());
     }
 
-    private Predicate[] createSearchQuery(LinkedMultiValueMap<String, String> requestParams,
+    protected Predicate[] createSearchQuery(LinkedMultiValueMap<String, String> requestParams,
                                           CriteriaBuilder criteriaBuilder,
                                           Root<E> root,
                                           String[] fieldsForSearch) {
@@ -134,7 +134,7 @@ public abstract class AbstractRepository<E extends AbstractEntity, N> implements
                 .toArray(Predicate[]::new);
     }
 
-    private String createLikeQuery(String searchQuery) {
+    protected String createLikeQuery(String searchQuery) {
         return MessageFormat.format(SQL_LIKE_PATTERN, searchQuery);
     }
 }
