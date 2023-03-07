@@ -18,13 +18,17 @@ allprojects {
 		implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 		implementation 'org.springframework.boot:spring-boot-starter-validation'
 		implementation 'org.springframework.boot:spring-boot-starter-web'
-		compileOnly 'org.projectlombok:lombok'
-//		developmentOnly 'org.springframework.boot:spring-boot-devtools'
 		runtimeOnly 'com.h2database:h2'
 		runtimeOnly 'com.mysql:mysql-connector-j'
+		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
+		annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 		implementation 'com.github.java-json-tools:json-patch:1.13'
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testImplementation 'org.springframework.security:spring-security-test'
+		testImplementation 'io.cucumber:cucumber-java:6.8.0'
+		testImplementation 'io.cucumber:cucumber-junit:6.8.0'
+		testImplementation 'io.cucumber:cucumber-spring:6.8.0'
 	}
 
 	configurations {
