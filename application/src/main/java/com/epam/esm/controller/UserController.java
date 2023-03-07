@@ -81,9 +81,7 @@ public class UserController {
     @Validated(OnCreate.class)
     @Deprecated(since="1.0", forRemoval=true)
     public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
-        UserDto addedUserDto = userService.create(userDto);
-        hateoasAdder.addLinks(addedUserDto);
-        return new ResponseEntity<>(addedUserDto, HttpStatus.CREATED);
+        throw new UnsupportedOperationException("it is forbidden to use on resource server side");
     }
 
     @PutMapping("/{user-id}")
