@@ -3,6 +3,9 @@ package com.epam.esm.controller;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.hateoas.HateoasAdder;
+import com.epam.esm.security.annotations.AdminWritePermission;
+import com.epam.esm.security.annotations.UserReadPermission;
+import com.epam.esm.security.annotations.UserWritePermission;
 import com.epam.esm.service.api.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,7 @@ public class OrderController {
     private final HateoasAdder<OrderDto> hateoasAdder;
 
     @GetMapping
+    @UserReadPermission
     public ResponseEntity<List<OrderDto>> getAllOrders(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
             @RequestParam(value = "page", defaultValue = "0")
@@ -40,6 +44,7 @@ public class OrderController {
     }
 
     @GetMapping("/{order-id}")
+    @UserReadPermission
     public ResponseEntity<OrderDto> getOrderById(
             @PathVariable("order-id") @Positive(message = ORDER_INVALID_ID) Long orderId) {
         OrderDto orderDto = orderService.findById(orderId);
@@ -48,6 +53,7 @@ public class OrderController {
     }
 
     @PostMapping
+    @UserWritePermission
     public ResponseEntity<OrderDto> addOrder(@RequestBody @Valid OrderDto orderDto) {
         OrderDto addedOrderDto = orderService.create(orderDto);
         hateoasAdder.addLinks(addedOrderDto);
@@ -55,6 +61,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{order-id}")
+    @AdminWritePermission
     public ResponseEntity<OrderDto> deleteOrderById(@PathVariable("order-id")
                                                     @Positive(message = ORDER_INVALID_ID) Long orderId) {
         OrderDto orderDto = orderService.deleteById(orderId);

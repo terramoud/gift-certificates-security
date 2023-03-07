@@ -6,6 +6,8 @@ import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.hateoas.HateoasAdder;
+import com.epam.esm.security.annotations.AdminWritePermission;
+import com.epam.esm.security.annotations.UserReadPermission;
 import com.epam.esm.service.api.CertificateService;
 import com.epam.esm.service.api.TagService;
 import lombok.AllArgsConstructor;
@@ -84,6 +86,7 @@ public class TagController {
     }
 
     @PostMapping
+    @AdminWritePermission
     @Validated(OnCreate.class)
     public ResponseEntity<TagDto> addTag(@RequestBody @Valid TagDto tagDto) {
         TagDto addedTagDto = tagService.create(tagDto);
@@ -92,6 +95,7 @@ public class TagController {
     }
 
     @PutMapping("/{tag-id}")
+    @AdminWritePermission
     @Validated({OnUpdate.class})
     public ResponseEntity<TagDto> updateTagById(
             @PathVariable("tag-id") @Positive(message = TAG_INVALID_ID) Long tagId,
@@ -102,6 +106,7 @@ public class TagController {
     }
 
     @DeleteMapping("/{tag-id}")
+    @AdminWritePermission
     public ResponseEntity<TagDto> deleteTagById(
             @PathVariable("tag-id") @Positive(message = TAG_INVALID_ID) Long tagId) {
         TagDto tagDto = tagService.deleteById(tagId);
@@ -110,10 +115,10 @@ public class TagController {
     }
 
     @GetMapping("/popular")
-    @ResponseStatus(HttpStatus.OK)
-    public TagDto getMostPopularTag() {
+    @UserReadPermission
+    public ResponseEntity<TagDto> getMostPopularTag() {
         TagDto tagDto = tagService.findMostPopularTagOfUserWithHighestCostOfAllOrders();
         hateoasAdder.addLinks(tagDto);
-        return tagDto;
+        return new ResponseEntity<>(tagDto, HttpStatus.OK);
     }
 }

@@ -6,6 +6,7 @@ import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.exceptions.InvalidJsonPatchException;
 import com.epam.esm.hateoas.HateoasAdder;
+import com.epam.esm.security.annotations.AdminWritePermission;
 import com.epam.esm.service.api.CertificateService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -65,6 +66,7 @@ public class CertificateController {
     }
 
     @PostMapping
+    @AdminWritePermission
     @Validated(OnCreate.class)
     public ResponseEntity<CertificateDto> addCertificate(@RequestBody @Valid CertificateDto certificateDto) {
         CertificateDto addedCertificateDto = certificateService.create(certificateDto);
@@ -73,6 +75,7 @@ public class CertificateController {
     }
 
     @PutMapping("/{certificate-id}")
+    @AdminWritePermission
     @Validated({OnUpdate.class})
     public ResponseEntity<CertificateDto> updateCertificateById(
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
@@ -83,6 +86,7 @@ public class CertificateController {
     }
 
     @DeleteMapping("/{certificate-id}")
+    @AdminWritePermission
     public ResponseEntity<CertificateDto> deleteCertificateById(
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId) {
         CertificateDto certificateDto = certificateService.deleteById(certificateId);
@@ -91,6 +95,7 @@ public class CertificateController {
     }
 
     @PatchMapping("/{certificate-id}")
+    @AdminWritePermission
     public ResponseEntity<CertificateDto> updateCertificatePartiallyById(
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId,
             @RequestBody JsonPatch patch) {

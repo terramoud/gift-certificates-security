@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.security.annotations.AdminWritePermission;
+import com.epam.esm.security.annotations.UserReadPermission;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
@@ -36,6 +38,7 @@ public class UserController {
     private final HateoasAdder<OrderDto> orderHateoasAdder;
 
     @GetMapping
+    @UserReadPermission
     public ResponseEntity<List<UserDto>> findAll(
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
             @RequestParam(value = "page", defaultValue = PAGE_DEFAULT)
@@ -48,6 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{user-id}")
+    @UserReadPermission
     public ResponseEntity<UserDto> findById(
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId) {
         UserDto userDto = userService.findById(userId);
@@ -56,6 +60,7 @@ public class UserController {
     }
 
     @GetMapping("/{user-id}/orders")
+    @UserReadPermission
     public ResponseEntity<List<OrderDto>> findAllByUserId(
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId,
             @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
@@ -69,8 +74,12 @@ public class UserController {
         return new ResponseEntity<>(orderDtos, HttpStatus.OK);
     }
 
+    /**      
+     * @deprecated it is forbidden to use on resource server side  
+     */
     @PostMapping
     @Validated(OnCreate.class)
+    @Deprecated(since="1.0", forRemoval=true)
     public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
         UserDto addedUserDto = userService.create(userDto);
         hateoasAdder.addLinks(addedUserDto);
@@ -79,6 +88,7 @@ public class UserController {
 
     @PutMapping("/{user-id}")
     @Validated({OnUpdate.class})
+    @AdminWritePermission
     public ResponseEntity<UserDto> update(
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId,
             @RequestBody @Valid UserDto userDto) {
@@ -88,6 +98,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{user-id}")
+    @AdminWritePermission
     public ResponseEntity<UserDto> deleteById(
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId) {
         UserDto userDto = userService.deleteById(userId);
