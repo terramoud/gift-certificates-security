@@ -23,8 +23,7 @@ public class ResourceServerConfig {
         http
                 .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/api/v1/tags").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/*").permitAll()
-//                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/^\\d+$/gift-certificates").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/*").permitAll() // for guests
                 .mvcMatchers(HttpMethod.GET, "/api/v1/tags/{tagId}/gift-certificates").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/api/v1/tags/name/{tagName}/gift-certificates").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/api/v1/gift-certificates").permitAll()
