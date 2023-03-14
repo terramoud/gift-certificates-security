@@ -1,7 +1,7 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.Role;
-import com.epam.esm.entity.User;
+import com.epam.esm.model.entity.Role;
+import com.epam.esm.model.entity.User;
 import lombok.Data;
 
 import javax.persistence.EnumType;

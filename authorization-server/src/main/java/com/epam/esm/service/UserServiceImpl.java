@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.UserDetailsDto;
-import com.epam.esm.entity.User;
+import com.epam.esm.model.entity.User;
 import com.epam.esm.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

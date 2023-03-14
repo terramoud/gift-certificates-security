@@ -1,6 +1,6 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.entity.User;
+import com.epam.esm.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

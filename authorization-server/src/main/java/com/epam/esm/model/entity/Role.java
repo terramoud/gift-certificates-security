@@ -1,4 +1,4 @@
-package com.epam.esm.entity;
+package com.epam.esm.model.entity;
 
 /**
  * Represents relevant entity from database's table
