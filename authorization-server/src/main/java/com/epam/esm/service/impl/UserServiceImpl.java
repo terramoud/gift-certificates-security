@@ -1,8 +1,9 @@
-package com.epam.esm.service;
+package com.epam.esm.service.impl;
 
 import com.epam.esm.dto.UserDetailsDto;
 import com.epam.esm.model.entity.User;
 import com.epam.esm.repository.UserRepository;
+import com.epam.esm.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
