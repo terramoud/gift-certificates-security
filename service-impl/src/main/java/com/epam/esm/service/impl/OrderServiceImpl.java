@@ -15,13 +15,17 @@ import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
@@ -31,7 +35,31 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @Service
 public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements OrderService {
 
+    private static final String ID = "id";
+    private static final String COST = "cost";
+    private static final String CREATE_DATE = "createDate";
+    private static final String JOINED_FIELD_CERTIFICATE = "certificate";
+    private static final String JOINED_FIELD_USER = "user";
+    private static final String CERTIFICATE_JOINED_FIELD_TAGS = "tags";
+    private static final String USER_ID = "id";
+    private static final String[] FIELDS_FOR_SEARCH = {};
     private static final Long MIN_ENTITY_ID = 1L;
+    private static final String JOINED_FIELD_TAGS = "tags";
+    private static final Map<String, Sort> sortMap = Map.of(
+            "+id", Sort.by(Sort.Direction.ASC, ID),
+            "-id", Sort.by(Sort.Direction.DESC, ID),
+            "+cost", Sort.by(Sort.Direction.ASC, COST),
+            "-cost", Sort.by(Sort.Direction.DESC, COST),
+            "+createDate", Sort.by(Sort.Direction.ASC, CREATE_DATE),
+            "-createDate", Sort.by(Sort.Direction.DESC, CREATE_DATE)
+    );
+
+    private static final Map<String, Function<String, Specification<Order>>> filterMap = Map.of(
+            COST, filterValue -> (root, query, cb) -> cb.equal(root.get(COST), filterValue),
+            CREATE_DATE, filterValue -> (root, query, cb) -> cb.equal(root.get(CREATE_DATE), filterValue)
+    );
+
+    private static final Map<String, Function<String, Specification<Order>>> searchMap = Map.of();
     private final OrderRepository orderRepository;
     private final DtoConverter<Order, OrderDto> converter;
     private final DtoConverter<User, UserDto> userConverter;
@@ -40,22 +68,34 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     private final CertificateService certificateService;
 
     @Override
-    public List<OrderDto> findAll(LinkedMultiValueMap<String, String> fields, PageDto pageDto) {
-        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        List<Order> orders = orderRepository.findAll(fields, pageRequest);
+    @Transactional
+    public List<OrderDto> findAll(LinkedMultiValueMap<String, String> requestParams, PageDto pageDto) {
+        List<Order> orders = findAllAbstract(requestParams, pageDto, orderRepository, sortMap, filterMap, searchMap);
         return converter.toDto(orders);
     }
 
     @Override
-    public List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> fields,
+    @Transactional
+    public List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> requestParams,
                                           PageDto pageDto,
                                           Long id) {
-        Pageable pageRequest = PageRequest.of(pageDto.getPage(), pageDto.getSize());
-        List<Order> orders = orderRepository.findAllByUserId(fields, pageRequest, id);
+        Specification<Order> whereJoinedUserIdEquals = (root, query, cb) -> {
+            root.fetch(JOINED_FIELD_TAGS, JoinType.LEFT);
+            Join<Order, User> userJoin = root.join(JOINED_FIELD_USER);
+            return cb.equal(userJoin.get(USER_ID), id);
+        };
+        List<Order> orders = findAllAbstract(requestParams,
+                pageDto,
+                orderRepository,
+                sortMap,
+                filterMap,
+                searchMap,
+                whereJoinedUserIdEquals);
         return converter.toDto(orders);
     }
 
     @Override
+    @Transactional
     public OrderDto findById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
