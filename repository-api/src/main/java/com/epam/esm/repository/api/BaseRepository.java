@@ -1,22 +1,11 @@
 package com.epam.esm.repository.api;
 
 import com.epam.esm.domain.entity.AbstractEntity;
-import org.springframework.data.domain.Pageable;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.NoRepositoryBean;
 
-import java.util.List;
-import java.util.Optional;
+@NoRepositoryBean
+public interface BaseRepository<E extends AbstractEntity, N> extends JpaRepository<E, N>, JpaSpecificationExecutor<E> {
 
-
-public interface BaseRepository<E extends AbstractEntity, N> {
-
-    List<E> findAll(LinkedMultiValueMap<String, String> fields, Pageable pageable);
-
-    Optional<E> findById(N id);
-
-    E save(E entity);
-
-    E update(E entity);
-
-    void delete(E entity);
 }

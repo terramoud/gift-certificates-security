@@ -2,14 +2,9 @@ package com.epam.esm.repository.api;
 
 
 import com.epam.esm.domain.entity.Order;
-import org.springframework.data.domain.Pageable;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-
+@Repository
 public interface OrderRepository extends BaseRepository<Order, Long> {
-    List<Order> findAllByUserId(LinkedMultiValueMap<String, String> fields,
-                                Pageable pageable,
-                                Long userId);
+
 }
