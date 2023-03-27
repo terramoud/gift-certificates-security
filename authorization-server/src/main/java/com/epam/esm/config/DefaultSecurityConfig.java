@@ -31,8 +31,10 @@ public class DefaultSecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/v1/users").permitAll();
-        http.authorizeRequests(authorizeRequests -> authorizeRequests.anyRequest().authenticated())
+                .antMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/v1/users/{userId}/password").permitAll();
+        http.authorizeRequests(authorizeRequests -> authorizeRequests.anyRequest()
+                .authenticated())
                 .formLogin(withDefaults());
         return http.build();
     }
