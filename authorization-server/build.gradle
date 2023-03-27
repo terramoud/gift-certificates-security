@@ -3,4 +3,5 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-jose:5.7.1'
     implementation 'org.springframework.security:spring-security-oauth2-authorization-server:0.2.2'
     implementation 'org.springframework.security:spring-security-oauth2-client:5.7.1'
+    implementation project(":exception")
 }
