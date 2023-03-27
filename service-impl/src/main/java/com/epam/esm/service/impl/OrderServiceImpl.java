@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -80,7 +79,6 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
                                           PageDto pageDto,
                                           Long id) {
         Specification<Order> whereJoinedUserIdEquals = (root, query, cb) -> {
-            root.fetch(JOINED_FIELD_TAGS, JoinType.LEFT);
             Join<Order, User> userJoin = root.join(JOINED_FIELD_USER);
             return cb.equal(userJoin.get(USER_ID), id);
         };
