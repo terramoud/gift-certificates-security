@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -122,6 +124,24 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         apiErrorResponse.setErrorCode(DATA_ACCESS_EXCEPTION.stringCode());
         apiErrorResponse.setErrorMessage(translator.toLocale(DATA_ACCESS_CONSTRAINT));
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public final ResponseEntity<ApiErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
+        log.error(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(NOT_FOUND_USER_RESOURCE.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getLocalizedMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public final ResponseEntity<ApiErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+        log.error(ex.getMessage(), ex);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setErrorCode(UNAUTHORIZED_REQUEST.stringCode());
+        apiErrorResponse.setErrorMessage(translator.toLocale(ex.getLocalizedMessage()));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
