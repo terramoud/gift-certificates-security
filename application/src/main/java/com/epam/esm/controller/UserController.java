@@ -5,7 +5,6 @@ import com.epam.esm.security.annotations.UserReadPermission;
 import com.epam.esm.domain.payload.OrderDto;
 import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
-import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.service.api.OrderService;
@@ -72,16 +71,6 @@ public class UserController {
                 .findAllByUserId(allRequestParameters, new PageDto(page, size), userId);
         orderHateoasAdder.addLinks(orderDtos);
         return new ResponseEntity<>(orderDtos, HttpStatus.OK);
-    }
-
-    /**      
-     * @deprecated it is forbidden to use on resource server side  
-     */
-    @PostMapping
-    @Validated(OnCreate.class)
-    @Deprecated(since="1.0", forRemoval=true)
-    public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
-        throw new UnsupportedOperationException("it is forbidden to use on resource server side");
     }
 
     @PutMapping("/{user-id}")
