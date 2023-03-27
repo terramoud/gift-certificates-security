@@ -21,6 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
@@ -85,11 +86,14 @@ public class UserServiceImpl extends AbstractService<UserDto, Long> implements U
         if (!isEqualsIds(userDto.getId(), id)) {
             throw new InvalidResourcePropertyException(USER_ID_NOT_MAPPED, userDto.getId(), INVALID_ID_PROPERTY);
         }
-        if (userRepository.findById(id).isEmpty()) {
+        Optional<User> sourceUser = userRepository.findById(id);
+        if (sourceUser.isEmpty()) {
             throw new ResourceNotFoundException(USER_NOT_FOUND, id, ErrorCodes.NOT_FOUND_USER_RESOURCE);
         }
-        User user = converter.toEntity(userDto);
-        User updated = userRepository.save(user);
+        String password = sourceUser.get().getPassword();
+        User userToUpdate = converter.toEntity(userDto);
+        userToUpdate.setPassword(password);
+        User updated = userRepository.save(userToUpdate);
         return converter.toDto(updated);
     }
 
