@@ -34,10 +34,13 @@ public enum ErrorCodes {
     PATH_VARIABLE_CONSTRAINT_VIOLATION(40017, "Path variable constraint violation"),
     METHOD_ARGUMENT_TYPE_MISTMATCH(40018, "Cannot cast @PathVariable to necessary type"),
     UNSUPPORTED_HTTP_METHOD(40019, "Invalid character found in the request"),
+    UNAUTHORIZED_REQUEST(40101, "Unauthorized request"),
+    FORBIDDEN_REQUEST(40301, "Forbidden request"),
     INTERNAL_SERVER_ERROR(50001, "An error or exception occurred on the server side"),
     NULL_INSTEAD_LIST(50002, "Returns null instead of List<>"),
     SQL_ERROR(50003, "Default code for all sql exceptions"),
     ILLEGAL_ARGUMENT(50004, "Invalid method argument");
+
 
     private final int code;
     private final String reasonPhrase;
