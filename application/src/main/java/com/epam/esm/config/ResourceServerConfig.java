@@ -1,5 +1,6 @@
 package com.epam.esm.config;
 
+import com.epam.esm.exceptions.CustomAuthExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,17 +22,21 @@ public class ResourceServerConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/tags").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/*").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/{tagId}/gift-certificates").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/tags/name/{tagName}/gift-certificates").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/gift-certificates").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/gift-certificates/*").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .oauth2ResourceServer()
-                .jwt();
+            .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthExceptionHandler())
+                .accessDeniedHandler(new CustomAuthExceptionHandler())
+            .and()
+            .authorizeRequests()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/tags").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/tags/*").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/tags/{tagId}/gift-certificates").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/tags/name/{tagName}/gift-certificates").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/gift-certificates").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/api/v1/gift-certificates/*").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .oauth2ResourceServer()
+            .jwt();
         return http.build();
     }
 
