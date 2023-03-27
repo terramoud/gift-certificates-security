@@ -3,7 +3,7 @@ package com.epam.esm.domain.payload;
 import com.epam.esm.domain.entity.Role;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,7 +33,9 @@ public class UserDto extends RepresentationModel<UserDto> {
     @Pattern(regexp = EMAIL_REGEXP, message = USER_INVALID_EMAIL)
     private String email;
 
-    @JsonIgnore
+    @NotNull(message = USER_PASSWORD_NULL)
+    @Pattern(regexp = PASSWORD_REGEXP, message = USER_INVALID_PASSWORD)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @NotNull(message = USER_ROLE_NULL)
