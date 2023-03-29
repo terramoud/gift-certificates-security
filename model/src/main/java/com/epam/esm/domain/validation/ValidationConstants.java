@@ -3,9 +3,15 @@ package com.epam.esm.domain.validation;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.time.format.DateTimeFormatter;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationConstants {
     public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(TIME_PATTERN);
+    public static final String DATE_TIME_PARSE_EXCEPTION = "Error occurred while parsing date time. " +
+            "Please check the format of the input string. " +
+            "Format should be 'yyyy-MM-dd'T'HH:mm:ss.SSS'";
 
     public static final String CERTIFICATE_ON_CREATE_VIOLATION = "certificate.id.on-create.violation";
     public static final String CERTIFICATE_INVALID_ID = "certificate.invalid.id";
