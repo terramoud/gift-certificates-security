@@ -15,6 +15,7 @@ import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.criteria.Join;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,6 +34,7 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service
+@Slf4j
 public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements OrderService {
 
     private static final String ID = "id";
@@ -55,7 +58,15 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
 
     private static final Map<String, Function<String, Specification<Order>>> filterMap = Map.of(
             COST, filterValue -> (root, query, cb) -> cb.equal(root.get(COST), filterValue),
-            CREATE_DATE, filterValue -> (root, query, cb) -> cb.equal(root.get(CREATE_DATE), filterValue)
+            CREATE_DATE, filterValue -> (root, query, cb) -> {
+                try {
+                    LocalDateTime.parse(filterValue, FORMATTER);
+                    return cb.equal(root.get(CREATE_DATE), LocalDateTime.parse(filterValue));
+                } catch (RuntimeException ex) {
+                    log.warn(DATE_TIME_PARSE_EXCEPTION, ex);
+                    return cb.conjunction();
+                }
+            }
     );
 
     private static final Map<String, Function<String, Specification<Order>>> searchMap = Map.of();
