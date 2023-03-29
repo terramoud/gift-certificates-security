@@ -6,6 +6,7 @@ import com.epam.esm.repository.api.BaseRepository;
 import com.epam.esm.service.api.BaseService;
 import com.epam.esm.utils.SearchParam;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,13 +20,13 @@ import java.util.Map;
 import java.util.function.Function;
 
 @AllArgsConstructor
+@Slf4j
 public abstract class AbstractService<T, N> implements BaseService<T, N> {
     protected static final String SORT_REQUEST_PARAM = "sort";
     protected static final String SEARCH_REQUEST_PARAM = "search";
     protected static final String ASC_BY_ID = "+id";
     protected static final String SQL_LIKE_PATTERN = "%{0}%";
     protected static final String SUB_PARAM_DELIMITER = ",";
-    protected static final String DESC_PREFIX = "-";
     protected static final String ASC_PREFIX = "+";
 
     @SafeVarargs
@@ -68,7 +69,8 @@ public abstract class AbstractService<T, N> implements BaseService<T, N> {
         String sortParams = requestSortParams.getOrDefault(SORT_REQUEST_PARAM, List.of(ASC_BY_ID)).get(0);
         return Arrays.stream(sortParams.split(SUB_PARAM_DELIMITER))
                 .map(String::trim)
-                .map(sp -> (sp.startsWith(DESC_PREFIX)) ? sp : ASC_PREFIX.concat(sp))
+                .filter(sp -> !sp.isEmpty())
+                .map(sp -> (Character.isLowerCase(sp.charAt(0))) ? ASC_PREFIX.concat(sp) : sp)
                 .distinct()
                 .filter(sortBy::containsKey)
                 .map(sortBy::get)
