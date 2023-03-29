@@ -12,6 +12,7 @@ import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.api.CertificateService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +34,7 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
 @Data
 @Service
 @Transactional
+@Slf4j
 public class CertificateServiceImpl extends AbstractService<CertificateDto, Long> implements CertificateService {
 
     private final CertificateRepository certificateRepository;
@@ -69,8 +74,24 @@ public class CertificateServiceImpl extends AbstractService<CertificateDto, Long
             DESCRIPTION, filterValue -> (root, query, cb) -> cb.equal(root.get(DESCRIPTION), filterValue),
             PRICE, filterValue -> (root, query, cb) -> cb.equal(root.get(PRICE), filterValue),
             DURATION, filterValue -> (root, query, cb) -> cb.equal(root.get(DURATION), filterValue),
-            CREATE_DATE, filterValue -> (root, query, cb) -> cb.equal(root.get(CREATE_DATE), filterValue),
-            LAST_UPDATE_DATE, filterValue -> (root, query, cb) -> cb.equal(root.get(LAST_UPDATE_DATE), filterValue)
+            CREATE_DATE, filterValue -> (root, query, cb) -> {
+                try {
+                    LocalDateTime.parse(filterValue, FORMATTER);
+                    return cb.equal(root.get(CREATE_DATE), LocalDateTime.parse(filterValue));
+                } catch (RuntimeException ex) {
+                    log.warn(DATE_TIME_PARSE_EXCEPTION, ex);
+                    return cb.conjunction();
+                }
+            },
+            LAST_UPDATE_DATE, filterValue -> (root, query, cb) -> {
+                try {
+                    LocalDateTime.parse(filterValue, FORMATTER);
+                    return cb.equal(root.get(LAST_UPDATE_DATE), LocalDateTime.parse(filterValue));
+                } catch (RuntimeException ex) {
+                    log.warn(DATE_TIME_PARSE_EXCEPTION, ex);
+                    return cb.conjunction();
+                }
+            }
     );
 
     private static final Map<String, Function<String, Specification<Certificate>>> searchMap = Map.of(
