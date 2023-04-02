@@ -4,8 +4,8 @@ import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.domain.payload.OrderDto;
-import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.UserDto;
+import com.epam.esm.domain.payload.UserFilterDto;
 import com.epam.esm.exceptions.ErrorCodes;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
@@ -13,16 +13,12 @@ import com.epam.esm.repository.api.UserRepository;
 import com.epam.esm.service.api.UserService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
@@ -33,36 +29,13 @@ import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 @Transactional
 public class UserServiceImpl extends AbstractService<UserDto, Long> implements UserService {
 
-    private static final String ID = "id";
-    private static final String LOGIN = "login";
-    private static final String EMAIL = "email";
-    private static final String[] FIELDS_FOR_SEARCH = {LOGIN, EMAIL};
-    private static final Map<String, Sort> sortMap = Map.of(
-            "+id", Sort.by(Sort.Direction.ASC, ID),
-            "-id", Sort.by(Sort.Direction.DESC, ID),
-            "+login", Sort.by(Sort.Direction.ASC, LOGIN),
-            "-login", Sort.by(Sort.Direction.DESC, LOGIN),
-            "+email", Sort.by(Sort.Direction.ASC, EMAIL),
-            "-email", Sort.by(Sort.Direction.DESC, EMAIL)
-    );
-
-    private static final Map<String, Function<String, Specification<User>>> filterMap = Map.of(
-            LOGIN, filterValue -> (root, query, cb) -> cb.equal(root.get(LOGIN), filterValue),
-            EMAIL, filterValue -> (root, query, cb) -> cb.equal(root.get(EMAIL), filterValue)
-    );
-
-    private static final Map<String, Function<String, Specification<User>>> searchMap = Map.of(
-            LOGIN, searchValue -> (r, query, cb) -> cb.like(r.get(LOGIN), createLikeQuery(searchValue)),
-            EMAIL, searchValue -> (r, query, cb) -> cb.like(r.get(EMAIL), createLikeQuery(searchValue))
-    );
-
     private final UserRepository userRepository;
     private final DtoConverter<User, UserDto> converter;
     private final DtoConverter<Order, OrderDto> orderConverter;
 
     @Override
-    public List<UserDto> findAll(LinkedMultiValueMap<String, String> requestParams, PageDto pageDto) {
-        List<User> users = findAllAbstract(requestParams, pageDto, userRepository, sortMap, filterMap, searchMap);
+    public List<UserDto> findAll(UserFilterDto filter, Pageable pageable) {
+        List<User> users = userRepository.findAll(filter, pageable);
         return converter.toDto(users);
     }
 

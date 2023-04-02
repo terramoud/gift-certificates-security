@@ -1,18 +1,16 @@
 package com.epam.esm.service.api;
 
 import com.epam.esm.domain.payload.CertificateDto;
-import com.epam.esm.domain.payload.PageDto;
-import org.springframework.util.LinkedMultiValueMap;
+import com.epam.esm.domain.payload.CertificateFilterDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface CertificateService extends BaseService<CertificateDto, Long> {
 
-    List<CertificateDto> findAllByTagId(LinkedMultiValueMap<String, String> fields,
-                                        PageDto pageDto,
-                                        Long tagId);
+    List<CertificateDto> findAll(CertificateFilterDto filter, Pageable pageable);
 
-    List<CertificateDto> findAllByTagName(LinkedMultiValueMap<String, String> fields,
-                                          PageDto pageDto,
-                                          String tagName);
+    List<CertificateDto> findAllByTagId(Long tagId, CertificateFilterDto filter, Pageable pageable);
+
+    List<CertificateDto> findAllByTagName(String tagName, CertificateFilterDto filter, Pageable pageable);
 }

@@ -4,10 +4,7 @@ import com.epam.esm.domain.converter.DtoConverter;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
-import com.epam.esm.domain.payload.CertificateDto;
-import com.epam.esm.domain.payload.OrderDto;
-import com.epam.esm.domain.payload.PageDto;
-import com.epam.esm.domain.payload.UserDto;
+import com.epam.esm.domain.payload.*;
 import com.epam.esm.exceptions.*;
 import com.epam.esm.repository.api.OrderRepository;
 import com.epam.esm.service.api.CertificateService;
@@ -15,61 +12,22 @@ import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
 
-import javax.persistence.criteria.Join;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Transactional
 @Service
-@Slf4j
 public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements OrderService {
 
-    private static final String ID = "id";
-    private static final String COST = "cost";
-    private static final String CREATE_DATE = "createDate";
-    private static final String JOINED_FIELD_CERTIFICATE = "certificate";
-    private static final String JOINED_FIELD_USER = "user";
-    private static final String CERTIFICATE_JOINED_FIELD_TAGS = "tags";
-    private static final String USER_ID = "id";
-    private static final String[] FIELDS_FOR_SEARCH = {};
     private static final Long MIN_ENTITY_ID = 1L;
-    private static final String JOINED_FIELD_TAGS = "tags";
-    private static final Map<String, Sort> sortMap = Map.of(
-            "+id", Sort.by(Sort.Direction.ASC, ID),
-            "-id", Sort.by(Sort.Direction.DESC, ID),
-            "+cost", Sort.by(Sort.Direction.ASC, COST),
-            "-cost", Sort.by(Sort.Direction.DESC, COST),
-            "+createDate", Sort.by(Sort.Direction.ASC, CREATE_DATE),
-            "-createDate", Sort.by(Sort.Direction.DESC, CREATE_DATE)
-    );
-
-    private static final Map<String, Function<String, Specification<Order>>> filterMap = Map.of(
-            COST, filterValue -> (root, query, cb) -> cb.equal(root.get(COST), filterValue),
-            CREATE_DATE, filterValue -> (root, query, cb) -> {
-                try {
-                    LocalDateTime.parse(filterValue, FORMATTER);
-                    return cb.equal(root.get(CREATE_DATE), LocalDateTime.parse(filterValue));
-                } catch (RuntimeException ex) {
-                    log.warn(DATE_TIME_PARSE_EXCEPTION, ex);
-                    return cb.conjunction();
-                }
-            }
-    );
-
-    private static final Map<String, Function<String, Specification<Order>>> searchMap = Map.of();
     private final OrderRepository orderRepository;
     private final DtoConverter<Order, OrderDto> converter;
     private final DtoConverter<User, UserDto> userConverter;
@@ -78,33 +36,18 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     private final CertificateService certificateService;
 
     @Override
-    @Transactional
-    public List<OrderDto> findAll(LinkedMultiValueMap<String, String> requestParams, PageDto pageDto) {
-        List<Order> orders = findAllAbstract(requestParams, pageDto, orderRepository, sortMap, filterMap, searchMap);
+    public List<OrderDto> findAll(OrderFilterDto orderFilterDto, Pageable pageable) {
+        List<Order> orders = orderRepository.findAll(orderFilterDto, pageable);
         return converter.toDto(orders);
     }
 
     @Override
-    @Transactional
-    public List<OrderDto> findAllByUserId(LinkedMultiValueMap<String, String> requestParams,
-                                          PageDto pageDto,
-                                          Long id) {
-        Specification<Order> whereJoinedUserIdEquals = (root, query, cb) -> {
-            Join<Order, User> userJoin = root.join(JOINED_FIELD_USER);
-            return cb.equal(userJoin.get(USER_ID), id);
-        };
-        List<Order> orders = findAllAbstract(requestParams,
-                pageDto,
-                orderRepository,
-                sortMap,
-                filterMap,
-                searchMap,
-                whereJoinedUserIdEquals);
+    public List<OrderDto> findAllByUserId(Long id, OrderFilterDto orderFilterDto, Pageable pageable) {
+        List<Order> orders = orderRepository.findAllByUserId(id, orderFilterDto, pageable);
         return converter.toDto(orders);
     }
 
     @Override
-    @Transactional
     public OrderDto findById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -113,7 +56,6 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     }
 
     @Override
-    @Transactional
     public OrderDto create(OrderDto orderDto) {
         Order order = converter.toEntity(orderDto);
         Long userId = order.getUser().getId();
@@ -144,13 +86,11 @@ public class OrderServiceImpl extends AbstractService<OrderDto, Long> implements
     }
 
     @Override
-    @Transactional
     public OrderDto update(Long id, OrderDto orderDto) {
         throw new ResourceUnsupportedOperationException(CHANGE_FILLED_ORDER);
     }
 
     @Override
-    @Transactional
     public OrderDto deleteById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
