@@ -97,13 +97,13 @@ CREATE TABLE IF NOT EXISTS orders
 -- -----------------------------------------------------
 INSERT INTO certificates
 VALUES (DEFAULT, 'standard', 'standard level gift certificate', 999.99, 180, '2023-01-02T07:37:14.974',
-        '2023-01-02T07:37:14.974');
+        '2023-01-01T07:37:14.974');
 INSERT INTO certificates
 VALUES (DEFAULT, 'standard plus', 'standard plus level gift certificate', 699.99, 120, '2023-01-03T07:37:14.974',
-        '2023-01-03T07:37:14.974');
+        '2023-01-01T07:37:14.974');
 INSERT INTO certificates
 VALUES (DEFAULT, 'standard extra', 'standard extra level gift certificate', 1099.99, 120, '2023-01-04T07:37:14.974',
-        '2023-01-04T07:37:14.974');
+        '2023-01-01T07:37:14.974');
 INSERT INTO certificates
 VALUES (DEFAULT, 'VIP', 'VIP level gift certificate', 1099.99, 120, '2023-01-05T07:37:14.974',
         '2023-01-05T07:37:14.974');
