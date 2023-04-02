@@ -1,7 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.CertificateDto;
-import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.CertificateFilterDto;
 import com.epam.esm.domain.validation.OnCreate;
 import com.epam.esm.domain.validation.OnUpdate;
 import com.epam.esm.exceptions.InvalidJsonPatchException;
@@ -16,15 +16,14 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
@@ -37,22 +36,16 @@ import static com.epam.esm.exceptions.ExceptionConstants.INVALID_JSON_PATCH;
 @Slf4j
 public class CertificateController {
 
-    private static final String PAGE_DEFAULT = "0";
-    private static final String SIZE_DEFAULT = "5";
-
     private final CertificateService certificateService;
     private final ObjectMapper objectMapper;
     private final HateoasAdder<CertificateDto> hateoasAdder;
 
     @GetMapping
     public ResponseEntity<List<CertificateDto>> getAllCertificates(
-            @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = PAGE_DEFAULT)
-            @PositiveOrZero(message = INVALID_PAGE) int page,
-            @RequestParam(value = "size", defaultValue = SIZE_DEFAULT)
-            @Positive(message = INVALID_SIZE) int size) {
+            CertificateFilterDto certificateFilterDto,
+            Pageable pageable) {
         List<CertificateDto> certificateDtos =
-                certificateService.findAll(allRequestParameters, new PageDto(page, size));
+                certificateService.findAll(certificateFilterDto, pageable);
         hateoasAdder.addLinks(certificateDtos);
         return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
     }

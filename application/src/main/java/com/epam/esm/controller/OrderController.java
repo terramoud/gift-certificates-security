@@ -1,22 +1,21 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.domain.payload.OrderDto;
-import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.OrderFilterDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import com.epam.esm.security.annotations.AdminWritePermission;
 import com.epam.esm.security.annotations.UserReadPermission;
 import com.epam.esm.security.annotations.UserWritePermission;
 import com.epam.esm.service.api.OrderService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
@@ -32,13 +31,9 @@ public class OrderController {
 
     @GetMapping
     @UserReadPermission
-    public ResponseEntity<List<OrderDto>> getAllOrders(
-            @RequestParam LinkedMultiValueMap<String, String> allRequestParameters,
-            @RequestParam(value = "page", defaultValue = "0")
-            @PositiveOrZero(message = INVALID_PAGE) int page,
-            @RequestParam(value = "size", defaultValue = "5")
-            @Positive(message = INVALID_SIZE) int size) {
-        List<OrderDto> orderDtos = orderService.findAll(allRequestParameters, new PageDto(page, size));
+    public ResponseEntity<List<OrderDto>> getAllOrders(OrderFilterDto orderFilterDto,
+                                                       Pageable pageable) {
+        List<OrderDto> orderDtos = orderService.findAll(orderFilterDto, pageable);
         hateoasAdder.addLinks(orderDtos);
         return new ResponseEntity<>(orderDtos, HttpStatus.OK);
     }
