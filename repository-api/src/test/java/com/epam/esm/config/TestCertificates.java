@@ -12,7 +12,7 @@ public class TestCertificates {
             new BigDecimal("999.99"),
             180,
             LocalDateTime.parse("2023-01-02T07:37:14.974"),
-            LocalDateTime.parse("2023-01-02T07:37:14.974"));
+            LocalDateTime.parse("2023-01-01T07:37:14.974"));
 
     public Certificate certificate2 = new Certificate(2L,
             "standard plus",
@@ -20,7 +20,7 @@ public class TestCertificates {
             new BigDecimal("699.99"),
             120,
             LocalDateTime.parse("2023-01-03T07:37:14.974"),
-            LocalDateTime.parse("2023-01-03T07:37:14.974"));
+            LocalDateTime.parse("2023-01-01T07:37:14.974"));
 
     public Certificate certificate3 = new Certificate(3L,
             "standard extra",
@@ -28,7 +28,7 @@ public class TestCertificates {
             new BigDecimal("1099.99"),
             120,
             LocalDateTime.parse("2023-01-04T07:37:14.974"),
-            LocalDateTime.parse("2023-01-04T07:37:14.974"));
+            LocalDateTime.parse("2023-01-01T07:37:14.974"));
 
     public Certificate certificate4 = new Certificate(4L,
             "VIP",
