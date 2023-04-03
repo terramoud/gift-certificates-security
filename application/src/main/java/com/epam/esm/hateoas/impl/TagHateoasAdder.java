@@ -5,6 +5,7 @@ import com.epam.esm.domain.payload.CertificateFilterDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.domain.payload.TagFilterDto;
 import com.epam.esm.hateoas.HateoasAdder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class TagHateoasAdder implements HateoasAdder<TagDto> {
 
+    @Value("${page-size.default}")
+    private int defaultSize;
     private static final Class<TagController> CONTROLLER = TagController.class;
 
     @Override
@@ -34,13 +37,19 @@ public class TagHateoasAdder implements HateoasAdder<TagDto> {
                 .getMostPopularTag())
                 .withRel("most-popular-tag"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
-                .getAllTags(new TagFilterDto(), Pageable.ofSize(20)))
+                .getAllTags(new TagFilterDto(), Pageable.ofSize(defaultSize)))
                 .withRel("tags"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
-                .getGiftCertificatesByTagId(tagDto.getId(), new CertificateFilterDto(), Pageable.ofSize(20)))
+                .getGiftCertificatesByTagId(
+                        tagDto.getId(),
+                        new CertificateFilterDto(),
+                        Pageable.ofSize(defaultSize)))
                 .withRel("gift-certificates-by-tag-id"));
         tagDto.add(linkTo(methodOn(CONTROLLER)
-                .getGiftCertificatesByTagName(tagDto.getName(), new CertificateFilterDto(), Pageable.ofSize(20)))
+                .getGiftCertificatesByTagName(
+                        tagDto.getName(),
+                        new CertificateFilterDto(),
+                        Pageable.ofSize(defaultSize)))
                 .withRel("gift-certificates-by-tag-name"));
     }
 }

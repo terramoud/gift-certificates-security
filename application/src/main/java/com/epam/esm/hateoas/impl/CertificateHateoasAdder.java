@@ -6,6 +6,7 @@ import com.epam.esm.domain.payload.CertificateFilterDto;
 import com.epam.esm.domain.payload.TagDto;
 import com.epam.esm.hateoas.HateoasAdder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class CertificateHateoasAdder implements HateoasAdder<CertificateDto> {
 
+    @Value("${page-size.default}")
+    private int defaultSize;
     private static final Class<CertificateController> CONTROLLER = CertificateController.class;
     private final HateoasAdder<TagDto> tagDtoHateoasAdder;
 
@@ -38,7 +41,7 @@ public class CertificateHateoasAdder implements HateoasAdder<CertificateDto> {
                 .addCertificate(certificateDto))
                 .withRel(CREATE));
         certificateDto.add(linkTo(methodOn(CONTROLLER)
-                .getAllCertificates(new CertificateFilterDto(), Pageable.ofSize(20)))
+                .getAllCertificates(new CertificateFilterDto(), Pageable.ofSize(defaultSize)))
                 .withRel("gift-certificates"));
         tagDtoHateoasAdder.addLinks(certificateDto.getTags());
     }
