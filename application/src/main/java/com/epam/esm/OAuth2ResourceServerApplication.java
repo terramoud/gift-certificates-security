@@ -1,63 +1,55 @@
 package com.epam.esm;
 
 import com.epam.esm.exceptions.Translator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.SortHandlerMethodArgumentResolverCustomizer;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 @EnableWebMvc
 @EnableJpaRepositories
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 public class OAuth2ResourceServerApplication {
 
-	public static final String ID = "id";
-	@PersistenceContext
-	public EntityManager em;
+    @Value("${sort.default.entity-field}")
+    public String id;
 
-	public static void main(String[] args) {
-		ConfigurableApplicationContext ctx =
-				SpringApplication.run(OAuth2ResourceServerApplication.class, args);
+    @Value("${message.source}")
+    private String messagesBundle;
 
-		DispatcherServlet dispatcherServlet = (DispatcherServlet) ctx.getBean("dispatcherServlet");
-		dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
-	}
+    @Value("${message.source.default-encoding}")
+    private String defaultEncoding;
 
-	/**
-	 * Set the list of resource files here
-	 *
-	 * @return resourceBundleMessageSource
-	 */
-	@Bean
-	public ResourceBundleMessageSource messageSource() {
-		ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
-		rs.setBasenames("messages");
-		rs.setDefaultEncoding("UTF-8");
-		rs.setUseCodeAsDefaultMessage(true);
-		return rs;
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OAuth2ResourceServerApplication.class, args);
+    }
 
-	@Bean
-	public Translator translator() {
-		return new Translator(messageSource());
-	}
+    /**
+     * Set the list of resource files here
+     *
+     * @return resourceBundleMessageSource
+     */
+    @Bean
+    public ResourceBundleMessageSource messageSource() {
+        ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
+        rs.setBasenames(messagesBundle);
+        rs.setDefaultEncoding(defaultEncoding);
+        rs.setUseCodeAsDefaultMessage(true);
+        return rs;
+    }
 
-	@Bean
-	public EntityManager entityManager() {
-		return em;
-	}
+    @Bean
+    public Translator translator() {
+        return new Translator(messageSource());
+    }
 
-	@Bean
-	SortHandlerMethodArgumentResolverCustomizer sortCustomizer() {
-		return s -> s.setFallbackSort(Sort.by(ID));
-	}
+    @Bean
+    SortHandlerMethodArgumentResolverCustomizer sortCustomizer() {
+        return s -> s.setFallbackSort(Sort.by(id));
+    }
 }
