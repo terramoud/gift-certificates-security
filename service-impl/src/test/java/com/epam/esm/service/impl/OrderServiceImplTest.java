@@ -6,14 +6,11 @@ import com.epam.esm.domain.converter.impl.OrderDtoConverter;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Order;
 import com.epam.esm.domain.entity.User;
-import com.epam.esm.domain.payload.CertificateDto;
-import com.epam.esm.domain.payload.PageDto;
-import com.epam.esm.domain.payload.OrderDto;
-import com.epam.esm.domain.payload.UserDto;
+import com.epam.esm.domain.payload.*;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
 import com.epam.esm.exceptions.ResourceUnsupportedOperationException;
-import com.epam.esm.repository.impl.OrderRepositoryImpl;
+import com.epam.esm.repository.api.OrderRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -81,7 +78,7 @@ class OrderServiceImplTest {
             .collect(Collectors.toList());
 
     @Mock
-    public final OrderRepositoryImpl orderRepository = Mockito.mock(OrderRepositoryImpl.class);
+    public final OrderRepository orderRepository = Mockito.mock(OrderRepository.class);
 
     @Mock
     private final OrderDtoConverter converter = Mockito.mock(OrderDtoConverter.class);
@@ -122,25 +119,27 @@ class OrderServiceImplTest {
     }
 
     /**
-     * @see OrderServiceImpl#findAll(LinkedMultiValueMap, PageDto)
+     * @see OrderServiceImpl#findAll(OrderFilterDto, Pageable)
      */
     @Test
     void testFindAllShouldReturnSortedListOrdersByCostAndId() {
-        when(orderRepository.findAll(any(), any())).thenReturn(orders);
+        when(orderRepository.findAll(any(OrderFilterDto.class), any(Pageable.class)))
+                .thenReturn(orders);
         when(converter.toDto(anyList())).thenReturn(expectedOrders);
         assertEquals(expectedOrders,
-                orderService.findAll(new LinkedMultiValueMap<>(), new PageDto(1, 1)));
+                orderService.findAll(new OrderFilterDto(), Pageable.unpaged()));
     }
 
     /**
-     * @see OrderServiceImpl#findAllByUserId(LinkedMultiValueMap, PageDto, Long)
+     * @see OrderServiceImpl#findAllByUserId(Long, OrderFilterDto, Pageable)
      */
     @Test
     void testFindAllByUserIdShouldReturnSortedListOrdersByUserId() {
-        when(orderRepository.findAllByUserId(any(), any(), anyLong())).thenReturn(orders);
+        when(orderRepository.findAllByUserId(anyLong(), any(OrderFilterDto.class), any(Pageable.class)))
+                .thenReturn(orders);
         when(converter.toDto(anyList())).thenReturn(expectedOrders);
         assertEquals(expectedOrders,
-                orderService.findAllByUserId(new LinkedMultiValueMap<>(), new PageDto(1, 1), 1L));
+                orderService.findAllByUserId(1L, new OrderFilterDto(), Pageable.unpaged()));
     }
 
     /**

@@ -5,12 +5,12 @@ import com.epam.esm.domain.converter.impl.CertificateDtoConverter;
 import com.epam.esm.domain.converter.impl.TagDtoConverter;
 import com.epam.esm.domain.entity.Certificate;
 import com.epam.esm.domain.entity.Tag;
-import com.epam.esm.domain.payload.PageDto;
+import com.epam.esm.domain.payload.CertificateFilterDto;
 import com.epam.esm.domain.payload.CertificateDto;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
-import com.epam.esm.repository.impl.CertificateRepositoryImpl;
-import com.epam.esm.repository.impl.TagRepositoryImpl;
+import com.epam.esm.repository.api.CertificateRepository;
+import com.epam.esm.repository.api.TagRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -71,14 +71,14 @@ class CertificateServiceImplTest {
             .collect(Collectors.toList());
 
     @Mock
-    private final CertificateRepositoryImpl certificateRepository =
-            Mockito.mock(CertificateRepositoryImpl.class);
+    private final CertificateRepository certificateRepository =
+            Mockito.mock(CertificateRepository.class);
 
     @Mock
     private final CertificateDtoConverter converter = Mockito.mock(CertificateDtoConverter.class);
 
     @Mock
-    private final TagRepositoryImpl tagRepository = Mockito.mock(TagRepositoryImpl.class);
+    private final TagRepository tagRepository = Mockito.mock(TagRepository.class);
 
     @Mock
     private final TagDtoConverter tagConverter = Mockito.mock(TagDtoConverter.class);
@@ -103,42 +103,39 @@ class CertificateServiceImplTest {
     }
 
     /**
-     * @see CertificateServiceImpl#findAll(LinkedMultiValueMap, PageDto)
+     * @see CertificateServiceImpl#findAll(CertificateFilterDto, Pageable)
      */
     @Test
     void testFindAllShouldReturnSortedListCertificatesByNameAndId() {
-        when(certificateRepository.findAll(any(), any())).thenReturn(CERTIFICATES);
+        when(certificateRepository.findAll(any(CertificateFilterDto.class), any(Pageable.class)))
+                .thenReturn(CERTIFICATES);
         when(converter.toDto(anyList())).thenReturn(EXPECTED_CERTIFICATES);
         assertEquals(EXPECTED_CERTIFICATES,
-                certificateService.findAll(new LinkedMultiValueMap<>(), new PageDto(1, 1)));
+                certificateService.findAll(new CertificateFilterDto(), Pageable.unpaged()));
     }
 
     /**
-     * @see CertificateServiceImpl#findAllByTagId(LinkedMultiValueMap, PageDto, Long)
+     * @see CertificateServiceImpl#findAllByTagId(Long, CertificateFilterDto, Pageable)
      */
     @Test
     void testFindAllByTagIdShouldReturnSortedListCertificatesByTagId() {
-        when(certificateRepository.findAllByTagId(any(), any(), anyLong()))
+        when(certificateRepository.findAllByTagId(anyLong(), any(CertificateFilterDto.class), any(Pageable.class)))
                 .thenReturn(CERTIFICATES);
         when(converter.toDto(anyList())).thenReturn(EXPECTED_CERTIFICATES);
         assertEquals(EXPECTED_CERTIFICATES, certificateService.findAllByTagId(
-                new LinkedMultiValueMap<>(),
-                new PageDto(1, 1),
-                1L));
+                1L, new CertificateFilterDto(), Pageable.unpaged()));
     }
 
     /**
-     * @see CertificateServiceImpl#findAllByTagName(LinkedMultiValueMap, PageDto, String)
+     * @see CertificateServiceImpl#findAllByTagName(String, CertificateFilterDto, Pageable)
      */
     @Test
     void testFindAllByTagNameShouldReturnSortedListCertificatesByTagName() {
-        when(certificateRepository.findAllByTagName(any(), any(), anyString()))
+        when(certificateRepository.findAllByTagName(anyString(), any(CertificateFilterDto.class), any(Pageable.class)))
                 .thenReturn(CERTIFICATES);
         when(converter.toDto(anyList())).thenReturn(EXPECTED_CERTIFICATES);
         assertEquals(EXPECTED_CERTIFICATES, certificateService.findAllByTagName(
-                new LinkedMultiValueMap<>(),
-                new PageDto(1, 1),
-                "some tag"));
+                "some tag", new CertificateFilterDto(), Pageable.unpaged()));
     }
 
     /**
@@ -201,8 +198,8 @@ class CertificateServiceImplTest {
         CertificateDto expected = INPUT_CERTIFICATE_DTO;
         when(certificateRepository.findById(anyLong())).thenReturn(Optional.of(new Certificate()));
         when(converter.toEntity(any(CertificateDto.class))).thenReturn(new Certificate());
-        when(certificateRepository.update(any(Certificate.class))).thenReturn(new Certificate());
-        lenient().when(tagRepository.update(any(Tag.class))).thenReturn(new Tag());
+        when(certificateRepository.save(any(Certificate.class))).thenReturn(new Certificate());
+        lenient().when(tagRepository.save(any(Tag.class))).thenReturn(new Tag());
         when(converter.toDto(any(Certificate.class))).thenReturn(expected);
         assertEquals(expected, certificateService.update(1L, INPUT_CERTIFICATE_DTO));
     }

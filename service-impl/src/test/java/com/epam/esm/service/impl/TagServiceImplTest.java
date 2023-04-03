@@ -4,12 +4,12 @@ import com.epam.esm.config.ServiceTestConfig;
 import com.epam.esm.domain.converter.impl.CertificateDtoConverter;
 import com.epam.esm.domain.converter.impl.TagDtoConverter;
 import com.epam.esm.domain.entity.Tag;
-import com.epam.esm.domain.payload.PageDto;
 import com.epam.esm.domain.payload.TagDto;
+import com.epam.esm.domain.payload.TagFilterDto;
 import com.epam.esm.exceptions.InvalidResourcePropertyException;
 import com.epam.esm.exceptions.MostPopularTagNotFoundException;
 import com.epam.esm.exceptions.ResourceNotFoundException;
-import com.epam.esm.repository.impl.TagRepositoryImpl;
+import com.epam.esm.repository.api.TagRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +39,7 @@ class TagServiceImplTest {
      * Create a mock implementation of the TagRepository
      */
     @Mock
-    public final TagRepositoryImpl tagRepository = Mockito.mock(TagRepositoryImpl.class);
+    public final TagRepository tagRepository = Mockito.mock(TagRepository.class);
 
     @Mock
     private final TagDtoConverter converter = Mockito.mock(TagDtoConverter.class);
@@ -63,7 +63,7 @@ class TagServiceImplTest {
     }
 
     /**
-     * @see TagServiceImpl#findAll(LinkedMultiValueMap, PageDto)
+     * @see TagServiceImpl#findAll(TagFilterDto, Pageable)
      */
     @Test
     void testFindAllShouldReturnSortedListTagsByNameAndId() {
@@ -77,9 +77,9 @@ class TagServiceImplTest {
                 .sorted(Comparator.comparing(TagDto::getName)
                         .thenComparing(TagDto::getId, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
-        when(tagRepository.findAll(any(), any())).thenReturn(tags);
+        when(tagRepository.findAll(any(TagFilterDto.class), any(Pageable.class))).thenReturn(tags);
         when(converter.toDto(anyList())).thenReturn(expectedTags);
-        assertEquals(expectedTags, tagService.findAll(new LinkedMultiValueMap<>(), new PageDto(1, 1)));
+        assertEquals(expectedTags, tagService.findAll(new TagFilterDto(), Pageable.unpaged()));
     }
 
     /**
@@ -142,7 +142,7 @@ class TagServiceImplTest {
         TagDto expected = new TagDto(1L, "updated");
         when(tagRepository.findById(anyLong())).thenReturn(Optional.of(new Tag()));
         when(converter.toEntity(any(TagDto.class))).thenReturn(new Tag());
-        when(tagRepository.update(any(Tag.class))).thenReturn(new Tag());
+        when(tagRepository.save(any(Tag.class))).thenReturn(new Tag());
         when(converter.toDto(any(Tag.class))).thenReturn(expected);
         assertEquals(expected, tagService.update(1L, new TagDto(1L, "updated")));
     }
