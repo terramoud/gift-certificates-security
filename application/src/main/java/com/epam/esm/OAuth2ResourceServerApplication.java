@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.web.config.SortHandlerMethodArgumentResolverCustomizer;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -18,6 +20,7 @@ import javax.persistence.PersistenceContext;
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 public class OAuth2ResourceServerApplication {
 
+	public static final String ID = "id";
 	@PersistenceContext
 	public EntityManager em;
 
@@ -51,5 +54,10 @@ public class OAuth2ResourceServerApplication {
 	@Bean
 	public EntityManager entityManager() {
 		return em;
+	}
+
+	@Bean
+	SortHandlerMethodArgumentResolverCustomizer sortCustomizer() {
+		return s -> s.setFallbackSort(Sort.by(ID));
 	}
 }
