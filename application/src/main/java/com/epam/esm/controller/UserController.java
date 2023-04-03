@@ -77,6 +77,6 @@ public class UserController {
             @PathVariable("user-id") @Positive(message = USER_INVALID_ID) Long userId) {
         UserDto userDto = userService.deleteById(userId);
         hateoasAdder.addLinks(userDto);
-        return new ResponseEntity<>(userDto, HttpStatus.OK);
+        return new ResponseEntity<>(userDto, HttpStatus.NO_CONTENT);
     }
 }

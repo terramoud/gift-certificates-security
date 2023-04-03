@@ -84,7 +84,7 @@ public class CertificateController {
             @PathVariable("certificate-id") @Positive(message = CERTIFICATE_INVALID_ID) Long certificateId) {
         CertificateDto certificateDto = certificateService.deleteById(certificateId);
         hateoasAdder.addLinks(certificateDto);
-        return new ResponseEntity<>(certificateDto, HttpStatus.OK);
+        return new ResponseEntity<>(certificateDto, HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/{certificate-id}")

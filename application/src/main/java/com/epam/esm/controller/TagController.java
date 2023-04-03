@@ -96,7 +96,7 @@ public class TagController {
             @PathVariable("tag-id") @Positive(message = TAG_INVALID_ID) Long tagId) {
         TagDto tagDto = tagService.deleteById(tagId);
         hateoasAdder.addLinks(tagDto);
-        return new ResponseEntity<>(tagDto, HttpStatus.OK);
+        return new ResponseEntity<>(tagDto, HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/popular")

@@ -61,6 +61,6 @@ public class OrderController {
                                                     @Positive(message = ORDER_INVALID_ID) Long orderId) {
         OrderDto orderDto = orderService.deleteById(orderId);
         hateoasAdder.addLinks(orderDto);
-        return new ResponseEntity<>(orderDto, HttpStatus.OK);
+        return new ResponseEntity<>(orderDto, HttpStatus.NO_CONTENT);
     }
 }
