@@ -1,5 +1,6 @@
 USE gift_certificates;
 
+#adminPass123
 INSERT INTO users VALUES (DEFAULT, 'admin', 'admin@gmail.com', '$2a$10$A98lGpoVba4tTSWMUUBl/.j/d7vuLBoiCMxb25hMtBj8S0JzUc6Nu', 'ADMIN');
 INSERT INTO users VALUES (DEFAULT, 'reponses', 'reponses@about.com', '$2a$10$A98lGpoVba4tTSWMUUBl/.j/d7vuLBoiCMxb25hMtBj8S0JzUc6Nu', 'USER');
 INSERT INTO users VALUES (DEFAULT, 'seaworthy', 'seaworthy@about.com', '$2a$10$A98lGpoVba4tTSWMUUBl/.j/d7vuLBoiCMxb25hMtBj8S0JzUc6Nu', 'USER');
