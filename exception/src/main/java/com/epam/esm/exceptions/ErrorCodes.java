@@ -3,6 +3,17 @@ package com.epam.esm.exceptions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Represents error codes for the API, along with a short
+ * description of each error code.
+ * <p>
+ * Error codes are used to describe the cause of an exception
+ * or error that occurred during an API request.
+ * </p>
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @AllArgsConstructor
 @Getter
 public enum ErrorCodes {

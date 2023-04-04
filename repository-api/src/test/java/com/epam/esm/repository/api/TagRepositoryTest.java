@@ -26,6 +26,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * The {@link TagRepositoryTest} class provides
+ * integration tests for {@link TagRepository} implementation.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
 @Transactional

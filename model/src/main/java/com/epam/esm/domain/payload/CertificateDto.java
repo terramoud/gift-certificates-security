@@ -15,6 +15,16 @@ import java.util.Set;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 
+/**
+ * The CertificateDto class represents a DTO for a certificate entity.
+ * It extends RepresentationModel for the purpose of adding
+ * HATEOAS links to the DTO.
+ * It contains fields that correspond to the fields of the certificate
+ * entity, as well as validation annotations for input validation.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,14 +53,11 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     @Positive(message = CERTIFICATE_INVALID_DURATION)
     private Integer duration;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime lastUpdateDate;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<@Valid TagDto> tags = new HashSet<>();
 }

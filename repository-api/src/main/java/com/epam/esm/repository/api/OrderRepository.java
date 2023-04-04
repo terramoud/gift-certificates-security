@@ -10,9 +10,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * This interface is a repository for working with the Order
+ * entity in the database.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Repository
 public interface OrderRepository extends BaseRepository<Order, Long> {
 
+    /**
+     * Finds all orders with pagination and filtering.
+     *
+     * @param filter the filter to apply to the orders
+     * @param pageable the pagination settings to use
+     * @return a list of orders matching the filter criteria
+     * @throws IllegalArgumentException if the filter is invalid
+     */
     @Query(value = "SELECT o FROM Order o " +
             "WHERE " +
             "(:#{#filter.cost} is null or o.cost = :#{#filter.cost}) AND " +
@@ -29,6 +44,15 @@ public interface OrderRepository extends BaseRepository<Order, Long> {
             "(:#{#filter.certificate.lastUpdateDate} is null or o.certificate.lastUpdateDate = :#{#filter.certificate.lastUpdateDate})")
     List<Order> findAll(@Param("filter") OrderFilterDto filter, Pageable pageable);
 
+    /**
+     * Finds all orders for a given user with pagination and filtering.
+     *
+     * @param userId the ID of the user to find orders for
+     * @param filter the filter to apply to the orders
+     * @param pageable the pagination settings to use
+     * @return a list of orders matching the filter criteria
+     * @throws IllegalArgumentException if the user ID or filter is invalid
+     */
     @Query(value = "SELECT o FROM Order o JOIN o.user u " +
             "WHERE u.id = :userId AND " +
             "(:#{#filter.cost} is null or o.cost = :#{#filter.cost}) AND " +

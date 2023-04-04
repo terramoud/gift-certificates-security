@@ -23,6 +23,17 @@ import java.util.Optional;
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
+/**
+ * UserServiceImpl is an implementation of the {@link UserService}
+ * interface that provides methods for managing users.
+ * <p>
+ * This implementation uses {@link UserRepository} to
+ * interact with the database and {@link DtoConverter} to
+ * convert between entity and DTO objects.
+ * </p>
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service

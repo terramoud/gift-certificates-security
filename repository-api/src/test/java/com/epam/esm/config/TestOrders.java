@@ -6,6 +6,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
+/**
+ * The TestOrders class contains the pre-defined instances
+ * of {@link com.epam.esm.domain.entity.Order}
+ * used for testing purposes.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class TestOrders {
 
     private final TestCertificates tc = new TestCertificates();

@@ -14,11 +14,36 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Configuration class for the resource server, which defines the security filter
+ * chain and JWT authentication converter.
+ * This class is annotated with @Configuration to indicate that it is a configuration class,
+ * and with @EnableWebSecurity and @EnableGlobalMethodSecurity(prePostEnabled = true) to enable
+ * web security and global method security with pre/post annotations, respectively.
+ * The class defines the following beans:
+ * securityFilterChain: a SecurityFilterChain bean that configures the authentication
+ * entry point, access denied handler, authorization rules for API endpoints,
+ * and the OAuth2 resource server with JWT authentication.
+ * The bean returns the configured HttpSecurity object.
+ * jwtAuthenticationConverter: a JwtAuthenticationConverter bean that converts
+ * the JWT token to an authentication object with granted authorities.
+ * roleHierarchy: a RoleHierarchy bean that defines the role hierarchy.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ResourceServerConfig {
 
+    /**
+     * Configures the security filter chain for the resource server.
+     *
+     * @param http the HttpSecurity object to configure
+     * @return the SecurityFilterChain object with the configured filters
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -40,6 +65,11 @@ public class ResourceServerConfig {
         return http.build();
     }
 
+    /**
+     * Creates a JwtAuthenticationConverter bean that converts the JWT token to an authentication object with granted authorities.
+     *
+     * @return the JwtAuthenticationConverter object with the configured JwtGrantedAuthoritiesConverter object
+     */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter defaultConverter = new JwtGrantedAuthoritiesConverter();
@@ -53,6 +83,11 @@ public class ResourceServerConfig {
         return jwtConverter;
     }
 
+    /**
+     * Creates a RoleHierarchy bean that defines the role hierarchy.
+     *
+     * @return the RoleHierarchy object with the configured role hierarchy
+     */
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();

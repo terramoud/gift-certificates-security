@@ -21,6 +21,14 @@ import java.util.List;
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
+/**
+ * Implementation of {@link TagService} interface that
+ * uses {@link TagRepository} to perform CRUD operations
+ * on {@link Tag} entities.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service

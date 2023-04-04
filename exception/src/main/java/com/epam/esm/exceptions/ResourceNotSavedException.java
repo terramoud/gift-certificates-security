@@ -1,5 +1,12 @@
 package com.epam.esm.exceptions;
 
+/**
+ * This exception is thrown when a resource cannot be
+ * saved due to a data persistence error.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class ResourceNotSavedException extends ResourceException {
     public ResourceNotSavedException(String message, Long resourceId, ErrorCodes errorCode) {
         super(message, resourceId, errorCode);

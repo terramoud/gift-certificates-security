@@ -9,9 +9,23 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository for managing {@link User} entities.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Repository
 public interface UserRepository extends BaseRepository<User, Long> {
 
+    /**
+     * Returns a list of users filtered by the
+     * specified {@link UserFilterDto}.
+     *
+     * @param filter the filter to apply to the query, may be {@code null}.
+     * @param pageable the pagination information, may be {@code null}.
+     * @return a list of users filtered by the specified {@link UserFilterDto}.
+     */
     @Query(value = "SELECT u FROM User u " +
             "WHERE " +
             "(:#{#filter.login} is null or u.login = :#{#filter.login}) AND " +

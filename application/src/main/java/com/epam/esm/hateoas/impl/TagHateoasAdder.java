@@ -12,6 +12,13 @@ import org.springframework.stereotype.Component;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * This class is responsible for adding HATEOAS links to
+ *  * the {@link TagDto} objects.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Component
 public class TagHateoasAdder implements HateoasAdder<TagDto> {
 

@@ -33,6 +33,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * The {@link OrderRepositoryTest} class provides integration tests
+ * for {@link OrderRepository} implementation.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
 @Transactional
@@ -49,7 +56,13 @@ class OrderRepositoryTest {
     void tearDown() {
     }
 
+
     /**
+     * Test {@link OrderRepository#findAll(OrderFilterDto, Pageable)} method.
+     *
+     * @param userFilterDto filter criteria
+     * @param pageable pagination criteria
+     * @param expected expected results
      * @see OrderRepository#findAll(OrderFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -62,6 +75,12 @@ class OrderRepositoryTest {
     }
 
     /**
+     * Test {@link OrderRepository#findAllByUserId(Long, OrderFilterDto, Pageable)} method.
+     *
+     * @param orderFilterDto filter criteria
+     * @param pageable pagination criteria
+     * @param userId user id
+     * @param expected expected results
      * @see OrderRepository#findAllByUserId(Long, OrderFilterDto, Pageable)
      */
     @ParameterizedTest

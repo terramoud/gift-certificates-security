@@ -3,6 +3,14 @@ package com.epam.esm.exceptions;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * This class contains constants with error messages
+ * that can be used throughout the project.
+ * The class has private access level and no-argument constructor
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ExceptionConstants {
     public static final String SERVER_ERROR_500 = "internal.server.error";

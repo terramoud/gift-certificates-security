@@ -7,6 +7,12 @@ import com.epam.esm.domain.payload.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Converts {@link Order} to {@link OrderDto}.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Component
 public class OrderDtoConverter implements DtoConverter<Order, OrderDto> {
 

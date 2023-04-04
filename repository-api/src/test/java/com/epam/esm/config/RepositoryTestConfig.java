@@ -12,6 +12,19 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
+/**
+ * Configuration class for Spring Boot testing of repositories.
+ * <p>
+ * Configures the necessary components for repository testing,
+ * including: enabling auto-configuration, scanning
+ * for repository components in the specified package,
+ * entity scan for domain objects, enabling JPA repositories,
+ * and loading properties from the test properties file.
+ * </p>
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ * */
 @SpringBootConfiguration
 @EnableAutoConfiguration
 @ComponentScan("com.epam.esm.repository")
@@ -20,6 +33,15 @@ import javax.sql.DataSource;
 @PropertySource("classpath:test.properties")
 public class RepositoryTestConfig {
 
+    /**
+     * Creates a data source for the test environment.
+     *
+     * @param mysqlDriver the MySQL driver class name
+     * @param userName the username for the test database
+     * @param password the password for the test database
+     * @param url the JDBC URL for the test database
+     * @return a data source for the test environment
+     */
     @Bean
     public DataSource dataSource(
             @Value("${spring.datasource.hikari.driver-class-name}") String mysqlDriver,

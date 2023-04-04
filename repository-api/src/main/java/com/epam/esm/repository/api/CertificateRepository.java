@@ -9,9 +9,23 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository interface for {@link Certificate} entities.
+ * Provides methods for retrieving certificates from the database.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Repository
 public interface CertificateRepository extends BaseRepository<Certificate, Long> {
 
+    /**
+     * Finds all certificates matching the given filter and pageable criteria.
+     *
+     * @param filter the filter to apply when searching for certificates.
+     * @param pageable the pageable criteria to apply when returning certificates.
+     * @return a list of certificates matching the given criteria.
+     */
     @Query(value = "SELECT c FROM Certificate c " +
             "WHERE " +
             "(:#{#filter.name} is null or c.name = :#{#filter.name}) AND " +
@@ -24,6 +38,15 @@ public interface CertificateRepository extends BaseRepository<Certificate, Long>
             "LOWER(c.description) LIKE LOWER(CONCAT('%', :#{#filter.descriptionContaining}, '%'))")
     List<Certificate> findAll(@Param("filter") CertificateFilterDto filter, Pageable pageable);
 
+    /**
+     * Finds all certificates associated with a given tag and matching
+     * the given filter and pageable criteria.
+     *
+     * @param tagId the ID of the tag to search certificates for.
+     * @param filter the filter to apply when searching for certificates.
+     * @param pageable the pageable criteria to apply when returning certificates.
+     * @return a list of certificates matching the given criteria.
+     */
     @Query(value = "SELECT c FROM Certificate c JOIN c.tags t " +
             "WHERE t.id = :tagId AND " +
             "(:#{#filter.name} is null or c.name = :#{#filter.name}) AND " +
@@ -38,6 +61,15 @@ public interface CertificateRepository extends BaseRepository<Certificate, Long>
                                      @Param("filter") CertificateFilterDto filter,
                                      Pageable pageable);
 
+    /**
+     * Finds all certificates associated with a given tag name and
+     * matching the given filter and pageable criteria.
+     *
+     * @param tagName the name of the tag to search certificates for.
+     * @param filter the filter to apply when searching for certificates.
+     * @param pageable the pageable criteria to apply when returning certificates.
+     * @return a list of certificates matching the given criteria.
+     */
     @Query(value = "SELECT c FROM Certificate c JOIN c.tags t " +
             "WHERE t.name = :tagName AND " +
             "(:#{#filter.name} is null or c.name = :#{#filter.name}) AND " +

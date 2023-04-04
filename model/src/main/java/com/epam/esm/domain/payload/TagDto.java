@@ -12,6 +12,13 @@ import javax.validation.constraints.Positive;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 
+/**
+ * Represents a tag DTO which is used for representing tag
+ * data in the REST API.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

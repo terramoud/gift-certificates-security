@@ -5,6 +5,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * This class contains constant values that are used for validation
+ * purposes throughout the application.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationConstants {
     public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";

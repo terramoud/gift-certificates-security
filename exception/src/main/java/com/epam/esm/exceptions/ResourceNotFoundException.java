@@ -1,5 +1,11 @@
 package com.epam.esm.exceptions;
 
+/**
+ *Exception to be thrown when a resource is not found.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class ResourceNotFoundException extends ResourceException {
     public ResourceNotFoundException(String message, Long resourceId, ErrorCodes errorCode) {
         super(message, resourceId, errorCode);

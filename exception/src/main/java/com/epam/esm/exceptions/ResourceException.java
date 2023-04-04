@@ -3,16 +3,40 @@ package com.epam.esm.exceptions;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
+/**
+ * Exception thrown when a resource-related error occurs.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class ResourceException extends RuntimeException {
     private String details;
     private String errorCode;
 
+    /**
+     * Constructs a new resource exception with the specified
+     * message, resourceId, and errorCode
+     *
+     * @param message the message to describe the exception
+     * @param resourceId the identifier of the resource that
+     *                  caused the exception
+     * @param errorCode the error code of the resource exception
+     */
     public ResourceException(String message, Long resourceId, ErrorCodes errorCode) {
         super(message);
         this.details = "(id = " + resourceId + ")";
         this.errorCode = errorCode.stringCode();
     }
 
+    /**
+     * Constructs a new resource exception with the
+     * specified message, resourceName, and errorCode
+     *
+     * @param message the message to describe the exception
+     * @param resourceName the name of the resource property
+     *                     that caused the exception
+     * @param errorCode the error code of the resource exception
+     */
     public ResourceException(String message, String resourceName, ErrorCodes errorCode) {
         super(message);
         this.details = "(property = " + resourceName + ")";
@@ -160,42 +184,6 @@ public class ResourceException extends RuntimeException {
         return super.getCause();
     }
 
-    /**
-     * Initializes the <i>cause</i> of this throwable to the specified value.
-     * (The cause is the throwable that caused this throwable to get thrown.)
-     *
-     * <p>This method can be called at most once.  It is generally called from
-     * within the constructor, or immediately after creating the
-     * throwable.  If this throwable was created
-     * with {@link #Throwable(Throwable)} or
-     * {@link #Throwable(String, Throwable)}, this method cannot be called
-     * even once.
-     *
-     * <p>An example of using this method on a legacy throwable type
-     * without other support for setting the cause is:
-     *
-     * <pre>
-     * try {
-     *     lowLevelOp();
-     * } catch (LowLevelException le) {
-     *     throw (HighLevelException)
-     *           new HighLevelException().initCause(le); // Legacy constructor
-     * }
-     * </pre>
-     *
-     * @param cause the cause (which is saved for later retrieval by the
-     *              {@link #getCause()} method).  (A {@code null} value is
-     *              permitted, and indicates that the cause is nonexistent or
-     *              unknown.)
-     * @return a reference to this {@code Throwable} instance.
-     * @throws IllegalArgumentException if {@code cause} is this
-     *                                  throwable.  (A throwable cannot be its own cause.)
-     * @throws IllegalStateException    if this throwable was
-     *                                  created with {@link #Throwable(Throwable)} or
-     *                                  {@link #Throwable(String, Throwable)}, or this method has already
-     *                                  been called on this throwable.
-     * @since 1.4
-     */
     @Override
     public synchronized Throwable initCause(Throwable cause) {
         return super.initCause(cause);

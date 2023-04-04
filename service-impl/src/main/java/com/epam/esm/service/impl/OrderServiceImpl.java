@@ -21,6 +21,14 @@ import java.util.List;
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 import static com.epam.esm.exceptions.ErrorCodes.INVALID_ID_PROPERTY;
 
+/**
+ * Implementation of {@link OrderService} interface that
+ * uses {@link OrderRepository} to perform CRUD operations
+ * on {@link Order} entities.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Transactional

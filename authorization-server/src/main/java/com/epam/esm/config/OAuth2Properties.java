@@ -1,5 +1,18 @@
 package com.epam.esm.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+/**
+ * This class contains constants for OAuth2 properties used
+ * in the application. These properties include client id,
+ * client secret, redirect URIs, scopes, JWT algorithm name,
+ * key size, user roles claim, and issuer.
+ *
+ *  @author Oleksandr Koreshev
+ *  @since 1.0
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuth2Properties {
     public static final String CLIENT_ID = "${oauth2.client.id}";
     public static final String CLIENT_SECRET = "${oauth2.client.secret}";

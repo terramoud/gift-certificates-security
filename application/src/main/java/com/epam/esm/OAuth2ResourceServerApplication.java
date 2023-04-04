@@ -11,6 +11,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.SortHandlerMethodArgumentResolverCustomizer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+/**
+ * This class is the main entry point for the
+ * OAuth2 Resource Server application. It initializes
+ * the Spring Boot application and sets up the necessary
+ * configurations to enable web MVC and JPA repositories.
+ *
+ * author: Oleksandr Koreshev
+ * since: 1.0
+ */
 @EnableWebMvc
 @EnableJpaRepositories
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
@@ -30,7 +39,8 @@ public class OAuth2ResourceServerApplication {
     }
 
     /**
-     * Set the list of resource files here
+     * Creates a ResourceBundleMessageSource bean that
+     * is used for internationalization.
      *
      * @return resourceBundleMessageSource
      */
@@ -43,11 +53,20 @@ public class OAuth2ResourceServerApplication {
         return rs;
     }
 
+    /**
+     * Creates a Translator bean that is used for translating messages.
+     * @return the Translator bean
+     */
     @Bean
     public Translator translator() {
         return new Translator(messageSource());
     }
 
+    /**
+     * Creates a SortHandlerMethodArgumentResolverCustomizer
+     * bean that is used for sorting results.
+     * @return the SortHandlerMethodArgumentResolverCustomizer bean
+     */
     @Bean
     SortHandlerMethodArgumentResolverCustomizer sortCustomizer() {
         return s -> s.setFallbackSort(Sort.by(id));

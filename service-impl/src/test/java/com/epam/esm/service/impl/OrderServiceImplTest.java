@@ -39,6 +39,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+/**
+ * Test class for {@link com.epam.esm.service.impl.OrderServiceImpl}.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ContextConfiguration(classes = {ServiceTestConfig.class})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest

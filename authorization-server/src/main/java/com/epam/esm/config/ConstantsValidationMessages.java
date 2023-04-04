@@ -1,5 +1,17 @@
 package com.epam.esm.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+/**
+ *  This class contains constant validation
+ *  messages used throughout the application.
+ *
+ *  @author Oleksandr Koreshev
+ *  @since 1.0
+ *
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConstantsValidationMessages {
     public static final String BAD_PASSWORD_CREDENTIALS = "bad.password.credentials";
     public static final String USER_INVALID_ID = "user.invalid.id";

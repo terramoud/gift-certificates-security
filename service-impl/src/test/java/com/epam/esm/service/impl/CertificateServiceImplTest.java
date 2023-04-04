@@ -33,6 +33,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for CertificateServiceImpl
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ContextConfiguration(classes = {ServiceTestConfig.class})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest

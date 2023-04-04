@@ -5,6 +5,14 @@ import com.epam.esm.domain.entity.User;
 import static com.epam.esm.domain.entity.Role.ADMIN;
 import static com.epam.esm.domain.entity.Role.USER;
 
+/**
+ * The TestUsers class contains the pre-defined instances
+ * of {@link com.epam.esm.domain.entity.User}
+ * used for testing purposes.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class TestUsers {
     public User user1 = new User(1L, "admin", "admin@gmail.com", "$2a$10$A98lGpoVba4tTSWMUUBl/.j/d7vuLBoiCMxb25hMtBj8S0JzUc6Nu", ADMIN);
     public User user2 = new User(2L, "Peter", "Peter@gmail.com", "$2a$10$ag9qW9c1gbV407bY5/GGzuIgUi75NiTS9MV9iK2ZFbH6AuGER.lLO", USER);

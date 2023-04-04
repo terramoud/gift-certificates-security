@@ -14,6 +14,12 @@ import javax.validation.constraints.*;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 
+/**
+ * The UserDto class represents a DTO for user entity.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

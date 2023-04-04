@@ -12,6 +12,16 @@ import javax.validation.constraints.Pattern;
 
 import static com.epam.esm.config.ConstantsValidationMessages.*;
 
+/**
+ * The UserDetailsDto class represents the user
+ * details data transfer object.
+ * It includes user's login, email, password, and role.
+ * It also provides conversion methods to convert
+ * the DTO to a User entity and vice versa.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 public class UserDetailsDto {
 
@@ -32,6 +42,11 @@ public class UserDetailsDto {
     @NotNull(message = USER_ROLE_NULL)
     private Role role;
 
+    /**
+     * This method converts the DTO to a User entity
+     *
+     * @return The User entity.
+     */
     public User toUser() {
         User user = new User();
         user.setLogin(this.login);
@@ -41,6 +56,12 @@ public class UserDetailsDto {
         return user;
     }
 
+    /**
+     * This method converts a User entity to a UserDetailsDto
+     *
+     * @param user The User entity.
+     * @return The UserDetailsDto object.
+     */
     public static UserDetailsDto toDto(User user) {
         UserDetailsDto dto = new UserDetailsDto();
         dto.setLogin(user.getLogin());

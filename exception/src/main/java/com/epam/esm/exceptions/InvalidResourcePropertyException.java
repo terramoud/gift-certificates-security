@@ -1,5 +1,11 @@
 package com.epam.esm.exceptions;
 
+/**
+ * Exception to indicate that a resource property is invalid.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class InvalidResourcePropertyException extends ResourceException {
     public InvalidResourcePropertyException(String message, Long resourceId, ErrorCodes errorCode) {
         super(message, resourceId, errorCode);

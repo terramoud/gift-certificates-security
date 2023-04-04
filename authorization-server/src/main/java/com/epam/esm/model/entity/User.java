@@ -13,6 +13,14 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * This class represents a user entity which implements
+ * the UserDetails interface for Spring Security authentication.
+ * The user has a login, email, password and a role.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,11 +48,23 @@ public class User implements Serializable, UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role;
 
+    /**
+     * Gets the authorities granted to the user. In this case,
+     * returns a single GrantedAuthority based on the user role.
+     *
+     * @return a collection of GrantedAuthority objects representing
+     *          the authorities granted to the user.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority(role.toString()));
     }
 
+    /**
+     * Gets the user's login
+     *
+     * @return the user's login
+     */
     @Override
     public String getUsername() {
         return this.login;

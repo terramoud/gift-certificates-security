@@ -2,6 +2,13 @@ package com.epam.esm.exceptions;
 
 import java.security.PrivilegedActionException;
 
+/**
+ * Exception thrown when an operation is attempted on
+ * a resource that is not supported.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class ResourceUnsupportedOperationException extends UnsupportedOperationException {
     /**
      * Constructs an UnsupportedOperationException with no detail message.

@@ -6,6 +6,14 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * This class represents a user entity that is stored in the database.
+ * It extends the {@link AbstractEntity} class and
+ * implements the {@link Serializable} interface.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

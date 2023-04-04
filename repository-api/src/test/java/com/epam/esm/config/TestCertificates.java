@@ -5,6 +5,14 @@ import com.epam.esm.domain.entity.Certificate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * The TestCertificates class contains the pre-defined instances
+ * of {@link com.epam.esm.domain.entity.Certificate}
+ * used for testing purposes.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class TestCertificates {
     public Certificate certificate1 = new Certificate(1L,
             "standard",

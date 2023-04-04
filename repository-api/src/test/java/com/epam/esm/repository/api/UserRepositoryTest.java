@@ -27,6 +27,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * The {@code UserRepositoryTest} class provides integration tests
+ * for {@link UserRepository} implementation.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
 @Transactional

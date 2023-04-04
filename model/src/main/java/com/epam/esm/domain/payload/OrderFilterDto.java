@@ -8,6 +8,12 @@ import java.time.LocalDateTime;
 
 import static com.epam.esm.domain.validation.ValidationConstants.TIME_PATTERN;
 
+/**
+ * The {@code OrderFilterDto} class represents a filter object for searching orders.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 public class OrderFilterDto {
 

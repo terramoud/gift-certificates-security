@@ -2,6 +2,14 @@ package com.epam.esm.config;
 
 import com.epam.esm.domain.entity.Tag;
 
+/**
+ * The TestTags class contains the pre-defined instances
+ * of {@link com.epam.esm.domain.entity.Tag}
+ * used for testing purposes.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class TestTags {
     public Tag tag1 = new Tag(1L, "language courses");
     public Tag tag2 = new Tag(2L, "dancing courses");

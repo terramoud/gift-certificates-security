@@ -31,6 +31,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * The AuthorizationServerConfig class provides
+ * configuration for the authorization server.
+ *
+ * <p>
+ * The class imports the DefaultSecurityConfig class
+ * and is annotated with @Configuration and @Import.
+ * The class also has a constructor that is annotated
+ * with @RequiredArgsConstructor.
+ * </p>
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = false)
 @Import(DefaultSecurityConfig.class)
 @RequiredArgsConstructor
@@ -38,6 +52,17 @@ public class AuthorizationServerConfig {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Creates a RegisteredClientRepository bean.
+     *
+     * @param clientId the client id.
+     * @param clientSecret the client secret.
+     * @param redirectUriLogin the login redirect uri.
+     * @param redirectUriAuthorized the authorized redirect uri.
+     * @param scopeRead the scope for read.
+     * @param scopeWrite the scope for write.
+     * @return the RegisteredClientRepository bean.
+     */
     @Bean
     public RegisteredClientRepository registeredClientRepository(
             @Value(OAuth2Properties.CLIENT_ID) String clientId,
@@ -61,6 +86,13 @@ public class AuthorizationServerConfig {
         return new InMemoryRegisteredClientRepository(registeredClient);
     }
 
+    /**
+     * Creates a JWKSource bean
+     *
+     * @param algorithmName the name of the algorithm used for JWT.
+     * @param keySize the size of the key used for JWT.
+     * @return the JWKSource bean.
+     */
     @Bean
     public JWKSource<SecurityContext> jwkSource(@Value(OAuth2Properties.JWT_ALGORITHM_NAME) String algorithmName,
                                                 @Value(OAuth2Properties.JWT_ALGORITHM_KEY_SIZE) int keySize) {
@@ -69,6 +101,13 @@ public class AuthorizationServerConfig {
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
+    /**
+     * Generates an RSAKey
+     *
+     * @param algorithmName the name of the algorithm used for RSAKey.
+     * @param keySize the size of the RSAKey.
+     * @return the generated RSAKey.
+     */
     private static RSAKey generateRsa(String algorithmName, int keySize) {
         KeyPair keyPair = generateRsaKey(algorithmName, keySize);
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
@@ -79,6 +118,13 @@ public class AuthorizationServerConfig {
                 .build();
     }
 
+    /**
+     * Generates a KeyPair for RSA
+     *
+     * @param algName the name of the algorithm used for KeyPair generation.
+     * @param keySize the size of the KeyPair.
+     * @return the generated KeyPair.
+     */
     private static KeyPair generateRsaKey(String algName, int keySize) {
         KeyPair keyPair;
         try {
@@ -91,6 +137,15 @@ public class AuthorizationServerConfig {
         return keyPair;
     }
 
+
+    /**
+     * Creates and returns the ProviderSettings object
+     * with the specified issuer value.
+     *
+     * @param issuer the issuer value to be set in the ProviderSettings object
+     * @return the ProviderSettings object with the specified issuer value
+     * @throws IllegalArgumentException if the issuer parameter is null or empty
+     */
     @Bean
     public ProviderSettings providerSettings(@Value(OAuth2Properties.OAUTH2_ISSUER) String issuer) {
         return ProviderSettings.builder()
@@ -98,6 +153,14 @@ public class AuthorizationServerConfig {
                 .build();
     }
 
+    /**
+     * Returns an OAuth2TokenCustomizer object for
+     * customizing JWT encoding contexts.
+     *
+     * @param userRoles the name of the JWT claim for user roles
+     * @return an OAuth2TokenCustomizer object for customizing JWT encoding contexts
+     * @throws IllegalArgumentException if the userRoles parameter is null or empty
+     */
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer(
             @Value(OAuth2Properties.JWT_CLAIM_USER_ROLES) String userRoles) {

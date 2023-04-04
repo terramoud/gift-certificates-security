@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 /**
  * Represents relevant entity from database's table
+ * This class represents a certificate in the system.
+ * Certificates can be purchased by users and can have
+ * multiple tags associated with them.
  *
  * @author Oleksadr Koreshev
  * @since 1.0
@@ -62,6 +65,17 @@ public class Certificate extends AbstractEntity implements Serializable {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    /**
+     * Constructs a certificate with the given parameters.
+     *
+     * @param id The ID of the certificate.
+     * @param name The name of the certificate.
+     * @param description The description of the certificate.
+     * @param price The price of the certificate.
+     * @param duration The duration of the certificate in days.
+     * @param createDate The creation date of the certificate.
+     * @param lastUpdateDate The last update date of the certificate.
+     */
     public Certificate(Long id,
                        String name,
                        String description,
@@ -78,6 +92,13 @@ public class Certificate extends AbstractEntity implements Serializable {
         this.lastUpdateDate = lastUpdateDate;
     }
 
+    /**
+     * Merges the given set of tags with the existing tags
+     * of the certificate, updating the set of tags.
+     * If a tag already exists, it will be updated with the new values.
+     *
+     * @param newTags The set of tags to merge.
+     */
     public void mergeTags(Set<Tag> newTags) {
         Set<Long> newTagsIds = newTags.stream()
                 .map(Tag::getId)
@@ -89,16 +110,28 @@ public class Certificate extends AbstractEntity implements Serializable {
         this.tags.addAll(newTags);
     }
 
+    /**
+     * Adds provided tags to the certificate.
+     * @param tags a set of tags to add.
+     */
     public void addTags(Set<Tag> tags) {
         this.tags.addAll(tags);
     }
 
+    /**
+     * Updates create date and last update date with the current
+     * date and time before inserting a new certificate.
+     */
     @PrePersist
     protected void onCreate() {
         this.createDate = LocalDateTime.now();
         this.lastUpdateDate = createDate;
     }
 
+    /**
+     * Updates last update date with the current date and time
+     * before updating a certificate.
+     */
     @PreUpdate
     protected void onUpdate() {
         this.lastUpdateDate = LocalDateTime.now();

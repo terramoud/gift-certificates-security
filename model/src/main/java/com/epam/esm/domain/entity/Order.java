@@ -7,6 +7,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * The Order entity represents a purchase made by a
+ * user for a gift certificate.
+ * The order contains information about the certificate
+ * being purchased, the cost of the purchase,
+ * the user making the purchase, and the creation date of the order.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +46,10 @@ public class Order extends AbstractEntity implements Serializable {
     @JoinColumn(name = "gift_certificate_id", nullable = false)
     private Certificate certificate;
 
+    /**
+     * Sets the create date to the current time
+     * before the order is persisted.
+     */
     @PrePersist
     protected void onCreate() {
         this.createDate = LocalDateTime.now();

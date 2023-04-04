@@ -7,6 +7,13 @@ import javax.validation.constraints.Pattern;
 
 import static com.epam.esm.config.ConstantsValidationMessages.*;
 
+/**
+ * A data transfer object (DTO) for a user's password
+ * Contains fields for the user's current and new passwords
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 public class PasswordDto {
 

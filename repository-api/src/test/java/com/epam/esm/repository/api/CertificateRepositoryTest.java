@@ -29,6 +29,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The {@code CertificateRepositoryTest} class provides integration tests
+ * for {@link CertificateRepository} implementation.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RepositoryTestConfig.class)
 @Transactional
@@ -46,6 +53,15 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * Tests the {@link CertificateRepository#findAll(CertificateFilterDto, Pageable)}
+     * method to ensure that it returns a sorted list of certificates
+     * according to the specified properties values.
+     *
+     * @param certificateFilterDto the filter criteria to be applied
+     *                             to the certificates.
+     * @param pageable the page information to be used for pagination.
+     * @param expected the expected list of certificates after sorting
+     *                 according to the specified properties values.
      * @see CertificateRepository#findAll(CertificateFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -58,6 +74,16 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * Tests the {@link CertificateRepository#findAll(CertificateFilterDto, Pageable)}
+     * method to ensure that it returns a sorted list of certificates
+     * according to the specified field values in the filter.
+     *
+     * @param certificateFilterDto the filter criteria to be applied
+     *                            to the certificates.
+     * @param pageable the page information to be used for pagination.
+     * @param expected the expected list of certificates after
+     *                 sorting according to the specified field
+     *                 values in the filter.
      * @see CertificateRepository#findAll(CertificateFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -70,6 +96,14 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * This test case verifies that the method `findAll` of the `CertificateRepository` interface
+     * returns a sorted list of certificates by searching part of their name or description.
+     * It uses the test cases provided by the method `testCasesForFindAllBySearchPartOfNameOrDescription`
+     * as input parameters to call the `findAll` method and compare the expected result with the actual result.
+     *
+     * @param certificateFilterDto the filter object for certificate search
+     * @param pageable the pagination object
+     * @param expected the list of expected certificates
      * @see CertificateRepository#findAll(CertificateFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -82,6 +116,15 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * This test case verifies that the method `findAllByTagId` of the `CertificateRepository` interface
+     * returns a sorted list of certificates by tag id. It uses the test cases provided by the method
+     * `testCasesForFindAllCertificatesByTagId` as input parameters to call the `findAllByTagId` method
+     * and compare the expected result with the actual result.
+     *
+     * @param certificateFilterDto the filter object for certificate search
+     * @param pageable the pagination object
+     * @param tagId the tag id
+     * @param expected the list of expected certificates
      * @see CertificateRepository#findAllByTagId(Long, CertificateFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -95,8 +138,16 @@ class CertificateRepositoryTest {
         assertEquals(expected, certificates);
     }
 
-
     /**
+     * This test case verifies that the method `findAllByTagName` of the `CertificateRepository` interface
+     * returns a sorted list of certificates by tag name. It uses the test cases provided by the method
+     * `testCasesForFindAllCertificatesByTagName` as input parameters to call the `findAllByTagName` method
+     * and compare the expected result with the actual result.
+     *
+     * @param certificateFilterDto the filter object for certificate search
+     * @param pageable the pagination object
+     * @param tagName the tag name
+     * @param expected the list of expected certificates
      * @see CertificateRepository#findAllByTagName(String, CertificateFilterDto, Pageable)
      */
     @ParameterizedTest
@@ -112,6 +163,16 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * Tests if the method findById(Object) of CertificateRepository
+     * interface returns the expected Certificate object that
+     * matches the given ID.
+     * This test creates a new TestCertificates object to get
+     * the expected certificate and calls the findById method
+     * with an ID of 1L from certificateRepository object.
+     * It then compares the returned Optional<Certificate>
+     * object with the expected Optional<Certificate> object
+     * using the assertEquals method.
+     *
      * @see CertificateRepository#findById(Object)
      */
     @Test
@@ -123,6 +184,15 @@ class CertificateRepositoryTest {
     }
 
     /**
+     * Test that saving a new certificate creates a new entity in the database.
+     *
+     * This method creates a new Certificate object and sets its properties,
+     * then saves it using the {@link CertificateRepository#save(Object)}
+     * method. It then retrieves the saved certificate using the
+     * {@link CertificateRepository#findById(Object)} method, and
+     * asserts that the expected certificate and the saved
+     * certificate are equal.
+     *
      * @see CertificateRepository#save(Object)
      */
     @Test
@@ -147,7 +217,13 @@ class CertificateRepositoryTest {
     }
 
     /**
-     * @see BaseRepository#save(Object)
+     * Updates an existing certificate in the database with new
+     * values and returns the updated certificate.
+     *
+     * @see CertificateRepository#save(Object)
+     * @see TestTags
+     * @throws NoSuchElementException if no element with the given
+     *          id was found in the database
      */
     @Test
     void testUpdateShouldUpdateEntityInDB() {
@@ -162,7 +238,12 @@ class CertificateRepositoryTest {
         assertEquals(expected.getTags(), updatedCertificate.getTags());
     }
 
+
     /**
+     * This test method checks if an entity is deleted from the
+     * database when delete method is called and the corresponding
+     * entity is no longer found in the database.
+     *
      * @see CertificateRepository#delete(Object)
      */
     @Test

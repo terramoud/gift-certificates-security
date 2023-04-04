@@ -13,9 +13,24 @@ import org.springframework.stereotype.Component;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * This class is responsible for adding HATEOAS links to
+ * the {@link CertificateDto} objects.
+ * The links are added using the
+ * {@link org.springframework.hateoas.server.mvc.WebMvcLinkBuilder}
+ * and include links to GET, DELETE, UPDATE and CREATE
+ * certificate endpoints, as well as to the 'gift-certificates'
+ * endpoint for retrieving all available certificates.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Component
 public class CertificateHateoasAdder implements HateoasAdder<CertificateDto> {
 
+    /**
+     * The default page size for certificate pagination.
+     */
     @Value("${page-size.default}")
     private int defaultSize;
     private static final Class<CertificateController> CONTROLLER = CertificateController.class;

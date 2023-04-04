@@ -1,5 +1,11 @@
 package com.epam.esm.exceptions;
 
+/**
+ * Exception thrown when a resource name is invalid.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class InvalidResourceNameException extends ResourceException {
     public InvalidResourceNameException(String message, String resourceName, ErrorCodes errorCode) {
         super(message, resourceName, errorCode);

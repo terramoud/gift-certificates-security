@@ -8,6 +8,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * This class is the entry point of the application.
+ * It configures the Spring Boot application, and sets up
+ * a message source bean and a translator bean.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @SpringBootApplication
 @EnableJpaRepositories
 public class AuthorizationServerApplication {
@@ -23,9 +31,10 @@ public class AuthorizationServerApplication {
     }
 
     /**
-     * Set the list of resource files here
+     * Configures a ResourceBundleMessageSource bean to be
+     * used as the message source for the internationalization
      *
-     * @return resourceBundleMessageSource
+     * @return the message source bean
      */
     @Bean
     public ResourceBundleMessageSource messageSource() {
@@ -36,6 +45,12 @@ public class AuthorizationServerApplication {
         return rs;
     }
 
+    /**
+     * Configures a Translator bean that uses the message
+     * source bean to translate messages
+     *
+     * @return the translator bean
+     */
     @Bean
     public Translator translator() {
         return new Translator(messageSource());

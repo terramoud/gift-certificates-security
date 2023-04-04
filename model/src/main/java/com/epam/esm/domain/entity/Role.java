@@ -6,7 +6,8 @@ import java.util.List;
 /**
  * Represents relevant entity from database's table
  *
- * @author Alexander Koreshev
+ * @author Oleksandr Koreshev
+ * @since 1.0
  */
 public enum Role {
     ADMIN, USER;

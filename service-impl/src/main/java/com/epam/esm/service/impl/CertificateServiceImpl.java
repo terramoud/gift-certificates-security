@@ -21,6 +21,14 @@ import java.util.Set;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 
+/**
+ * CertificateServiceImpl is an implementation of CertificateService
+ * interface. It provides methods to perform CRUD operations
+ * on CertificateDto objects.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Service

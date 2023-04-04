@@ -30,6 +30,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+/**
+ * This is a test class for {@link TagServiceImpl}.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @ContextConfiguration(classes = {ServiceTestConfig.class})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest

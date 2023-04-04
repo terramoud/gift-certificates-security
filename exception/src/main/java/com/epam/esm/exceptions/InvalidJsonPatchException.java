@@ -2,6 +2,13 @@ package com.epam.esm.exceptions;
 
 import lombok.Getter;
 
+/**
+ * Exception thrown when a JSON patch operation
+ * cannot be applied to a target object.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Getter
 public class InvalidJsonPatchException extends RuntimeException {
     /**

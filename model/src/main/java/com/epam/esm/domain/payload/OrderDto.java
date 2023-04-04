@@ -14,6 +14,18 @@ import java.time.LocalDateTime;
 
 import static com.epam.esm.domain.validation.ValidationConstants.*;
 
+/**
+ * The {@code OrderDto} class represents a DTO for an order entity.
+ * <p>
+ * It contains fields related to the order's properties, including
+ * its ID, cost, creation date, user, and gift certificate.
+ * The class also extends the {@link RepresentationModel} class
+ * to support the creation of self-described RESTful applications.
+ *
+ * </p>
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +37,6 @@ public class OrderDto extends RepresentationModel<OrderDto> {
 
     private BigDecimal cost;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = TIME_PATTERN)
     private LocalDateTime createDate;
 

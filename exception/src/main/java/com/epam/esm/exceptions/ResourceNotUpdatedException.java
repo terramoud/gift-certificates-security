@@ -1,5 +1,11 @@
 package com.epam.esm.exceptions;
 
+/**
+ * Exception thrown when a resource cannot be updated.
+ *
+ * @author Oleksandr Koreshev
+ * @since 1.0
+ */
 public class ResourceNotUpdatedException extends ResourceException {
     public ResourceNotUpdatedException(String message, Long resourceId, ErrorCodes errorCode) {
         super(message, resourceId, errorCode);
