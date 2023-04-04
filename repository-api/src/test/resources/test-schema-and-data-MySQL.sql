@@ -248,8 +248,7 @@ INSERT INTO users VALUES (DEFAULT, 'Trinity', 'Trinity@gmail.com', '$2a$10$PY3Yt
 -- -----------------------------------------------------
 -- fill Orders
 -- -----------------------------------------------------
-INSERT INTO orders
-VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
+INSERT INTO orders VALUES (DEFAULT, 10.10, '2023-01-03T07:37:14.974', 1, 1);
 INSERT INTO orders
 VALUES (DEFAULT, 30.30, '2023-01-04T07:37:14.974', 1, 2);
 INSERT INTO orders
