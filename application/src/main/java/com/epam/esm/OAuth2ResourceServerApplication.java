@@ -4,6 +4,8 @@ import com.epam.esm.exceptions.Translator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.domain.Sort;
@@ -23,7 +25,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @EnableJpaRepositories
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
-public class OAuth2ResourceServerApplication {
+public class OAuth2ResourceServerApplication extends SpringBootServletInitializer {
 
     @Value("${sort.default.entity-field}")
     public String id;
@@ -36,6 +38,11 @@ public class OAuth2ResourceServerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(OAuth2ResourceServerApplication.class, args);
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(OAuth2ResourceServerApplication.class);
     }
 
     /**
