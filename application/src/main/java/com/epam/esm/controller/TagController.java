@@ -29,7 +29,7 @@ import static com.epam.esm.domain.validation.ValidationConstants.*;
  * @since 1.0
  */
 @RestController
-@RequestMapping("api/v1/tags")
+@RequestMapping("api/v2/tags")
 @AllArgsConstructor
 @Validated
 public class TagController {
